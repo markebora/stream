@@ -187,6 +187,23 @@
   #dkTrans .pad{gap:8px}
   #subMenu{z-index:81!important}
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap">
+<style>
+/* PreCenter look: near-black panels, Disciples gold */
+:root{--bg:#000;--dock:#151518;--head:#1b1b1f;--line:#2d2d32;--sel:#3a3210;--hov:#232327;--txt:#f7f7f7;--dim:#a7a7ae;--btn:#232327;--red:#e5484d;--green:#7da35f;--acc:#E8B923;--accink:#171200;--r:10px}
+html,body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+h4,.brand,#pTitle,#auth h1{font-family:Poppins,Inter,sans-serif}
+#dlg nav div.on{background:rgba(232,185,35,.16);box-shadow:inset 3px 0 0 var(--acc)}
+button:hover{border-color:var(--acc)}:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+#auth{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;user-select:text}
+#auth .card{width:min(380px,100%);background:var(--dock);border:1px solid var(--line);border-radius:10px;padding:26px;display:flex;flex-direction:column;gap:12px}
+#auth h1{margin:0;font-size:24px;font-weight:800;text-align:center}#auth .sub{color:var(--dim);text-align:center;margin:0 0 6px}
+#auth label{display:flex;flex-direction:column;gap:4px;color:var(--dim);font-size:11.5px}
+#auth input{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 10px;font-size:13px;color:var(--txt)}
+#auth input:focus{outline:none;border-color:var(--acc)}
+#auth button{background:var(--acc);color:var(--accink);border:0;border-radius:6px;padding:10px;font-weight:700;font-size:13px;cursor:pointer}#auth button:disabled{opacity:.6}
+#auth .er{min-height:16px;color:#e5484d;font-size:12px;text-align:center}
+</style>
 </head>
 <body>
 <div id="app">
@@ -247,6 +264,7 @@
   </div>
 </div>
 
+<div id="auth"><div class="card"><h1>Disciples Stream</h1><p class="sub" id="auSub">Sign in with your Disciples account</p><label>Email<input id="auEm" type="email" autocomplete="username"></label><label>Password<input id="auPw" type="password" autocomplete="current-password"></label><button id="auGo">Sign in</button><div class="er" id="auEr"></div></div></div>
 <div id="addMenu" class="pm"></div><div id="subMenu" class="pm"></div>
 
 <div id="shade"><div id="dlg">
@@ -1300,7 +1318,7 @@ function recs() {
 function stats() { info('Stats', ['Canvas:  ' + cfg.res.replace('x', ' × ') + ' at ' + cfg.fps + ' FPS target', 'Output FPS:  ' + $('fps').textContent, 'Stream:  ' + (live ? $('tLive').textContent + '  ' + $('kbs').textContent + ' kb/s' : 'off'), 'Recording:  ' + (recd ? $('tRec').textContent : 'off'), 'Scenes:  ' + scenes.length, 'Profile:  ' + profCur, 'Scene collection:  ' + collCur], 380); }
 function renderMenus() {
   dyn('mFile', [{ t: 'Show Recordings', f: recs }, { t: 'Remux Recordings', f: () => note('Remux needs the desktop version; browser recordings are WebM') }, { sep: 1 }, { t: 'Settings', f: () => openSettings() }, { sep: 1 },
-    { t: 'Start / Stop Streaming', f: toggleStream }, { t: 'Start / Stop Recording', f: toggleRec }, { t: 'Pause / Resume Recording', f: pauseRec }, { t: 'Split recording now', f: splitRec }, { t: 'Start / Stop Replay Buffer', f: () => toggleRB() }, { t: 'Save Replay', f: saveRB }, { t: 'Screenshot output', f: shotOutput }, { sep: 1 }, { t: 'Exit', f: () => $('bExit').click() }]);
+    { t: 'Start / Stop Streaming', f: toggleStream }, { t: 'Start / Stop Recording', f: toggleRec }, { t: 'Pause / Resume Recording', f: pauseRec }, { t: 'Split recording now', f: splitRec }, { t: 'Start / Stop Replay Buffer', f: () => toggleRB() }, { t: 'Save Replay', f: saveRB }, { t: 'Screenshot output', f: shotOutput }, { sep: 1 }, { t: 'Sign out' + (window.dscUser ? ' (' + window.dscUser + ')' : ''), f: () => authOut() }, { t: 'Exit', f: () => $('bExit').click() }]);
   dyn('mEdit', [{ t: 'Undo', off: 1 }, { t: 'Redo', off: 1 }, { sep: 1 }, { t: 'Copy source', f: copySrc }, { t: 'Paste source', f: pasteSrc }, { sep: 1 }, { t: 'Transform…', f: openTransform }, { t: 'Order: Move up', f: () => moveSrc(-1) }, { t: 'Order: Move down', f: () => moveSrc(1) },
     { t: 'Rename source', f: renameSrc }, { t: 'Filters', f: openSrcFilters }, { t: 'Source properties', f: openProps }, { t: 'Screenshot source', f: () => { const q = curSrc(); q ? shotSource(q) : note('Select a source first'); } }, { t: 'Remove source', f: removeSource }, { sep: 1 }, { t: 'Preferences…', f: () => openSettings('pg') }]);
   dyn('mView', [{ t: 'Fullscreen interface', chk: !!document.fullscreenElement, f: () => $('tbFull').click() }, { t: 'Studio Mode', chk: studio, f: () => setStudio(!studio) }, { sep: 1 },
@@ -1398,6 +1416,33 @@ function streamLink() {
     up(); t = setInterval(up, 700);
   }, { width: 460, after: () => clearInterval(t) });
 }
+
+/* ---------- Disciples account sign-in (Firebase, same project as PreCenter) ---------- */
+const DSC_SITE = 'https://worship-chords-rho.vercel.app'; let dscAuth = null;
+const loadJs = (src) => new Promise((res, rej) => { const t = document.createElement('script'); t.src = src; t.onload = res; t.onerror = () => rej(new Error('Could not load the sign-in tools. Check your internet connection.')); document.head.appendChild(t); });
+const auErr = (e) => ({ 'auth/invalid-credential': 'Wrong email or password.', 'auth/wrong-password': 'Wrong email or password.', 'auth/user-not-found': 'Wrong email or password.', 'auth/invalid-email': 'Enter a valid email.', 'auth/too-many-requests': 'Too many tries. Wait a moment and try again.', 'auth/network-request-failed': 'No connection. Check your internet.' }[e && e.code] || (e && e.message) || 'Could not sign in.');
+function authShow(sub, form) { $('auth').style.display = 'flex'; $('auSub').textContent = sub; ['auEm', 'auPw', 'auGo'].forEach((i) => $(i).style.display = form ? '' : 'none'); $('auEm').parentNode.style.display = $('auPw').parentNode.style.display = form ? '' : 'none'; if (form) $('auEm').focus(); }
+function authOk(u) { window.dscUser = u.email || ''; $('auth').style.display = 'none'; $('auPw').value = ''; renderMenus(); fit(); }
+async function authGo() {
+  const em = $('auEm').value.trim(), pw = $('auPw').value; if (!em || !pw) { $('auEr').textContent = 'Enter your email and password.'; return; }
+  $('auGo').disabled = true; $('auEr').textContent = '';
+  try { await dscAuth.signInWithEmailAndPassword(em, pw); authOk(dscAuth.currentUser); } catch (e) { $('auEr').textContent = auErr(e); } $('auGo').disabled = false;
+}
+async function authOut() { try { stopStream(); stopRec(); await dscAuth.signOut(); } catch {} window.dscUser = ''; $('auEr').textContent = ''; authShow('Sign in with your Disciples account', true); renderMenus(); }
+async function authInit() {
+  authShow('Connecting…', false);
+  try {
+    const base = 'https://www.gstatic.com/firebasejs/10.14.1/';
+    await loadJs(base + 'firebase-app-compat.js'); await loadJs(base + 'firebase-auth-compat.js');
+    const r = await fetch((location.origin === DSC_SITE ? '' : DSC_SITE) + '/api/firebase-config'); if (!r.ok) throw new Error('Could not reach Disciples (' + r.status + ').');
+    const c = await r.json(); if (!c || !c.apiKey) throw new Error('Disciples is missing its Firebase settings.');
+    if (!firebase.apps.length) firebase.initializeApp(c); dscAuth = firebase.auth();
+    const u = await new Promise((res) => { const off = dscAuth.onAuthStateChanged((x) => { off(); res(x); }); });
+    if (u) authOk(u); else authShow('Sign in with your Disciples account', true);
+  } catch (e) { authShow(e.message || 'Could not connect.', false); $('auEr').textContent = ''; const b = $('auGo'); b.style.display = ''; b.textContent = 'Try again'; b.onclick = () => { b.textContent = 'Sign in'; b.onclick = authGo; authInit(); }; }
+}
+$('auGo').onclick = authGo; $('auPw').onkeydown = (e) => { if (e.key === 'Enter') authGo(); }; $('auEm').onkeydown = (e) => { if (e.key === 'Enter') $('auPw').focus(); };
+authInit();
 renderMenus();
 
 function syncAir() {
