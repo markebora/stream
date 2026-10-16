@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mini Streamer</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  input, button { width: 100%; padding: .6rem; margin: .3rem 0; font-size: 1rem; box-sizing: border-box; }
+  video { width: 100%; background: #000; border-radius: 8px; }
+</style>
+</head>
+<body>
+  <h2>Mini Streamer</h2>
+  <input id="url" placeholder="rtmps://live-api-s.facebook.com:443/rtmp/">
+  <input id="key" placeholder="Stream key" type="password">
+  <button id="start">Go Live</button>
+  <button id="stop" disabled>Stop</button>
+  <p id="status">Idle</p>
+  <video id="preview" autoplay muted playsinline></video>
+
+<script>
+let ws, recorder, stream;
+const $ = (id) => document.getElementById(id);
+
+$('start').onclick = async () => {
+  try {
+    const screen = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 } });
+    const mic = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream = new MediaStream([...screen.getVideoTracks(), ...mic.getAudioTracks()]);
+    $('preview').srcObject = stream;
+
+    ws = new WebSocket(`ws://${location.host}`);
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ rtmpUrl: $('url').value.trim() + $('key').value.trim() }));
+      recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp8,opus', videoBitsPerSecond: 3000000 });
+      recorder.ondataavailable = async (e) => {
+        if (e.data.size && ws.readyState === 1) ws.send(await e.data.arrayBuffer());
+      };
+      recorder.start(250); // chunk every 250ms
+      $('status').textContent = 'LIVE';
+      $('start').disabled = true; $('stop').disabled = false;
+    };
+    ws.onclose = stop;
+    screen.getVideoTracks()[0].onended = stop;
+  } catch (err) {
+    $('status').textContent = 'Error: ' + err.message;
+  }
+};
+
+function stop() {
+  if (recorder && recorder.state !== 'inactive') recorder.stop();
+  if (stream) stream.getTracks().forEach((t) => t.stop());
+  if (ws) ws.close();
+  $('status').textContent = 'Stopped';
+  $('start').disabled = false; $('stop').disabled = true;
+}
+$('stop').onclick = stop;
+</script>
+</body>
+</html>
