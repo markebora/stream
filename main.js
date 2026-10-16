@@ -33,9 +33,11 @@ function createWindow() {
   win.on('closed', () => { win = null; });
 }
 
+function lanIp() { const n = require('os').networkInterfaces(); for (const k in n) for (const i of n[k]) if (i.family === 'IPv4' && !i.internal) return i.address; return 'localhost'; }
 function showCode() {
-  dialog.showMessageBox(win, { type: 'info', title: 'Pairing code', message: 'Pairing code: ' + srv.CODE, detail: 'Enter this in PreCenter (Screens > Stream link).\nServer address: this computer\'s address with port ' + srv.PORT + ', for example localhost:' + srv.PORT + ' on this computer.', buttons: ['Copy code', 'Close'] })
-    .then((r) => { if (r.response === 0) clipboard.writeText(srv.CODE); });
+  const addr = lanIp() + ':' + srv.PORT;
+  dialog.showMessageBox(win, { type: 'info', title: 'Link PreCenter', message: 'Server address: ' + addr + '\nPairing code: ' + srv.CODE, detail: 'In PreCenter open Screens > Stream link and enter these two. On this same computer you can use localhost:' + srv.PORT + ' instead.', buttons: ['Copy both', 'Close'] })
+    .then((r) => { if (r.response === 0) clipboard.writeText('Address: ' + addr + '\nCode: ' + srv.CODE); });
 }
 
 app.whenReady().then(() => {
@@ -49,7 +51,7 @@ app.whenReady().then(() => {
     } catch { cb({}); }
   });
   Menu.setApplicationMenu(Menu.buildFromTemplate([
-    { label: 'App', submenu: [{ label: 'Show pairing code…', click: showCode }, { label: 'Copy pairing code', click: () => clipboard.writeText(srv.CODE) }, { type: 'separator' }, { role: 'quit' }] },
+    { label: 'App', submenu: [{ label: 'Link PreCenter (address and code)…', click: showCode }, { label: 'Copy pairing code', click: () => clipboard.writeText(srv.CODE) }, { type: 'separator' }, { role: 'quit' }] },
     { label: 'View', submenu: [{ role: 'reload' }, { role: 'togglefullscreen' }, { role: 'toggleDevTools' }] }
   ]));
   createWindow();
