@@ -27,6 +27,12 @@ const CODE = getCode();
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent((req.url || '/').split('?')[0]); if (p === '/') p = '/index.html';
+  if (p === '/api/info') {   // only the computer running the server may read the pairing code
+    const a = req.socket.remoteAddress || '';
+    if (!/^(::1|127\.0\.0\.1|::ffff:127\.0\.0\.1)$/.test(a)) { res.writeHead(403); return res.end(); }
+    const ips = Object.values(os.networkInterfaces()).flat().filter((i) => i && i.family === 'IPv4' && !i.internal).map((i) => i.address);
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); return res.end(JSON.stringify({ code: CODE, port: PORT, ips }));
+  }
   const f = path.normalize(path.join(PUB, p));
   if (!f.startsWith(PUB)) { res.writeHead(403); return res.end(); }
   fs.readFile(f, (err, data) => {
@@ -56,6 +62,7 @@ outWss.on('connection', (ws) => {
   ws.on('message', (data, isBin) => {
     if (!ff) {
       let m; try { m = JSON.parse(data.toString()); } catch { return ws.close(1003, 'expected settings'); }
+      if (String(m.code || '') !== CODE) return ws.close(4001, 'wrong code');
       const url = String(m.rtmpUrl || '');
       if (!/^rtmps?:\/\//i.test(url)) return ws.close(1008, 'bad stream address');
       if (!hasFfmpeg) { log('ffmpeg not found: install it and restart'); return ws.close(1011, 'ffmpeg missing'); }

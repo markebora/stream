@@ -1106,7 +1106,7 @@ let lws, lTimer;
 function linkConnect() {
   clearTimeout(lTimer); if (lws) { lws.onclose = null; lws.close(); lws = null; }
   if (!cfg.code) { $('dLink').className = 'dot'; $('linkTxt').textContent = 'no code set'; return; }
-  try { lws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/link?role=overlay&code=' + encodeURIComponent(cfg.code)); } catch { return; }
+  try { lws = new WebSocket(srvWs('/link?role=overlay&code=' + encodeURIComponent(cfg.code))); } catch { return; }
   lws.onopen = () => { $('dLink').className = 'dot ok'; $('linkTxt').textContent = 'linked'; };
   lws.onmessage = (e) => {
     let m; try { m = JSON.parse(e.data); } catch { return; }
@@ -1125,16 +1125,16 @@ const mime = () => ['video/webm;codecs=vp8,opus', 'video/webm'].find((m) => Medi
 let live = null;
 function startStream() {
   if (!cfg.url || !cfg.key) { note('Set the stream server and key in Settings first'); openSettings('p1'); return; }
-  const ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host); ws.binaryType = 'arraybuffer';
+  const ws = new WebSocket(srvWs('')); ws.binaryType = 'arraybuffer';
   const L = live = { ws, t0: 0, bytes: 0, last: 0, rec: null };
   ws.onopen = () => {
-    ws.send(JSON.stringify({ rtmpUrl: cfg.url.trim() + cfg.key.trim() }));
+    ws.send(JSON.stringify({ rtmpUrl: cfg.url.trim() + cfg.key.trim(), code: cfg.code }));
     L.rec = new MediaRecorder(outStream(), { mimeType: mime(), videoBitsPerSecond: cfg.br * 1000, audioBitsPerSecond: (cfg.abr || 160) * 1000 });
     L.rec.ondataavailable = async (e) => { if (e.data.size && ws.readyState === 1) { const b = await e.data.arrayBuffer(); L.bytes += b.byteLength; ws.send(b); } };
     L.rec.start(250); L.t0 = Date.now();
     $('bStream').textContent = 'Stop Streaming'; $('bStream').className = 'live'; $('dLive').className = 'dot on';
   };
-  ws.onerror = () => note('Could not reach the Stream server');
+  ws.onerror = () => note('Could not reach the Stream server. Check the Server address in StreamLink.');
   ws.onclose = () => stopStream(true);
 }
 function stopStream(fromClose) {
@@ -1374,6 +1374,12 @@ stats = function () { const m = performance.memory; info('Stats', ['Canvas:  ' +
 /* ---------- PreCenter StreamLink + third screen ---------- */
 const pc = { stream: null, video: null }; let pcPrev = null;
 function setPcOn(on) { window.pcOn = on; $('pccol').style.display = on ? '' : 'none'; $('pglbl').style.display = (on || studio) ? '' : 'none'; fit(); renderMenus(); }
+/* server address: empty = the site this page came from; otherwise e.g. localhost:3000 or stream.example.com */
+function srvWs(path) {
+  const raw = (cfg.srv || '').trim(), h = raw ? raw.replace(/^[a-z]+:\/\//i, '').replace(/\/+$/, '') : location.host, local = /^(localhost|127\.0\.0\.1|\[::1\])(:|$)/.test(h);
+  const sec = /^(https|wss):/i.test(raw) || (location.protocol === 'https:' && !local);
+  return (sec ? 'wss://' : 'ws://') + h + path;
+}
 async function pcConnect() {
   try {
     if (pc.stream) pcDisconnect();
@@ -1402,17 +1408,36 @@ function pcLive() {
 }
 function pcBack() { if (pcPrev && scenes.includes(pcPrev)) { goScene(pcPrev); note('Back to ' + pcPrev.name); } else note('No earlier scene to return to'); }
 $('pcTake').onclick = pcLive; $('pcBack').onclick = pcBack; $('pcOff').onclick = pcDisconnect;
+let slInfo = null;
+function slPair() { return fetch('/api/info').then((r) => r.ok ? r.json() : null).catch(() => null).then((i) => { slInfo = i; if (i && i.code && cfg.code !== i.code) { cfg.code = i.code; store.set('cfg', cfg); linkConnect(); } return i; }); }
+slPair();
 function streamLink() {
-  let t;
+  let t, mode = store.get('slMode', 'local');
+  const copy = (txt) => { try { navigator.clipboard.writeText(txt).then(() => note('Copied')); } catch { note('Could not copy'); } };
   modal('PreCenter StreamLink', (b) => {
-    b.innerHTML = '<div class="hint">Link to PreCenter: <b id="slSt"></b></div><label class="fl">Pairing code <input id="slCode" type="text" placeholder="from the server window"></label>'
-      + '<div class="btnrow"><button id="slSave">Save and reconnect</button></div><div class="hint" id="slLast"></div><div style="border-top:1px solid var(--line)"></div>'
+    b.innerHTML = '<div class="hint">Link to PreCenter: <b id="slSt"></b></div>'
+      + '<div style="display:flex"><button id="slL" style="flex:1;border-radius:6px 0 0 6px;padding:8px">This computer</button><button id="slN" style="flex:1;border-radius:0 6px 6px 0;padding:8px">Another computer</button></div>'
+      + '<div class="hint" id="slHelp"></div>'
+      + '<label class="fl">Server <input id="slSv" placeholder="empty = this site, or localhost:3000"></label>'
+      + '<label class="fl">Address <input id="slAd" readonly><button id="slCa">Copy</button></label>'
+      + '<label class="fl">Code <input id="slCo" placeholder="from the server window"><button id="slCc">Copy</button></label>'
+      + '<div class="btnrow"><button id="slBoth">Copy both</button></div><div class="hint" id="slLast"></div><div style="border-top:1px solid var(--line)"></div>'
       + '<div class="hint">Presentation feed: choose PreCenter\'s output window (the one on the projector screen). It shows as a third screen here and can be taken live.</div>'
       + '<div class="btnrow"><button id="slConn"></button><button id="slTake">Take live</button><button id="slBack">Back</button></div>';
-    $('slCode').value = cfg.code;
-    $('slSave').onclick = () => { cfg.code = $('slCode').value.trim(); store.set('cfg', cfg); linkConnect(); note('Pairing code saved'); };
+    const fill = () => {
+      const port = (slInfo && slInfo.port) || location.port || '3000', ip = slInfo && slInfo.ips && slInfo.ips[0];
+      $('slAd').value = mode === 'local' ? 'localhost:' + port : (ip ? ip + ':' + port : '');
+      $('slHelp').textContent = mode === 'local' ? 'PreCenter is on this same computer. Put the address and code in PreCenter (Screens → Stream link).' : ip ? 'PreCenter is on another computer on the same Wi-Fi or network. Put this address and code in PreCenter.' : 'This computer\'s network address could not be found. Open Stream on the computer that runs the server.';
+      $('slCo').value = cfg.code; $('slSv').value = cfg.srv || '';
+      [['slL', 'local'], ['slN', 'net']].forEach(([i, m]) => { const x = $(i); x.style.background = mode === m ? 'var(--acc)' : ''; x.style.color = mode === m ? 'var(--accink)' : ''; x.style.fontWeight = mode === m ? '700' : ''; });
+    };
+    $('slL').onclick = () => { mode = 'local'; store.set('slMode', mode); fill(); }; $('slN').onclick = () => { mode = 'net'; store.set('slMode', mode); fill(); };
+    $('slSv').onchange = () => { cfg.srv = $('slSv').value.trim(); store.set('cfg', cfg); linkConnect(); note('Server address saved'); };
+    $('slCa').onclick = () => copy($('slAd').value); $('slCc').onclick = () => copy($('slCo').value); $('slBoth').onclick = () => copy('Address: ' + $('slAd').value + '\nCode: ' + $('slCo').value);
+    $('slCo').onchange = () => { cfg.code = $('slCo').value.trim(); store.set('cfg', cfg); linkConnect(); note('Pairing code saved'); };
     $('slConn').onclick = () => pc.stream ? pcDisconnect() : pcConnect(); $('slTake').onclick = pcLive; $('slBack').onclick = pcBack;
-    const up = () => { $('slSt').textContent = $('linkTxt').textContent; $('slConn').textContent = pc.stream ? 'Disconnect presentation' : 'Connect presentation'; $('slLast').textContent = lyr.text ? 'Current slide: ' + lyr.text.slice(0, 90).replace(/\s+/g, ' ') + (lyr.black ? '  (black)' : '') : 'No slide received yet.'; };
+    fill(); slPair().then(() => { if ($('slAd')) fill(); });
+    const up = () => { if (!$('slSt')) return; $('slSt').textContent = $('linkTxt').textContent; $('slConn').textContent = pc.stream ? 'Disconnect presentation' : 'Connect presentation'; $('slLast').textContent = lyr.text ? 'Current slide: ' + lyr.text.slice(0, 90).replace(/\s+/g, ' ') + (lyr.black ? '  (black)' : '') : 'No slide received yet.'; };
     up(); t = setInterval(up, 700);
   }, { width: 460, after: () => clearInterval(t) });
 }
