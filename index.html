@@ -190,10 +190,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap">
 <style>
 /* PreCenter look: near-black panels, Disciples gold */
-:root{--bg:#000;--dock:#151518;--head:#1b1b1f;--line:#2d2d32;--sel:#3a3210;--hov:#232327;--txt:#f7f7f7;--dim:#a7a7ae;--btn:#232327;--red:#e5484d;--green:#7da35f;--acc:#E8B923;--accink:#171200;--r:10px}
+:root{--bg:#000;--dock:#151518;--head:#1b1b1f;--line:#2d2d32;--sel:#3a3210;--accrgb:232,185,35;--hov:#232327;--txt:#f7f7f7;--dim:#a7a7ae;--btn:#232327;--red:#e5484d;--green:#7da35f;--acc:#E8B923;--accink:#171200;--r:10px}
 html,body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 h4,.brand,#pTitle,#auth h1{font-family:Poppins,Inter,sans-serif}
-#dlg nav div.on{background:rgba(232,185,35,.16);box-shadow:inset 3px 0 0 var(--acc)}
+#dlg nav div.on{background:rgba(var(--accrgb),.16);box-shadow:inset 3px 0 0 var(--acc)}
 button:hover{border-color:var(--acc)}:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 #auth{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;user-select:text}
 #auth .card{width:min(380px,100%);background:var(--dock);border:1px solid var(--line);border-radius:10px;padding:26px;display:flex;flex-direction:column;gap:12px}
@@ -210,9 +210,9 @@ button:hover{border-color:var(--acc)}:focus-visible{outline:2px solid var(--acc)
    near-black surfaces, one gold accent, Inter + Poppins, line icons
    ===================================================================== */
 :root{--bg:#09090b;--dock:#121215;--head:#18181c;--line:#26262c;--line2:#1d1d22;--hov:#212126;--txt:#f4f4f6;--dim:#9a9aa4;--btn:#1b1b20;
-  --acc:#E8B923;--acc2:#f4cf4f;--accink:#1a1400;--accsoft:rgba(232,185,35,.13);--accline:rgba(232,185,35,.5);--red:#e5484d;--green:#4cc38a;--r:14px;
+  --accrgb:232,185,35;--acc:#E8B923;--acc2:#f4cf4f;--accink:#1a1400;--accsoft:rgba(var(--accrgb),.13);--accline:rgba(var(--accrgb),.5);--red:#e5484d;--green:#4cc38a;--r:14px;
   --shadow:0 1px 0 rgba(255,255,255,.035) inset,0 10px 30px rgba(0,0,0,.38)}
-html,body{background:radial-gradient(1100px 380px at 50% -160px,rgba(232,185,35,.075),transparent 70%),var(--bg);font-size:13px;letter-spacing:.005em;-webkit-font-smoothing:antialiased}
+html,body{background:radial-gradient(1100px 380px at 50% -160px,rgba(var(--accrgb),.075),transparent 70%),var(--bg);font-size:13px;letter-spacing:.005em;-webkit-font-smoothing:antialiased}
 .ic2{display:block;flex:none}
 i[data-i],.tb i,.tools i{display:grid;place-items:center;font-style:normal}
 
@@ -222,11 +222,11 @@ button:hover{border-color:#3b3b44;background:#222228}
 button:active{transform:translateY(1px)}
 button:disabled{opacity:.42;cursor:default;transform:none}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-button.primary,.foot button.go,#bTrans,#bStream{background:linear-gradient(#f2c93c,#dfae15);color:var(--accink);border:1px solid #f6d462;font-weight:700;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 6px 16px rgba(232,185,35,.18)}
+button.primary,.foot button.go,#bTrans,#bStream{background:linear-gradient(var(--acc2),var(--acc));color:var(--accink);border:1px solid #f6d462;font-weight:700;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 6px 16px rgba(var(--accrgb),.18)}
 button.primary:hover,.foot button.go:hover,#bTrans:hover,#bStream:hover{background:linear-gradient(#f7d355,#e8b81d);border-color:#fbe083}
 input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),select,textarea{font:inherit;color:var(--txt);background:#0c0c0f;border:1px solid var(--line);border-radius:10px;padding:8px 11px;min-width:0;transition:border-color .14s,box-shadow .14s}
 input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]):hover,select:hover,textarea:hover{border-color:#383841}
-input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(--acc)!important;box-shadow:0 0 0 3px rgba(232,185,35,.16)}
+input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(--acc)!important;box-shadow:0 0 0 3px rgba(var(--accrgb),.16)}
 input::placeholder,textarea::placeholder{color:#62626c}
 input[readonly]{color:#d7d7dd}
 select{appearance:none;-webkit-appearance:none;padding-right:30px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa4' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
@@ -360,7 +360,7 @@ kbd{font:600 10px Inter,system-ui,sans-serif;color:var(--dim);border:1px solid v
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#0c0c0f;border:1px solid var(--line);border-radius:13px}
 .seg button{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 10px;border:0;border-radius:10px;background:transparent;color:var(--dim);font-weight:500}
 .seg button:hover{color:#fff;background:#17171b}
-.seg button.on{background:linear-gradient(#f2c93c,#dfae15);color:var(--accink);font-weight:700;box-shadow:0 4px 14px rgba(232,185,35,.2)}
+.seg button.on{background:linear-gradient(var(--acc2),var(--acc));color:var(--accink);font-weight:700;box-shadow:0 4px 14px rgba(var(--accrgb),.2)}
 .sl-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.sl-top .hint{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sl-help{margin:-2px 2px 0}
 .pill{display:inline-flex;align-items:center;gap:7px;padding:4px 12px 4px 10px;border-radius:999px;font-size:11.5px;font-weight:600;background:#1b1b20;border:1px solid var(--line);color:var(--dim)}
@@ -395,9 +395,9 @@ details.adv summary:hover{color:#fff}details.adv .kv{margin-top:12px}
 .sb{border:2px solid var(--acc);border-radius:2px;box-shadow:0 0 0 1px #0009}
 .sb i{width:11px;height:11px;border-radius:3px;background:var(--acc);box-shadow:0 0 0 1px #000a}
 .gh{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.lg{position:absolute;border:1.5px dashed rgba(232,185,35,.7);border-radius:4px;background:rgba(232,185,35,.05)}
+.lg{position:absolute;border:1.5px dashed rgba(var(--accrgb),.7);border-radius:4px;background:rgba(var(--accrgb),.05)}
 .lg span{pointer-events:auto;cursor:move;position:absolute;left:6px;top:5px;font:600 10px Inter,system-ui,sans-serif;letter-spacing:.04em;color:var(--acc);background:#000b;padding:2px 8px;border-radius:999px}
-.lg.has{border-color:rgba(232,185,35,.3);background:none}.lg.has span{display:none}
+.lg.has{border-color:rgba(var(--accrgb),.3);background:none}.lg.has span{display:none}
 
 /* ---------- command palette ---------- */
 #cmdk{position:fixed;inset:0;z-index:95;display:none;align-items:flex-start;justify-content:center;padding-top:11vh;background:rgba(3,3,5,.72);backdrop-filter:blur(5px)}
@@ -409,6 +409,21 @@ details.adv summary:hover{color:#fff}details.adv .kv{margin-top:12px}
 #cmdList div.on{background:var(--accsoft);box-shadow:inset 0 0 0 1px var(--accline)}
 #cmdList .none{color:var(--dim);cursor:default;justify-content:center;padding:24px}
 .cmdft{display:flex;gap:18px;padding:10px 18px;border-top:1px solid var(--line2);color:var(--dim);font-size:11px}
+</style>
+<style id="pc5">
+/* ---- feature additions: tracks, filters, multiview, docks, scripts ---- */
+.trk{display:flex;gap:8px}
+.tk{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--dim)}
+.tk input[type=checkbox]{width:28px;height:16px}.tk input[type=checkbox]::after{top:2px;left:2px;width:12px;height:12px}.tk input[type=checkbox]:checked::after{transform:translateX(12px)}
+.fe .fls .row .eye{display:grid;place-items:center;width:22px;height:22px;border-radius:6px;color:#b0b0b9;cursor:pointer;margin-left:auto}
+.fe .fls .row .off{opacity:.38}
+html.rm *,html.rm *::before,html.rm *::after{animation:none!important;transition:none!important}
+.acc-row{display:flex;gap:8px;flex-wrap:wrap}.acc-row button{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid transparent;min-width:0}.acc-row button.on{border-color:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.6)}
+#po.simple .adv-only{display:none}
+.split{flex:none;background:transparent;z-index:5}.split:hover{background:var(--accline)}
+.split.sv{width:6px;margin:0 -4px;cursor:col-resize}.split.sh{position:absolute;left:10px;right:10px;top:-7px;height:8px;cursor:row-resize}
+.dock.floating{box-shadow:0 18px 50px rgba(0,0,0,.6)!important;border:1px solid var(--accline)!important}.dock.floating>h4{cursor:move}
+.dock>h4 .dkfloat:hover{color:var(--acc);border-color:var(--acc)}
 </style>
 </head>
 <body>
@@ -471,7 +486,7 @@ details.adv summary:hover{color:#fff}details.adv .kv{margin-top:12px}
   </div>
 </div>
 
-<div id="auth"><div class="card"><h1>Disciples Stream</h1><p class="sub" id="auSub">Sign in with your Disciples account</p><label>Email<input id="auEm" type="email" autocomplete="username"></label><label>Password<input id="auPw" type="password" autocomplete="current-password"></label><button id="auGo">Sign in</button><div class="er" id="auEr"></div><button id="auSkip" type="button" style="background:transparent;color:#a7a7ae;border:1px solid #2d2d32;font-weight:500">Preview the UI without signing in</button></div></div>
+<div id="auth"><div class="card"><h1>Disciples Stream</h1><p class="sub" id="auSub">Sign in with your Disciples account</p><label>Email<input id="auEm" type="email" autocomplete="username"></label><label>Password<input id="auPw" type="password" autocomplete="current-password"></label><button id="auGo">Sign in</button><div class="er" id="auEr"></div></div></div>
 <div id="addMenu" class="pm"></div><div id="subMenu" class="pm"></div>
 <div id="cmdk"><div class="box"><input id="cmdIn" placeholder="Search functions and buttons…" autocomplete="off" spellcheck="false"><div id="cmdList"></div><div class="cmdft"><span>↑ ↓ to move</span><span>Enter to run</span><span>Esc to close</span></div></div></div>
 
@@ -479,40 +494,57 @@ details.adv summary:hover{color:#fff}details.adv .kv{margin-top:12px}
   <nav><div class="nt">Settings</div><div data-p="pg" class="on"><i data-i="gear"></i>General</div><div data-p="p1"><i data-i="radio"></i>Stream</div><div data-p="po"><i data-i="film"></i>Output</div><div data-p="pa"><i data-i="speaker"></i>Audio</div><div data-p="p2"><i data-i="monitor"></i>Video</div><div data-p="ph"><i data-i="keyboard"></i>Hotkeys</div><div data-p="pc"><i data-i="eye"></i>Accessibility</div><div data-p="p3"><i data-i="music"></i>PreCenter</div></nav>
   <div class="dbody"><div class="sh" id="sTitle">General</div>
     <section id="pg" class="on">
+      <label class="fl">Language <select disabled><option>English</option></select></label>
+      <div class="fl">Accent color <div class="acc-row" id="gAcc"></div></div>
       <label class="fl">Confirm when exiting <input type="checkbox" id="gExit"></label>
       <label class="fl">Show status bar <input type="checkbox" id="gStat"></label>
       <label class="fl">Show toolbar <input type="checkbox" id="gTool"></label>
-      <div class="hint">Application preferences. Language is English.</div>
+      <label class="fl">Open in Studio Mode <input type="checkbox" id="gStudio"></label>
+      <label class="fl" id="gTrayRow">Keep running in the system tray when closed <input type="checkbox" id="gTray"></label>
+      <div class="hint">Your layout, accent color and settings are remembered on this computer. Updates: the installed app updates when you install a new version; the web version updates when its host publishes one.</div>
     </section>
-    <section id="po">
-      <label class="fl">Recording format <select disabled><option>WebM (VP8 + Opus)</option></select></label>
+    <section id="p1">
+      <label class="fl">Service <select id="sSvc"><option value="">Custom</option><option value="rtmp://a.rtmp.youtube.com/live2/">YouTube Live</option><option value="rtmps://live-api-s.facebook.com:443/rtmp/">Facebook Live</option><option value="rtmp://live.twitch.tv/app/">Twitch</option></select></label>
+      <label class="fl">Server <input type="text" id="sUrl" placeholder="rtmps://live-api-s.facebook.com:443/rtmp/"></label>
+      <label class="fl">Stream key <input type="password" id="sKey"></label>
+      <label class="fl">Reconnect automatically <input type="checkbox" id="sRc"></label>
+      <label class="fl">Retry delay (seconds) <input type="number" id="sRd" min="1" max="120"></label>
+      <label class="fl">Maximum retries <input type="number" id="sRm" min="0" max="500"></label>
+      <div class="hint">The key is kept only in this browser. If the connection drops, Stream keeps the clock running and tries again.</div>
+    </section>
+    <section id="po" class="simple">
+      <label class="fl">Output mode <select id="oMode"><option value="simple">Simple</option><option value="adv">Advanced</option></select></label>
+      <label class="fl">Video bitrate (kbps) <input type="number" id="oBr" min="500" max="20000" step="100"></label>
+      <label class="fl">Recording format <select id="oFmt"></select></label>
       <label class="fl">Recording file name prefix <input type="text" id="oPre" placeholder="stream"></label>
-      <label class="fl">Video bitrate (kbps) <input type="number" id="oBr" min="500" max="12000" step="100"></label>
       <label class="fl">Replay buffer length (seconds) <input type="number" id="oRb" min="5" max="600"></label>
       <label class="fl">Split recording every (minutes, 0 = off) <input type="number" id="oSp" min="0" max="240"></label>
-      <div class="hint">Recordings download to your Downloads folder when you stop. This page cannot choose a recording path or encoder.</div>
+      <label class="fl adv-only">Encoder preset (stream server) <select id="oPreset"><option>ultrafast</option><option>superfast</option><option>veryfast</option><option>faster</option><option>fast</option><option>medium</option></select></label>
+      <label class="fl adv-only">Keyframe interval (seconds) <input type="number" id="oKey" min="1" max="10"></label>
+      <label class="fl adv-only">Streaming audio track <select id="oTs"></select></label>
+      <label class="fl adv-only">Recording audio track <select id="oTr"></select></label>
+      <div class="hint">Recordings download to your Downloads folder when you stop. Pick which sources go on which track in Audio Mixer &rarr; Advanced Audio Properties. Browsers record one audio track per file.</div>
     </section>
     <section id="pa">
       <label class="fl">Sample rate <input type="text" id="aSr" readonly></label>
       <label class="fl">Channels <select disabled><option>Stereo</option></select></label>
       <label class="fl">Audio bitrate (kbps) <select id="aBr"><option>96</option><option>128</option><option>160</option><option>192</option><option>256</option></select></label>
-      <div class="hint">Per-source volume, mute and monitoring are in the Audio Mixer.</div>
+      <label class="fl">Monitoring device <select id="aMon"><option value="">System default</option></select></label>
+      <div class="hint">Per-source volume, mute, balance, sync, tracks and monitoring are in the Audio Mixer. Device names appear after you have allowed a microphone once.</div>
     </section>
-    <section id="ph"><div id="hkList" style="display:flex;flex-direction:column;gap:8px"></div><div class="hint">Click a box, press the keys. Backspace clears it.</div></section>
+    <section id="p2">
+      <label class="fl">Base (canvas) resolution <select id="vRes"><option value="1280x720">1280 × 720</option><option value="1920x1080">1920 × 1080</option><option value="854x480">854 × 480</option><option value="640x360">640 × 360</option></select></label>
+      <label class="fl">Output (scaled) resolution <select id="vOut"><option value="">Same as canvas</option><option value="1920x1080">1920 × 1080</option><option value="1280x720">1280 × 720</option><option value="854x480">854 × 480</option><option value="640x360">640 × 360</option></select></label>
+      <label class="fl">Downscale filter <select id="vDs"><option value="bilinear">Bilinear (fastest)</option><option value="bicubic">Bicubic</option><option value="lanczos">Lanczos (sharpest)</option></select></label>
+      <label class="fl">FPS <select id="vFps"><option>60</option><option>30</option><option>25</option><option>24</option><option>15</option></select></label>
+      <label class="fl">Bitrate (kbps) <input type="number" id="vBr" min="500" max="20000" step="100"></label>
+      <div class="hint">Output resolution is what the stream, recording and replay buffer get. The stream server encodes at the bitrate and preset set under Output.</div>
+    </section>
+    <section id="ph"><div id="hkList" style="display:flex;flex-direction:column"></div><div class="lbl" style="margin:14px 0 4px">Scenes and sources</div><div id="hkScenes" style="display:flex;flex-direction:column"></div><div class="hint">Click a box, press the keys. Backspace clears it. A key already in use is cleared on the later one.</div></section>
     <section id="pc">
       <label class="fl">Interface text size <select id="cSz"><option value="13">Normal</option><option value="15">Large</option><option value="17">Extra large</option></select></label>
       <label class="fl">High contrast <input type="checkbox" id="cHc"></label>
-    </section>
-    <section id="p1">
-      <label class="fl">Server <input type="text" id="sUrl" placeholder="rtmps://live-api-s.facebook.com:443/rtmp/"></label>
-      <label class="fl">Stream key <input type="password" id="sKey"></label>
-      <div class="hint">The key is kept only in this browser.</div>
-    </section>
-    <section id="p2">
-      <label class="fl">Resolution <select id="vRes"><option value="1280x720">1280 × 720</option><option value="1920x1080">1920 × 1080</option><option value="854x480">854 × 480</option></select></label>
-      <label class="fl">FPS <select id="vFps"><option>30</option><option>24</option><option>15</option></select></label>
-      <label class="fl">Bitrate (kbps) <input type="number" id="vBr" min="500" max="12000" step="100"></label>
-      <div class="hint">The server encodes at 2500 kbps. This value is for local recordings and the browser capture.</div>
+      <label class="fl">Reduce motion <input type="checkbox" id="cRm"></label>
     </section>
     <section id="p3">
       <label class="fl">Pairing code <input type="text" id="lCode" placeholder="from the server window"></label>
@@ -628,50 +660,103 @@ function field(box, label, el) { const l = document.createElement('label'); l.cl
 function inp(type, v, extra = {}) { const e = document.createElement('input'); e.type = type; e.value = v; Object.assign(e, extra); return e; }
 
 /* ---------- audio graph ---------- */
-let actx, dest;
-function audio() { if (!actx) { actx = new (window.AudioContext || window.webkitAudioContext)(); dest = actx.createMediaStreamDestination(); } if (actx.state === 'suspended') actx.resume(); return actx; }
+let actx, dest, dests = [];
+function audio() { if (!actx) { actx = new (window.AudioContext || window.webkitAudioContext)(); for (let i = 0; i < 6; i++) dests.push(actx.createMediaStreamDestination()); dest = dests[0]; } if (actx.state === 'suspended') actx.resume(); return actx; }
 const dbToGain = (db) => db <= -60 ? 0 : Math.pow(10, db / 20);
 const AF = {
-  gain:   { n: 'Gain', p: [['db', 'Gain', -30, 30, 0, ' dB']] },
-  comp:   { n: 'Compressor', p: [['th', 'Threshold', -60, 0, -24, ' dB'], ['ratio', 'Ratio', 1, 20, 6, ':1']] },
-  lowcut: { n: 'Low-cut', p: [['hz', 'Frequency', 20, 1000, 80, ' Hz']] },
+  gain:    { n: 'Gain', p: [['db', 'Gain', -30, 30, 0, ' dB']] },
+  comp:    { n: 'Compressor', p: [['th', 'Threshold', -60, 0, -24, ' dB'], ['ratio', 'Ratio', 1, 20, 6, ':1']] },
+  limiter: { n: 'Limiter', p: [['th', 'Ceiling', -30, 0, -3, ' dB']] },
+  gate:    { n: 'Noise Gate', p: [['open', 'Opens at', -70, -10, -40, ' dB'], ['close', 'Closes at', -80, -20, -50, ' dB'], ['rel', 'Release', 20, 1000, 200, ' ms']] },
+  nsup:    { n: 'Noise Suppression (light)', p: [['amt', 'Strength', 0, 100, 60, '%']] },
+  eq:      { n: '3-Band Equalizer', p: [['low', 'Low', -20, 20, 0, ' dB'], ['mid', 'Mid', -20, 20, 0, ' dB'], ['high', 'High', -20, 20, 0, ' dB']] },
+  lowcut:  { n: 'Low-cut', p: [['hz', 'Frequency', 20, 1000, 80, ' Hz']] },
 };
-function afNode(ac, f) {
-  if (f.type === 'gain') { const n = ac.createGain(); n.gain.value = Math.pow(10, f.db / 20); return n; }
-  if (f.type === 'comp') { const n = ac.createDynamicsCompressor(); n.threshold.value = f.th; n.ratio.value = f.ratio; return n; }
-  const n = ac.createBiquadFilter(); n.type = 'highpass'; n.frequency.value = f.hz; return n;
+/* each filter becomes a small chain { in, out, stop } so multi-node filters (EQ, gate) fit the same wiring */
+function afChain(ac, f) {
+  const one = (n) => ({ in: n, out: n });
+  if (f.type === 'gain') { const n = ac.createGain(); n.gain.value = Math.pow(10, f.db / 20); return one(n); }
+  if (f.type === 'comp') { const n = ac.createDynamicsCompressor(); n.threshold.value = f.th; n.ratio.value = f.ratio; return one(n); }
+  if (f.type === 'limiter') { const n = ac.createDynamicsCompressor(); n.threshold.value = f.th; n.knee.value = 0; n.ratio.value = 20; n.attack.value = 0.001; n.release.value = 0.08; return one(n); }
+  if (f.type === 'eq') {
+    const lo = ac.createBiquadFilter(), mid = ac.createBiquadFilter(), hi = ac.createBiquadFilter();
+    lo.type = 'lowshelf'; lo.frequency.value = 200; lo.gain.value = f.low; mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 0.8; mid.gain.value = f.mid; hi.type = 'highshelf'; hi.frequency.value = 4000; hi.gain.value = f.high;
+    lo.connect(mid); mid.connect(hi); return { in: lo, out: hi };
+  }
+  if (f.type === 'gate' || f.type === 'nsup') {
+    const inp = ac.createGain(), out = ac.createGain(), an = ac.createAnalyser(), buf = new Float32Array(512); an.fftSize = 512;
+    let head = inp; if (f.type === 'nsup') { head = ac.createBiquadFilter(); head.type = 'highpass'; head.frequency.value = 90; inp.connect(head); }
+    head.connect(out); inp.connect(an);
+    const floor = f.type === 'nsup' ? 1 - f.amt / 100 * 0.93 : 0; let open = f.type === 'gate' ? false : true, nf = -60;
+    const iv = setInterval(() => {
+      an.getFloatTimeDomainData(buf); let s = 0; for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i]; const db = 20 * Math.log10(Math.sqrt(s / buf.length) + 1e-9);
+      let on = open, rel = f.type === 'gate' ? f.rel / 1000 : 0.25;
+      if (f.type === 'gate') { if (!open && db > f.open) on = true; else if (open && db < f.close) on = false; }
+      else { nf = db < nf ? nf * 0.7 + db * 0.3 : Math.min(-25, nf + 0.03); if (!open && db > nf + 9) on = true; else if (open && db < nf + 5) on = false; }
+      open = on; out.gain.setTargetAtTime(on ? 1 : floor, ac.currentTime, on ? 0.01 : rel / 3);
+    }, 20);
+    return { in: inp, out, stop: () => clearInterval(iv) };
+  }
+  const n = ac.createBiquadFilter(); n.type = 'highpass'; n.frequency.value = f.hz; return one(n);
+}
+const dropChain = (r) => (r.fchain || []).flatMap((c) => { try { c.stop && c.stop(); } catch {} return [c.in, c.out]; });
+let monDst = null, monEl = null;
+function monNode() {
+  const ac = audio(); if (!cfg.monDev || !HTMLMediaElement.prototype.setSinkId) return ac.destination;
+  if (!monDst) { monDst = ac.createMediaStreamDestination(); monEl = new Audio(); monEl.srcObject = monDst.stream; monEl.setSinkId(cfg.monDev).catch(() => {}); monEl.play().catch(() => {}); }
+  return monDst;
+}
+function setMonDevice() { try { if (monEl) { monEl.pause(); monEl.srcObject = null; } } catch {} monDst = null; monEl = null; Object.values(rt).forEach((r) => r.gain && r.mon !== undefined && buildAudio(r)); }
+function remuxPick() {
+  const i = document.createElement('input'); i.type = 'file'; i.accept = 'video/*,.webm,.mkv,.mp4'; i.onchange = async () => {
+    const f = i.files[0]; if (!f) return; note('Converting ' + f.name + ' to MP4…');
+    try {
+      const r = await fetch(srvHttp('/remux?code=' + encodeURIComponent(cfg.code)), { method: 'POST', body: f });
+      if (!r.ok) throw new Error(r.status === 501 ? 'the stream server has no ffmpeg' : r.status === 401 ? 'wrong pairing code' : 'server error ' + r.status);
+      const b = await r.blob(), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = f.name.replace(/\.[^.]+$/, '') + '.mp4'; a.click(); note('Saved ' + a.download);
+    } catch (e) { note('Remux failed: ' + (e.message || e) + '. It needs the Stream server running (desktop app or npm start).'); }
+  }; i.click();
 }
 function buildAudio(r) {
   const ac = audio();
-  [r.src, ...(r.fnodes || []), r.mono, r.pan, r.delay, r.gain].forEach((n) => { try { n && n.disconnect(); } catch {} });
-  r.fnodes = (r.afilters || []).map((f) => afNode(ac, f));
+  [r.src, ...dropChain(r), r.mono, r.pan, r.delay, r.gain].forEach((n) => { try { n && n.disconnect(); } catch {} });
+  r.fchain = (r.afilters || []).filter((f) => !f.off).map((f) => afChain(ac, f));
   r.mono.channelCount = r.monoOn ? 1 : 2; r.mono.channelCountMode = r.monoOn ? 'explicit' : 'max';
   let prev = r.src;
-  for (const n of [...r.fnodes, r.mono, r.pan, r.delay, r.gain]) { prev.connect(n); prev = n; }
+  for (const c of r.fchain) { prev.connect(c.in); prev = c.out; }
+  for (const n of [r.mono, r.pan, r.delay, r.gain]) { prev.connect(n); prev = n; }
   r.gain.connect(r.an);
-  if (r.mon !== 'only') r.gain.connect(dest);
-  if (r.mon !== 'off') r.gain.connect(ac.destination);
+  if (r.mon !== 'only') (r.tracks || [true]).forEach((on, i) => { if (on) r.gain.connect(dests[i]); });
+  if (r.mon !== 'off') r.gain.connect(monNode());
   applyGain(r);
 }
 function applyGain(r) { r.gain.gain.value = r.muted ? 0 : dbToGain(r.fader); r.pan.pan.value = r.balance; r.delay.delayTime.value = r.sync / 1000; }
 function wireNode(ref, node) {
   const ac = audio(), r = rt[ref];
   Object.assign(r, { src: node, mono: ac.createGain(), pan: ac.createStereoPanner(), delay: ac.createDelay(1), gain: ac.createGain(), an: ac.createAnalyser(),
-                     afilters: [], fader: 0, muted: false, balance: 0, sync: 0, mon: 'off', monoOn: false });
+                     afilters: [], fader: 0, muted: false, balance: 0, sync: 0, mon: 'off', monoOn: false, tracks: [true, false, false, false, false, false] });
   r.an.fftSize = 512; buildAudio(r);
 }
 function wireAudio(ref, stream) { if (!stream.getAudioTracks().length) return; wireNode(ref, audio().createMediaStreamSource(new MediaStream(stream.getAudioTracks()))); }
 
 /* ---------- video filters ---------- */
+const maskImgs = new Map(); let maskSeq = 1;
 const VF = {
   color:   { n: 'Color Correction', p: [['brightness', 'Brightness', 0, 200, 100, '%'], ['contrast', 'Contrast', 0, 200, 100, '%'], ['saturate', 'Saturation', 0, 300, 100, '%'], ['hue', 'Hue shift', -180, 180, 0, '°']] },
   blur:    { n: 'Blur', p: [['px', 'Amount', 0, 30, 4, ' px']] },
   gray:    { n: 'Grayscale', p: [['amt', 'Amount', 0, 100, 100, '%']] },
   opacity: { n: 'Opacity', p: [['amt', 'Opacity', 0, 100, 100, '%']] },
+  zoom:    { n: 'Scaling / Zoom', p: [['pct', 'Zoom', 25, 400, 100, '%'], ['px', 'Shift X', -100, 100, 0, '%'], ['py', 'Shift Y', -100, 100, 0, '%']] },
+  sharpen: { n: 'Sharpen', p: [['amt', 'Amount', 0, 100, 40, '%']] },
+  chroma:  { n: 'Chroma Key', p: [['key', 'Key color', 'color', null, '#00ff00', ''], ['sim', 'Similarity', 1, 100, 40, ''], ['smooth', 'Smoothness', 1, 100, 12, '']] },
+  luma:    { n: 'Luma Key', p: [['min', 'Remove from', 0, 100, 0, '%'], ['max', 'Remove up to', 0, 100, 12, '%'], ['smooth', 'Smoothness', 0, 50, 6, '%']] },
+  mask:    { n: 'Image Mask / Blend', init: (f) => { f.mid = 'm' + (maskSeq++); }, p: [['mimg', 'Mask image', 'file', null, '', ''], ['mode', 'Mode', 'select', [['alpha', 'Use image transparency'], ['luma', 'Use image brightness']], 'alpha', ''], ['inv', 'Invert mask', 'check', null, false, '']] },
 };
+const PIX = new Set(['sharpen', 'chroma', 'luma', 'mask']);      // filters that need the pixels, not just a CSS filter
 function vfx(s) {
   const css = []; let alpha = 1;
   for (const f of s.filters || []) {
+    if (f.off || PIX.has(f.type) || f.type === 'zoom') continue;
     if (f.type === 'color') css.push(`brightness(${f.brightness / 100}) contrast(${f.contrast / 100}) saturate(${f.saturate / 100}) hue-rotate(${f.hue}deg)`);
     else if (f.type === 'blur') css.push(`blur(${f.px}px)`);
     else if (f.type === 'gray') css.push(`grayscale(${f.amt}%)`);
@@ -679,24 +764,73 @@ function vfx(s) {
   }
   return { css: css.join(' ') || 'none', alpha };
 }
+/* pixel filters run on a full-size scratch canvas holding just this source, limited to the source's box */
+const hex2rgb = (hx) => { const n = parseInt(String(hx || '#000000').slice(1), 16) || 0; return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+function pixRegion(s, W, H) { const rc = s.rect; if (s.rot || !rc) return [0, 0, W, H]; const x = Math.max(0, Math.floor(rc.x * W) - 1), y = Math.max(0, Math.floor(rc.y * H) - 1); return [x, y, Math.max(0, Math.min(W - x, Math.ceil(rc.w * W) + 3)), Math.max(0, Math.min(H - y, Math.ceil(rc.h * H) + 3))]; }
+function applyMask(tc, f, s, W, H) {
+  const im = maskImgs.get(f.mid); if (!im) return; const rc = s.rect, m = tmpCanvas(20, W, H), mc = m.getContext('2d');
+  mc.drawImage(im, rc.x * W, rc.y * H, rc.w * W, rc.h * H);
+  if (f.mode === 'luma') { const id = mc.getImageData(0, 0, W, H), d = id.data; for (let i = 0; i < d.length; i += 4) { const l = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) * d[i + 3] / 255; d[i] = d[i + 1] = d[i + 2] = 0; d[i + 3] = l; } mc.putImageData(id, 0, 0); }
+  tc.globalCompositeOperation = f.inv ? 'destination-out' : 'destination-in'; tc.drawImage(m, 0, 0); tc.globalCompositeOperation = 'source-over';
+}
+function runPix(tc, list, s, W, H) {
+  const [x, y, w, h] = pixRegion(s, W, H); if (w < 3 || h < 3) return;
+  for (const f of list) {
+    if (f.type === 'mask') { applyMask(tc, f, s, W, H); continue; }
+    const id = tc.getImageData(x, y, w, h), d = id.data, n = d.length;
+    if (f.type === 'chroma') {
+      const [kr, kg, kb] = hex2rgb(f.key), kcb = 128 - 0.168736 * kr - 0.331264 * kg + 0.5 * kb, kcr = 128 + 0.5 * kr - 0.418688 * kg - 0.081312 * kb, t1 = f.sim * 1.6, t2 = t1 + f.smooth * 1.2 + 1;
+      for (let i = 0; i < n; i += 4) {
+        const a0 = d[i + 3]; if (!a0) continue; const r = d[i], g = d[i + 1], b = d[i + 2];
+        const dd = Math.hypot(128 - 0.168736 * r - 0.331264 * g + 0.5 * b - kcb, 128 + 0.5 * r - 0.418688 * g - 0.081312 * b - kcr); if (dd >= t2) continue;
+        const a = dd <= t1 ? 0 : (dd - t1) / (t2 - t1); d[i + 3] = a0 * a;
+        if (a > 0) { const l = 0.299 * r + 0.587 * g + 0.114 * b, m = 1 - a; d[i] = r * a + l * m; d[i + 1] = g * a + l * m; d[i + 2] = b * a + l * m; }
+      }
+    } else if (f.type === 'luma') {
+      const lo = f.min, hi = Math.max(f.max, f.min), sm = Math.max(0.01, f.smooth);
+      for (let i = 0; i < n; i += 4) { const l = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 2.55; let a = 1; if (l >= lo && l <= hi) a = 0; else if (l < lo) a = Math.min(1, (lo - l) / sm); else a = Math.min(1, (l - hi) / sm); d[i + 3] *= a; }
+    } else if (f.type === 'sharpen') {
+      const src = new Uint8ClampedArray(d), k = f.amt / 100 * 1.5, row = w * 4;
+      for (let yy = 1; yy < h - 1; yy++) for (let xx = 1; xx < w - 1; xx++) { const i = (yy * w + xx) * 4; for (let c = 0; c < 3; c++) { const j = i + c; d[j] = src[j] * (1 + 4 * k) - k * (src[j - 4] + src[j + 4] + src[j - row] + src[j + row]); } }
+    }
+    tc.putImageData(id, x, y);
+  }
+}
 function filterEditor(list, defs, onChange) {
   const root = document.createElement('div'); root.className = 'fe';
-  root.innerHTML = '<div class="fl2"><div class="fls"></div><div class="tools"><button class="fa" title="Add">+</button><button class="fr" title="Remove">🗑</button></div></div><div class="fp"></div>';
+  root.innerHTML = '<div class="fl2"><div class="fls"></div><div class="tools"><button class="fa" title="Add filter"><i data-i="plus"></i></button><button class="fr" title="Remove filter"><i data-i="trash"></i></button><span class="gap"></span><button class="fu" title="Move up"><i data-i="up"></i></button><button class="fd" title="Move down"><i data-i="down"></i></button></div></div><div class="fp"></div>';
+  fillIcons(root);
   const ls = root.querySelector('.fls'), fp = root.querySelector('.fp'); let sel = list.length ? 0 : -1;
   function paint() {
     ls.innerHTML = '';
-    list.forEach((f, i) => { const d = document.createElement('div'); d.className = 'row' + (i === sel ? ' sel' : ''); d.textContent = defs[f.type].n; d.onclick = () => { sel = i; paint(); }; ls.appendChild(d); });
+    list.forEach((f, i) => {
+      const d = document.createElement('div'); d.className = 'row' + (i === sel ? ' sel' : ''); d.innerHTML = '<span class="nm"></span><span class="eye" title="Enable / disable"></span>';
+      d.firstChild.textContent = defs[f.type].n; const ey = d.lastChild; ey.innerHTML = svg(f.off ? 'eyeoff' : 'eye', 14); if (f.off) ey.classList.add('off');
+      ey.onclick = (e) => { e.stopPropagation(); f.off = !f.off; paint(); onChange(); }; d.onclick = () => { sel = i; paint(); }; ls.appendChild(d);
+    });
     fp.innerHTML = ''; const f = list[sel];
     if (!f) { fp.innerHTML = '<div class="hint">Add a filter with the + button.</div>'; return; }
     defs[f.type].p.forEach(([k, label, min, max, def, unit]) => {
-      const rg = inp('range', f[k], { min, max, step: max - min > 60 ? 1 : 0.5 }), val = document.createElement('span'); val.className = 'hint'; val.textContent = f[k] + unit;
-      rg.oninput = () => { f[k] = +rg.value; val.textContent = f[k] + unit; onChange(); };
       const l = document.createElement('label'); l.className = 'fl'; l.innerHTML = '<span></span>'; l.firstChild.textContent = label;
-      const w = document.createElement('div'); w.style.cssText = 'display:flex;gap:8px;align-items:center'; rg.style.flex = '1'; w.append(rg, val); l.appendChild(w); fp.appendChild(l);
+      if (min === 'color') { const c = inp('color', f[k] || def); c.oninput = () => { f[k] = c.value; onChange(); }; l.appendChild(c); }
+      else if (min === 'check') { const c = inp('checkbox', ''); c.checked = !!f[k]; c.onchange = () => { f[k] = c.checked; onChange(); }; l.appendChild(c); }
+      else if (min === 'select') { const s2 = document.createElement('select'); max.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; s2.appendChild(o); }); s2.value = f[k]; s2.onchange = () => { f[k] = s2.value; onChange(); }; l.appendChild(s2); }
+      else if (min === 'file') {
+        const w = document.createElement('div'), x = inp('file', '', { accept: 'image/*' }), st = document.createElement('div'); st.className = 'hint'; st.textContent = maskImgs.get(f.mid) ? 'Using: ' + (f.mname || 'image') : (f.mname ? f.mname + ' (choose it again after a restart)' : 'No image chosen');
+        x.onchange = async () => { const fl = x.files[0]; if (!fl) return; try { const o = await loadImg(fl); maskImgs.set(f.mid, o.im); f.mname = fl.name; st.textContent = 'Using: ' + fl.name; onChange(); } catch (e) { note(e.message); } };
+        w.style.cssText = 'display:flex;flex-direction:column;gap:6px;min-width:0'; w.append(x, st); l.appendChild(w);
+      } else {
+        const rg = inp('range', f[k], { min, max, step: max - min > 60 ? 1 : 0.5 }), val = document.createElement('span'); val.className = 'hint'; val.textContent = f[k] + unit;
+        rg.oninput = () => { f[k] = +rg.value; val.textContent = f[k] + unit; onChange(); };
+        const w = document.createElement('div'); w.style.cssText = 'display:flex;gap:8px;align-items:center'; rg.style.flex = '1'; w.append(rg, val); l.appendChild(w);
+      }
+      fp.appendChild(l);
     });
   }
-  root.querySelector('.fa').onclick = (e) => popupAt(e, Object.keys(defs).map((t) => ({ t: defs[t].n, f: () => { const f = { type: t }; defs[t].p.forEach((p) => f[p[0]] = p[4]); list.push(f); sel = list.length - 1; paint(); onChange(); } })));
+  root.querySelector('.fa').onclick = (e) => popupAt(e, Object.keys(defs).map((t) => ({ t: defs[t].n, f: () => { const f = { type: t }; defs[t].p.forEach((p) => f[p[0]] = p[4]); defs[t].init && defs[t].init(f); list.push(f); sel = list.length - 1; paint(); onChange(); } })));
   root.querySelector('.fr').onclick = () => { if (sel < 0) return; list.splice(sel, 1); sel = Math.min(sel, list.length - 1); paint(); onChange(); };
+  const mv = (d) => { const j = sel + d; if (sel < 0 || j < 0 || j >= list.length) return; [list[sel], list[j]] = [list[j], list[sel]]; sel = j; paint(); onChange(); };
+  root.querySelector('.fu').onclick = () => mv(-1); root.querySelector('.fd').onclick = () => mv(1);
   paint(); return root;
 }
 
@@ -838,7 +972,7 @@ function gc() {
     const r = rt[k]; r.stream && r.stream.getTracks().forEach((t) => t.stop());
     try { r.video && r.video.pause && r.video.pause(); } catch {}
     r.url && URL.revokeObjectURL(r.url); (r.urls || []).forEach((u) => URL.revokeObjectURL(u));
-    [r.src, ...(r.fnodes || []), r.mono, r.pan, r.delay, r.gain].forEach((n) => { try { n && n.disconnect(); } catch {} });
+    [r.src, ...dropChain(r), r.mono, r.pan, r.delay, r.gain].forEach((n) => { try { n && n.disconnect(); } catch {} });
     delete rt[k];
   }
 }
@@ -1009,7 +1143,7 @@ function duplicateScene() { copyScene(); pasteScene(); }
 function removeScene() { if (scenes.length < 2) return note('You need at least one scene'); scenes.splice(cur, 1); cur = Math.max(0, cur - 1); selSrc = -1; gc(); renderScenes(); renderSources(); renderMixer(); }
 function sceneMenu(x, y) {
   popup(x, y, [{ t: 'Rename', f: renameScene }, { t: 'Duplicate', f: duplicateScene }, { t: 'Copy', f: copyScene }, { t: 'Paste', f: pasteScene, off: !clip.scene }, { sep: 1 },
-    { t: 'Move up', f: () => moveScene(-1), off: cur === 0 }, { t: 'Move down', f: () => moveScene(1), off: cur === scenes.length - 1 }, { sep: 1 }, { t: 'Remove', f: removeScene, off: scenes.length < 2 }]);
+    { t: 'Scene projector (window)', f: () => openProjector('scene', cur) }, { t: 'Move up', f: () => moveScene(-1), off: cur === 0 }, { t: 'Move down', f: () => moveScene(1), off: cur === scenes.length - 1 }, { sep: 1 }, { t: 'Remove', f: removeScene, off: scenes.length < 2 }]);
 }
 
 /* ---------- panels ---------- */
@@ -1104,7 +1238,7 @@ function advancedAudio() {
   const list = audioRefs(); if (!list.length) return note('No audio sources yet');
   modal('Advanced Audio Properties', (b) => {
     const t = document.createElement('table'); t.className = 'tbl';
-    t.innerHTML = '<tr><th>Name</th><th>Volume</th><th>Mute</th><th>Balance</th><th>Mono</th><th>Sync (ms)</th><th>Monitoring</th></tr>';
+    t.innerHTML = '<tr><th>Name</th><th>Volume</th><th>Mute</th><th>Balance</th><th>Mono</th><th>Sync (ms)</th><th>Monitoring</th><th>Tracks</th></tr>';
     list.forEach((s) => {
       const r = rt[s.ref], tr = document.createElement('tr'), cell = (el) => { const td = document.createElement('td'); td.appendChild(el); tr.appendChild(td); return el; };
       const nm = document.createElement('span'); nm.textContent = s.name; cell(nm);
@@ -1115,10 +1249,12 @@ function advancedAudio() {
       const mo = cell(inp('checkbox', '')); mo.checked = r.monoOn; mo.onchange = () => { r.monoOn = mo.checked; buildAudio(r); };
       const sy = cell(inp('number', r.sync, { min: 0, max: 950, step: 10 })); sy.style.width = '62px'; sy.onchange = () => { r.sync = Math.max(0, Math.min(950, +sy.value || 0)); applyGain(r); };
       const mn = cell(document.createElement('select')); mn.innerHTML = '<option value="off">Monitor Off</option><option value="only">Monitor Only</option><option value="both">Monitor and Output</option>'; mn.value = r.mon; mn.onchange = () => { r.mon = mn.value; buildAudio(r); };
+      const tk = cell(document.createElement('div')); tk.className = 'trk';
+      for (let i = 0; i < 6; i++) { const c2 = inp('checkbox', ''), lb = document.createElement('label'); c2.checked = !!(r.tracks && r.tracks[i]); c2.onchange = () => { r.tracks[i] = c2.checked; buildAudio(r); }; lb.className = 'tk'; lb.append(c2, String(i + 1)); tk.appendChild(lb); }
       t.appendChild(tr);
     });
     b.appendChild(t);
-  }, { width: 760, after: renderMixer });
+  }, { width: 940, after: renderMixer });
 }
 $('mAdv').onclick = advancedAudio;
 $('mOpt').onclick = (e) => popupAt(e, [{ t: 'Advanced Audio Properties…', f: advancedAudio }, { t: 'Show volume as percentage', chk: cfg.pct, f: () => { cfg.pct = !cfg.pct; store.set('cfg', cfg); renderMixer(); } },
@@ -1347,7 +1483,7 @@ function drawLyrics(c, src) {
   c.shadowColor = 'transparent'; c.shadowBlur = 0; c.shadowOffsetY = 0;
 }
 const pool = [];
-function tmpCanvas(d, W, H) { let t = pool[d]; if (!t) t = pool[d] = document.createElement('canvas'); if (t.width !== W || t.height !== H) { t.width = W; t.height = H; } t.getContext('2d').clearRect(0, 0, W, H); return t; }
+function tmpCanvas(d, W, H) { let t = pool[d]; if (!t) t = pool[d] = document.createElement('canvas'); if (t.width !== W || t.height !== H) { t.width = W; t.height = H; } t.getContext('2d', d >= 9 ? { willReadFrequently: true } : undefined).clearRect(0, 0, W, H); return t; }
 function drawText(c, s, W, H) {
   const rc = s.rect, bx = rc.x * W, by = rc.y * H, bw = rc.w * W, bh = rc.h * H;
   c.save(); c.beginPath(); c.rect(bx, by, bw, bh); c.clip();
@@ -1373,10 +1509,20 @@ function paintSources(c, list, depth, stack) {
       c.filter = fx.css; c.globalAlpha = base; c.globalCompositeOperation = s.blend || 'source-over'; c.drawImage(t, 0, 0); c.globalCompositeOperation = 'source-over'; c.filter = 'none'; c.globalAlpha = 1; continue;
     }
     if (!hasRect(s)) continue;
+    const px = (s.filters || []).filter((f) => PIX.has(f.type) && !f.off);
+    if (px.length && s.type !== 'group') {      // pixel filters: render this source alone, process its pixels, then composite
+      const t = tmpCanvas(9 + depth, W, H), tc = t.getContext('2d');
+      paintSources(tc, [{ ...s, filters: s.filters.filter((f) => !PIX.has(f.type)), blend: 'source-over' }], depth + 1, stack);
+      runPix(tc, px, s, W, H);
+      c.globalCompositeOperation = s.blend || 'source-over'; c.globalAlpha = 1; c.filter = 'none'; c.drawImage(t, 0, 0); c.globalCompositeOperation = 'source-over';
+      continue;
+    }
     const rc = s.rect, bx = rc.x * W, by = rc.y * H, bw = rc.w * W, bh = rc.h * H, th = (s.rot || 0) * Math.PI / 180;
     c.filter = fx.css; c.globalAlpha = base; c.globalCompositeOperation = s.blend || 'source-over';
     c.imageSmoothingEnabled = s.scale !== 'off'; c.imageSmoothingQuality = { bilinear: 'low', bicubic: 'medium', lanczos: 'high' }[s.scale || 'bicubic'] || 'medium';
     c.save(); c.translate(bx + bw / 2, by + bh / 2); if (th) c.rotate(th); c.scale(s.flipH ? -1 : 1, s.flipV ? -1 : 1); c.translate(-(bx + bw / 2), -(by + bh / 2));
+    const zf = (s.filters || []).find((f) => f.type === 'zoom' && !f.off);
+    if (zf) { c.beginPath(); c.rect(bx, by, bw, bh); c.clip(); const z = zf.pct / 100; c.translate(bx + bw / 2 + zf.px * bw / 100, by + bh / 2 + zf.py * bh / 100); c.scale(z, z); c.translate(-(bx + bw / 2), -(by + bh / 2)); }
     if ((s.type === 'display' || s.type === 'window' || s.type === 'cam' || s.type === 'media') && r.video && r.video.videoWidth) drawMedia(c, r.video, r.video.videoWidth, r.video.videoHeight, s, bx, by, bw, bh, 'stretch', s.deint);
     else if (s.type === 'image' && r.img) drawMedia(c, r.img, r.img.naturalWidth, r.img.naturalHeight, s, bx, by, bw, bh, 'stretch');
     else if (s.type === 'slides' && r.imgs && r.imgs.length) {
@@ -1410,11 +1556,14 @@ function paintScene(c, sc) {
   paintSources(c, sc.sources, 0, [sc.id]);
 }
 let frames = 0; const pg = $('pv').getContext('2d');
+const FT = { last: 0, skipped: 0, total: 0, sum: 0, n: 0 };
 function draw() {
+  { const n = performance.now(); if (FT.last) { const dt = n - FT.last; FT.total++; FT.sum += dt; FT.n++; if (dt > 1.6 * 1000 / (+cfg.fps || 30)) FT.skipped++; } FT.last = n; }
   const P = studio ? (scenes.includes(progSc) ? progSc : (progSc = scenes[cur])) : scenes[cur];
   paintScene(g, P);
   if (studio) paintScene(pg, scenes[cur]);
   if (tr) { const p = (performance.now() - tr.t0) / tr.ms; if (p >= 1) { if (tr.t.vid) try { tr.t.vid.pause(); } catch {} tr = null; } else compose(p); }
+  if ((live || recd || rb) && outRes()) { const o = outCanvas(); ocg.imageSmoothingEnabled = cfg.dsf !== 'off'; ocg.imageSmoothingQuality = { bilinear: 'low', bicubic: 'medium', lanczos: 'high' }[cfg.dsf || 'bicubic'] || 'medium'; ocg.drawImage(cv, 0, 0, o.width, o.height); }
   frames++;
 }
 let loop; function startLoop() { clearInterval(loop); loop = setInterval(draw, 1000 / +cfg.fps); }
@@ -1441,36 +1590,51 @@ linkConnect();
 
 /* ---------- streaming + recording ---------- */
 const fmt = (ms) => { const s = Math.floor(ms / 1000); return [s / 3600, s / 60 % 60, s % 60].map((n) => String(Math.floor(n)).padStart(2, '0')).join(':'); };
-function outStream() { audio(); const v = cv.captureStream(+cfg.fps); return new MediaStream([...v.getVideoTracks(), ...dest.stream.getAudioTracks()]); }
-const mime = () => ['video/webm;codecs=vp8,opus', 'video/webm'].find((m) => MediaRecorder.isTypeSupported(m));
-let live = null;
-function startStream() {
+function outStream(kind) { audio(); const v = outCanvas().captureStream(+cfg.fps), tk = Math.max(1, Math.min(6, +(kind === 'rec' ? cfg.recTrack : cfg.strTrack) || 1)); return new MediaStream([...v.getVideoTracks(), ...dests[tk - 1].stream.getAudioTracks()]); }
+let oc = null, ocg = null;
+const outRes = () => (cfg.ores && cfg.ores !== cfg.res) ? cfg.ores.split('x').map(Number) : null;
+function outCanvas() { const r = outRes(); if (!r) return cv; if (!oc) { oc = document.createElement('canvas'); ocg = oc.getContext('2d'); } if (oc.width !== r[0] || oc.height !== r[1]) { oc.width = r[0]; oc.height = r[1]; } return oc; }
+const FMTS = [['webm', 'WebM (VP8 + Opus)', ['video/webm;codecs=vp8,opus', 'video/webm'], 'webm'], ['webm9', 'WebM (VP9 + Opus)', ['video/webm;codecs=vp9,opus'], 'webm'], ['mp4', 'MP4 (H.264 + AAC)', ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1', 'video/mp4'], 'mp4']];
+const fmtMime = (f) => { try { return f[2].find((m) => MediaRecorder.isTypeSupported(m)); } catch { return null; } };
+const mime = () => fmtMime(FMTS[0]);   // streaming always uses WebM: the server turns it into RTMP
+function recFmt() { const f = FMTS.find((x) => x[0] === cfg.recFmt && fmtMime(x)) || FMTS[0], m = fmtMime(f); return { mime: m, ext: f[3], type: m.split(';')[0] }; }
+let live = null, rcn = null;      // rcn: a pending automatic reconnect { tries, t0, bytes, timer }
+function startStream(carry) {
   if (!cfg.url || !cfg.key) { note('Set the stream server and key in Settings first'); openSettings('p1'); return; }
   lyrTest(false, true);
   const ws = new WebSocket(srvWs('')); ws.binaryType = 'arraybuffer';
-  const L = live = { ws, t0: 0, bytes: 0, last: 0, rec: null };
+  const L = live = { ws, t0: carry ? carry.t0 : 0, bytes: carry ? carry.bytes : 0, last: carry ? carry.bytes : 0, rec: null, tries: carry ? carry.tries : 0, up: false };
   ws.onopen = () => {
-    ws.send(JSON.stringify({ rtmpUrl: cfg.url.trim() + cfg.key.trim(), code: cfg.code }));
-    L.rec = new MediaRecorder(outStream(), { mimeType: mime(), videoBitsPerSecond: cfg.br * 1000, audioBitsPerSecond: (cfg.abr || 160) * 1000 });
+    ws.send(JSON.stringify({ rtmpUrl: cfg.url.trim() + cfg.key.trim(), code: cfg.code, vkbps: cfg.br, akbps: cfg.abr || 160, preset: cfg.preset || 'veryfast', gop: Math.round(+cfg.fps * (cfg.keyint || 2)) }));
+    L.rec = new MediaRecorder(outStream('stream'), { mimeType: mime(), videoBitsPerSecond: cfg.br * 1000, audioBitsPerSecond: (cfg.abr || 160) * 1000 });
     L.rec.ondataavailable = async (e) => { if (e.data.size && ws.readyState === 1) { const b = await e.data.arrayBuffer(); L.bytes += b.byteLength; ws.send(b); } };
-    L.rec.start(250); L.t0 = Date.now();
+    L.rec.start(250); L.up = true; if (!L.t0) L.t0 = Date.now(); if (L.tries) note('Reconnected'); L.tries = 0;
     $('bStream').textContent = 'Stop Streaming'; $('bStream').className = 'live'; $('dLive').className = 'dot on';
   };
   ws.onerror = () => note('Could not reach the Stream server. Check the Server address in StreamLink.');
   ws.onclose = () => stopStream(true);
 }
 function stopStream(fromClose) {
-  const L = live; if (!L) return; live = null;
+  const L = live;
+  if (!L) { if (rcn) { clearTimeout(rcn.timer); rcn = null; streamUiOff(); note('Reconnect cancelled'); } return; }
+  live = null;
   try { L.rec && L.rec.state !== 'inactive' && L.rec.stop(); } catch {}
   try { L.ws.onclose = null; L.ws.close(); } catch {}
-  $('bStream').textContent = 'Start Streaming'; $('bStream').className = ''; $('dLive').className = 'dot'; $('tLive').textContent = '00:00:00'; $('kbs').textContent = '0';
-  if (fromClose) note('Stream stopped (connection closed)');
+  const max = cfg.rcMax === undefined ? 20 : +cfg.rcMax;
+  if (fromClose && cfg.reconn !== false && (L.up || L.tries > 0) && L.tries < max) {
+    const d = Math.max(1, +cfg.rcDelay || 10); rcn = { tries: L.tries + 1, t0: L.t0, bytes: L.bytes };
+    rcn.timer = setTimeout(() => { const c = rcn; rcn = null; if (c) startStream(c); }, d * 1000);
+    $('bStream').textContent = 'Cancel reconnect'; $('bStream').className = 'live'; $('dLive').className = 'dot'; $('kbs').textContent = '0';
+    note('Connection lost. Trying again in ' + d + ' s (attempt ' + rcn.tries + ' of ' + max + ')'); return;
+  }
+  streamUiOff(); if (fromClose) note('Stream stopped (connection closed)');
 }
+function streamUiOff() { $('bStream').textContent = 'Start Streaming'; $('bStream').className = ''; $('dLive').className = 'dot'; $('tLive').textContent = '00:00:00'; $('kbs').textContent = '0'; }
 let recd = null;
 function startRec() {
-  const chunks = [], rec = new MediaRecorder(outStream(), { mimeType: mime(), videoBitsPerSecond: cfg.br * 1000, audioBitsPerSecond: (cfg.abr || 160) * 1000 });
+  const F = recFmt(), chunks = [], rec = new MediaRecorder(outStream('rec'), { mimeType: F.mime, videoBitsPerSecond: cfg.br * 1000, audioBitsPerSecond: (cfg.abr || 160) * 1000 });
   rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
-  rec.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' })); a.download = (cfg.prefix || 'stream') + '-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.webm'; a.click(); recList.push({ name: a.download, url: a.href, size: chunks.reduce((n, c) => n + c.size, 0) }); };
+  rec.onstop = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: F.type })); a.download = (cfg.prefix || 'stream') + '-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.' + F.ext; a.click(); recList.push({ name: a.download, url: a.href, size: chunks.reduce((n, c) => n + c.size, 0) }); };
   rec.start(1000); recd = { rec, t0: Date.now() };
   $('bRec').textContent = 'Stop Recording'; $('bRec').className = 'live'; $('dRec').className = 'dot on';
 }
@@ -1479,7 +1643,9 @@ setInterval(() => {
   if (live && live.t0) { $('tLive').textContent = fmt(Date.now() - live.t0); $('kbs').textContent = Math.round((live.bytes - live.last) * 8 / 1000); live.last = live.bytes; }
   if (recd) $('tRec').textContent = fmt((recd.p || Date.now()) - recd.t0);
 }, 1000);
-const toggleStream = () => live ? stopStream() : startStream();
+function cancelReconnect() { if (rcn) { clearTimeout(rcn.timer); rcn = null; streamUiOff(); note('Reconnect cancelled'); } }
+const toggleStream = () => rcn ? cancelReconnect() : live ? stopStream() : startStream();
+
 const toggleRec = () => recd ? stopRec() : startRec();
 
 /* ---------- settings dialog ---------- */
@@ -1524,9 +1690,11 @@ function renderDockMenu() {
   const m = $('dockMenu'); m.innerHTML = '';
   DOCKS.forEach(([id, label]) => {
     const d = document.createElement('div'), el = $(id); d.className = el.style.display === 'none' ? 'unchk' : 'chk'; d.textContent = label;
-    d.onclick = () => { el.style.display = el.style.display === 'none' ? '' : 'none'; $('left').style.display = ($('dkScenes').style.display === 'none' && $('dkSources').style.display === 'none') ? 'none' : ''; renderDockMenu(); };
+    d.onclick = () => { el.style.display = el.style.display === 'none' ? '' : 'none'; LAY.hid = DOCKS.map(([q]) => q).filter((q) => $(q).style.display === 'none'); saveLay(); $('left').style.display = ($('dkScenes').style.display === 'none' && $('dkSources').style.display === 'none') ? 'none' : ''; renderDockMenu(); };
     m.appendChild(d);
   });
+  const sp = document.createElement('div'); sp.className = 'sep'; m.appendChild(sp);
+  [['Lock layout', !!cfg.lockDocks, () => { cfg.lockDocks = !cfg.lockDocks; saveLay(); renderDockMenu(); }], ['Reset layout', null, resetLayout]].forEach(([t, c, f]) => { const d = document.createElement('div'); d.className = c === null ? '' : c ? 'chk' : 'unchk'; d.textContent = t; d.onclick = f; m.appendChild(d); });
 }
 renderDockMenu();
 document.addEventListener('keydown', (e) => {
@@ -1545,11 +1713,45 @@ document.addEventListener('keydown', (e) => {
 /* ---------- OBS-style menus, profiles, collections, extra settings ---------- */
 const VER = '1.0';
 const HK = [['stream', 'Start / Stop Streaming', () => toggleStream()], ['rec', 'Start / Stop Recording', () => toggleRec()], ['pause', 'Pause / Resume Recording', () => pauseRec()], ['split', 'Split recording', () => splitRec()], ['rbt', 'Start / Stop Replay Buffer', () => toggleRB()], ['rbs', 'Save Replay', () => saveRB()], ['pclive', 'Take PreCenter live', () => pcLive()], ['studio', 'Studio Mode', () => setStudio(!studio)], ['trans', 'Transition', () => $('bTrans').click()], ['full', 'Fullscreen interface', () => $('tbFull').click()], ['shot', 'Screenshot output', () => shotOutput()]];
+const ACCENTS = ['#E8B923', '#4f8cff', '#38c98a', '#ef5da8', '#ff7a45', '#9b7bff', '#2fc7d9'];
+function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }
+function lighten(h, k) { return '#' + hexRgb(h).map((v) => Math.round(v + (255 - v) * k).toString(16).padStart(2, '0')).join(''); }
+function applyAccent() {
+  const a = cfg.accent || ACCENTS[0], r = hexRgb(a), R = document.documentElement.style, lum = (0.299 * r[0] + 0.587 * r[1] + 0.114 * r[2]) / 255;
+  R.setProperty('--acc', a); R.setProperty('--acc2', lighten(a, .22)); R.setProperty('--accrgb', r.join(',')); R.setProperty('--accink', lum > .55 ? '#171200' : '#ffffff');
+  R.setProperty('--accsoft', 'rgba(' + r.join(',') + ',.13)'); R.setProperty('--accline', 'rgba(' + r.join(',') + ',.5)');
+}
 function applyPrefs() {
+  applyAccent(); document.documentElement.classList.toggle('rm', !!cfg.rm);
   document.body.style.fontSize = (cfg.size || 13) + 'px'; document.documentElement.classList.toggle('hc', !!cfg.hc);
   $('tb').style.display = cfg.bars.tb ? '' : 'none'; $('status').style.display = cfg.bars.st ? '' : 'none'; fit();
 }
+function fillMore() {
+  const A = $('gAcc'); A.innerHTML = ''; ACCENTS.forEach((c) => { const b = document.createElement('button'); b.type = 'button'; b.style.background = c; b.title = c; b.className = (cfg.accent || ACCENTS[0]) === c ? 'on' : ''; b.onclick = () => { cfg.accent = c; applyAccent(); A.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); }; A.appendChild(b); });
+  $('gStudio').checked = !!cfg.startStudio; $('gTray').checked = !!cfg.tray; $('gTrayRow').style.display = window.desktop ? '' : 'none';
+  $('sSvc').value = [...$('sSvc').options].some((o) => o.value && o.value === cfg.url) ? cfg.url : '';
+  $('sRc').checked = cfg.reconn !== false; $('sRd').value = cfg.rcDelay || 10; $('sRm').value = cfg.rcMax === undefined ? 20 : cfg.rcMax;
+  $('oMode').value = cfg.omode || 'simple'; $('po').classList.toggle('simple', $('oMode').value === 'simple');
+  const F = $('oFmt'); F.innerHTML = ''; FMTS.forEach((f) => { if (fmtMime(f)) { const o = document.createElement('option'); o.value = f[0]; o.textContent = f[1]; F.appendChild(o); } }); F.value = recFmtId();
+  [['oTs', cfg.strTrack], ['oTr', cfg.recTrack]].forEach(([id, v]) => { const e = $(id); e.innerHTML = ''; for (let i = 1; i <= 6; i++) { const o = document.createElement('option'); o.value = i; o.textContent = 'Track ' + i; e.appendChild(o); } e.value = v || 1; });
+  $('oPreset').value = cfg.preset || 'veryfast'; $('oKey').value = cfg.keyint || 2;
+  $('vOut').value = cfg.outRes || ''; $('vDs').value = cfg.dsf || 'bilinear'; $('cRm').checked = !!cfg.rm;
+  const M = $('aMon'); M.length = 1; navigator.mediaDevices && navigator.mediaDevices.enumerateDevices && navigator.mediaDevices.enumerateDevices().then((ds) => { ds.filter((d) => d.kind === 'audiooutput' && d.deviceId !== 'default').forEach((d, i) => { const o = document.createElement('option'); o.value = d.deviceId; o.textContent = d.label || 'Output ' + (i + 1); M.appendChild(o); }); M.value = cfg.monDev || ''; }).catch(() => {});
+  M.disabled = !(HTMLMediaElement.prototype.setSinkId);
+}
+const recFmtId = () => (FMTS.find((x) => x[0] === cfg.recFmt && fmtMime(x)) || FMTS.find(fmtMime) || FMTS[0])[0];
+function readMore() {
+  const old = cfg.monDev;
+  Object.assign(cfg, { startStudio: $('gStudio').checked, tray: $('gTray').checked, reconn: $('sRc').checked, rcDelay: Math.max(1, +$('sRd').value || 10), rcMax: Math.max(0, +$('sRm').value || 0),
+    omode: $('oMode').value, recFmt: $('oFmt').value, strTrack: +$('oTs').value || 1, recTrack: +$('oTr').value || 1, preset: $('oPreset').value, keyint: Math.max(1, +$('oKey').value || 2),
+    outRes: $('vOut').value, dsf: $('vDs').value, rm: $('cRm').checked, monDev: $('aMon').value });
+  if (old !== cfg.monDev) setMonDevice();
+  if (window.desktop && window.desktop.setTray) window.desktop.setTray(!!cfg.tray);
+}
+$('sSvc').onchange = () => { if ($('sSvc').value) $('sUrl').value = $('sSvc').value; };
+$('oMode').onchange = () => $('po').classList.toggle('simple', $('oMode').value === 'simple');
 function fillPrefs() {
+  fillMore(); fillSceneKeys();
   $('gExit').checked = cfg.confirmExit !== false; $('gStat').checked = cfg.bars.st; $('gTool').checked = cfg.bars.tb;
   $('oPre').value = cfg.prefix; $('oRb').value = cfg.rbSec || 30; $('oSp').value = cfg.split || 0; $('oBr').value = cfg.br; $('aBr').value = cfg.abr; $('cSz').value = cfg.size; $('cHc').checked = cfg.hc;
   try { $('aSr').value = audio().sampleRate + ' Hz'; } catch { $('aSr').value = 'Starts with the audio engine'; }
@@ -1561,10 +1763,10 @@ function fillPrefs() {
 function readPrefs() {
   Object.assign(cfg, { confirmExit: $('gExit').checked, prefix: $('oPre').value.trim().replace(/[^\w-]/g, ''), abr: +$('aBr').value, size: +$('cSz').value, hc: $('cHc').checked });
   cfg.bars = { st: $('gStat').checked, tb: $('gTool').checked }; if (+$('oBr').value) cfg.br = +$('oBr').value;
-  const seen = {}, dup = []; document.querySelectorAll('#hkList input').forEach((i) => { const v = i.value; if (v && seen[v]) { dup.push(v); cfg.keys[i.dataset.k] = ''; } else { cfg.keys[i.dataset.k] = v; if (v) seen[v] = 1; } });
+  const seen = {}, dup = []; document.querySelectorAll('#hkList input, #hkScenes input').forEach((i) => { const v = i.value; if (v && seen[v]) { dup.push(v); cfg.keys[i.dataset.k] = ''; } else { cfg.keys[i.dataset.k] = v; if (v) seen[v] = 1; } });
   if (dup.length) note('Shortcut conflict: ' + dup.join(', ') + ' was already used, so the later one was cleared');
   cfg.rbSec = Math.max(5, Math.min(600, +$('oRb').value || 30)); cfg.split = Math.max(0, +$('oSp').value || 0);
-  store.set('cfg', cfg); applyPrefs(); renderMenus();
+  readMore(); store.set('cfg', cfg); applyPrefs(); renderMenus(); if (cfg.startStudio && !studio) setStudio(true);
 }
 function combo(e) {
   if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return '';
@@ -1572,7 +1774,7 @@ function combo(e) {
 }
 document.addEventListener('keydown', (e) => {
   if (modalOpen() || $('shade').style.display === 'flex' || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
-  const c = combo(e); if (!c) return; const h = HK.find(([k]) => cfg.keys[k] === c); if (h) { e.preventDefault(); h[2](); }
+  const c = combo(e); if (!c) return; const h = HK.find(([k]) => cfg.keys[k] === c); if (h) { e.preventDefault(); h[2](); } else if (fireKey(c)) e.preventDefault();
 });
 window.addEventListener('error', (e) => errL.push(new Date().toLocaleString() + '  ' + e.message + (e.filename ? '  (' + e.filename.split('/').pop() + ':' + e.lineno + ')' : '')));
 window.addEventListener('unhandledrejection', (e) => errL.push(new Date().toLocaleString() + '  ' + (e.reason && e.reason.message || e.reason)));
@@ -1584,7 +1786,7 @@ function uniq(map, n) { let k = n, i = 2; while (map[k]) k = n + ' ' + i++; retu
 
 /* profiles: streaming + recording settings */
 const profs = store.get('profiles', { Untitled: {} }); let profCur = store.get('profCur', 'Untitled'); if (!profs[profCur]) profCur = Object.keys(profs)[0];
-const saveProf = () => { profs[profCur] = clone(cfg); store.set('profiles', profs); store.set('profCur', profCur); };
+const saveProf = () => { if (window.__noSave) return; profs[profCur] = clone(cfg); store.set('profiles', profs); store.set('profCur', profCur); };
 function useProf(n) { saveProf(); profCur = n; if (Object.keys(profs[n]).length) Object.assign(cfg, clone(profs[n])); store.set('cfg', cfg); store.set('profCur', n); setSize(); startLoop(); linkConnect(); applyPrefs(); note('Profile: ' + n); }
 function profItems() {
   const it = [{ t: 'New…', f: () => { const n = prompt('Profile name'); if (n && n.trim()) { saveProf(); const k = uniq(profs, n.trim()); profs[k] = {}; useProf(k); } } },
@@ -1601,7 +1803,7 @@ function profItems() {
 const colls = store.get('colls', { Untitled: null }); let collCur = store.get('collCur', 'Untitled'); if (!(collCur in colls)) collCur = Object.keys(colls)[0];
 const live0 = (s) => { const r = rt[s.ref] || {}; return !(r.stream || r.video || r.img || r.imgs); };
 function snapScenes() { let skipped = 0; const strip = (src) => src.filter((x) => live0(x) || (skipped++, false)).map((x) => { const c = clone(x); if (c.children) c.children = strip(x.children); return c; }); return { scenes: scenes.map((sc) => ({ id: sc.id, name: sc.name, sources: strip(sc.sources) })), skipped }; }
-function saveColl() { colls[collCur] = snapScenes().scenes; store.set('colls', colls); store.set('collCur', collCur); }
+function saveColl() { if (window.__noSave) return; colls[collCur] = snapScenes().scenes; store.set('colls', colls); store.set('collCur', collCur); }
 function loadColl(data) {
   const sc = data && data.length ? clone(data) : [{ id: uid++, name: 'Scene', sources: [] }];
   const walk = (a) => a.forEach((x) => { rt[x.ref] = rt[x.ref] || {}; if (x.children) walk(x.children); }); sc.forEach((q) => { walk(q.sources); uid = Math.max(uid, q.id + 1); });
@@ -1622,6 +1824,163 @@ if (colls[collCur]) loadColl(colls[collCur]);
 setInterval(() => { try { saveColl(); saveProf(); } catch {} }, 15000);
 addEventListener('beforeunload', () => { try { saveColl(); saveProf(); } catch {} });
 
+
+/* ---------- Undo / Redo (watches scenes and sources; any change is one step) ---------- */
+const H = { u: [], r: [], last: null, busy: false };
+const hSnap = () => JSON.stringify({ s: scenes, c: cur });
+function hTick() { if (H.busy) return; let n; try { n = hSnap(); } catch { return; } if (H.last === null) { H.last = n; return; } if (n === H.last) return; H.u.push(H.last); if (H.u.length > 100) H.u.shift(); H.r.length = 0; H.last = n; }
+function hApply(txt) {
+  H.busy = true; try {
+    const o = JSON.parse(txt); const walk = (a) => a.forEach((x) => { rt[x.ref] = rt[x.ref] || {}; if (x.children) walk(x.children); }); o.s.forEach((q) => walk(q.sources));
+    scenes.splice(0, scenes.length, ...o.s); cur = Math.min(o.c, scenes.length - 1); selSrc = -1; if (progSc && !scenes.some((q) => q.id === progSc.id)) progSc = null; else if (progSc) progSc = scenes.find((q) => q.id === progSc.id);
+    H.last = txt; renderScenes(); renderSources(); renderMixer();
+  } finally { H.busy = false; }
+}
+function undo() { hTick(); if (!H.u.length) return note('Nothing to undo'); H.r.push(H.last); hApply(H.u.pop()); note('Undo'); }
+function redo() { hTick(); if (!H.r.length) return note('Nothing to redo'); H.u.push(H.last); hApply(H.r.pop()); note('Redo'); }
+setInterval(hTick, 350); setTimeout(hTick, 50);
+document.addEventListener('keydown', (e) => {
+  if (modalOpen() || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  const c = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+  if (c && k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); } else if (c && (k === 'y' || (k === 'z' && e.shiftKey))) { e.preventDefault(); redo(); }
+});
+
+/* ---------- projectors and Multiview ---------- */
+function popWin(name, title, w, h) {
+  const win = window.open('', name, 'width=' + (w || 960) + ',height=' + (h || 540)); if (!win) { note('Allow pop-ups to open this window'); return null; }
+  win.document.title = title; win.document.body.innerHTML = ''; win.document.body.style.cssText = 'margin:0;background:#000;color:#fff;font:13px system-ui,sans-serif;overflow:hidden';
+  win.document.addEventListener('dblclick', () => { try { win.document.fullscreenElement ? win.document.exitFullscreen() : win.document.documentElement.requestFullscreen(); } catch {} });
+  return win;
+}
+function runWin(win, tick) { const t = setInterval(() => { if (win.closed) return clearInterval(t); try { tick(); } catch {} }, 1000 / 30); return t; }
+function openProjector(kind, idx) {
+  if (kind === 'multi') return openMulti();
+  const sc = kind === 'scene' ? scenes[idx] : null, title = kind === 'program' ? 'Program projector' : kind === 'preview' ? 'Preview projector' : 'Scene projector: ' + (sc && sc.name);
+  if (kind === 'preview' && !studio) return note('Turn on Studio Mode to project the preview');
+  const win = popWin('dsproj-' + kind + (idx === undefined ? '' : idx), title); if (!win) return;
+  const c = win.document.createElement('canvas'); c.style.cssText = 'width:100vw;height:100vh;object-fit:contain;display:block'; c.width = cv.width; c.height = cv.height; win.document.body.appendChild(c);
+  const x = c.getContext('2d'), tmp = document.createElement('canvas'); tmp.width = cv.width; tmp.height = cv.height; const tg = tmp.getContext('2d');
+  runWin(win, () => { if (kind === 'program') x.drawImage(cv, 0, 0); else if (kind === 'preview') x.drawImage($('pv'), 0, 0, c.width, c.height); else if (sc) { paintScene(tg, sc); x.drawImage(tmp, 0, 0); } });
+  note(title + ' opened. Double-click it for full screen.');
+}
+function openMulti() {
+  const win = popWin('dsmulti', 'Multiview', 1280, 720); if (!win) return;
+  const d = win.document, grid = d.createElement('div'); grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;padding:8px;height:100vh;box-sizing:border-box;overflow:auto;align-content:start'; d.body.appendChild(grid);
+  const tmp = document.createElement('canvas'); tmp.width = cv.width; tmp.height = cv.height; const tg = tmp.getContext('2d'); let tiles = [];
+  const build = () => { grid.innerHTML = ''; tiles = scenes.map((sc, i) => { const t = d.createElement('div'); t.style.cssText = 'position:relative;cursor:pointer;border:3px solid #333;border-radius:6px;overflow:hidden;background:#000'; const c = d.createElement('canvas'); c.width = 480; c.height = Math.round(480 * cv.height / cv.width); c.style.cssText = 'width:100%;display:block'; const l = d.createElement('div'); l.style.cssText = 'position:absolute;left:0;right:0;bottom:0;padding:3px 8px;background:rgba(0,0,0,.65);font-weight:600'; l.textContent = (i + 1) + '. ' + sc.name; t.append(c, l); t.onclick = () => { if (studio) { cur = i; renderScenes(); renderSources(); } else switchScene(i); }; t.ondblclick = () => { if (studio) { cur = i; progSc = scenes[i]; startTr(curTr()); renderScenes(); } }; grid.appendChild(t); return { t, c, sc }; }); };
+  let n = -1;
+  runWin(win, () => {
+    if (scenes.length !== n || tiles.some((q, i) => q.sc !== scenes[i])) { n = scenes.length; build(); }
+    tiles.forEach(({ t, c, sc }, i) => { paintScene(tg, sc); c.getContext('2d').drawImage(tmp, 0, 0, c.width, c.height); const pgm = (studio ? progSc : scenes[cur]) === sc, pvw = studio && i === cur; t.style.borderColor = pgm ? '#e5484d' : pvw ? '#4cc38a' : '#333'; });
+  });
+}
+function previewTransition() {
+  const t = curTr(); if (t.type === 'cut') return note('A cut has no animation to preview');
+  startTr(t); if (!tr) return; const sg = snap.getContext('2d'); sg.fillStyle = '#000'; sg.fillRect(0, 0, snap.width, snap.height); note('Previewing "' + t.name + '" (from black into the current scene)');
+}
+
+/* ---------- hotkeys for individual scenes and sources ---------- */
+function allSources(list, out = []) { list.forEach((x) => { out.push(x); if (x.children) allSources(x.children, out); }); return out; }
+function fillSceneKeys() {
+  const L = $('hkScenes'); L.innerHTML = '';
+  const row = (label, k) => { const r = document.createElement('label'); r.className = 'fl'; r.textContent = label; const i = document.createElement('input'); i.readOnly = true; i.className = 'keyin'; i.value = cfg.keys[k] || ''; i.dataset.k = k;
+    i.onkeydown = (e) => { e.preventDefault(); e.stopPropagation(); if (e.key === 'Backspace') { i.value = ''; return; } const c = combo(e); if (c) i.value = c; }; r.appendChild(i); L.appendChild(r); };
+  scenes.forEach((sc) => { row('Switch to scene: ' + sc.name, 'sc:' + sc.id); allSources(sc.sources).filter((x) => x.type !== 'scene' || true).forEach((x) => row('Show / hide in ' + sc.name + ': ' + (x.name || x.type), 'sv:' + x.id)); });
+}
+function fireKey(c) {
+  for (const k in cfg.keys) { if (cfg.keys[k] !== c) continue;
+    if (k.startsWith('sc:')) { const i = scenes.findIndex((q) => q.id === +k.slice(3)); if (i >= 0) { if (studio) { cur = i; renderScenes(); renderSources(); } else switchScene(i); return true; } }
+    else if (k.startsWith('sv:')) { for (const sc of scenes) { const x = allSources(sc.sources).find((q) => q.id === +k.slice(3)); if (x) { x.visible = !x.visible; renderSources(); note((x.visible ? 'Shown: ' : 'Hidden: ') + (x.name || x.type)); return true; } } } }
+  return false;
+}
+
+/* ---------- dock management: resize, float, lock, reset (remembered) ---------- */
+cfg.layout = cfg.layout || {};
+const LAY = cfg.layout; LAY.fl = LAY.fl || {}; LAY.hid = LAY.hid || [];
+const saveLay = () => store.set('cfg', cfg);
+function mkSplit(cls, host, before, onDrag) {
+  const h = document.createElement('div'); h.className = 'split ' + cls; before ? host.insertBefore(h, before) : host.appendChild(h);
+  h.onpointerdown = (e) => { if (cfg.lockDocks) return; e.preventDefault(); h.setPointerCapture(e.pointerId); const mv = (m) => { onDrag(m); fit(); }, up = () => { h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); saveLay(); }; h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up); };
+  return h;
+}
+function setLeftW(w) { w = Math.max(160, Math.min(520, w)); $('left').style.width = w + 'px'; LAY.leftW = w; }
+function setMixH(h) { h = Math.max(110, Math.min(520, h)); $('app').style.gridTemplateRows = 'auto auto 1fr ' + h + 'px auto'; LAY.mixH = h; }
+mkSplit('sv', $('main'), $('right'), (m) => setLeftW(m.clientX - 8));
+{ const mr = $('mixrow'); mr.style.position = 'relative'; mkSplit('sh', mr, null, (m) => setMixH(innerHeight - m.clientY - $('status').offsetHeight - 6)); }
+if (LAY.leftW) setLeftW(LAY.leftW); if (LAY.mixH) setMixH(LAY.mixH);
+const dockHome = {};
+function floatDock(id, on, box) {
+  const el = $(id); if (!el) return;
+  if (on) {
+    if (!dockHome[id]) { const ph = document.createComment('dock:' + id); el.parentNode.insertBefore(ph, el); dockHome[id] = ph; }
+    const r = el.getBoundingClientRect(), b = box || { x: Math.max(20, r.left + 30), y: Math.max(60, r.top + 30), w: Math.max(260, r.width), h: Math.max(180, Math.min(420, r.height)) };
+    el.classList.add('floating'); el.style.cssText += ';position:fixed;left:' + b.x + 'px;top:' + b.y + 'px;width:' + b.w + 'px;height:' + b.h + 'px;z-index:60;resize:both;overflow:auto;flex:none';
+    document.body.appendChild(el); LAY.fl[id] = b;
+  } else {
+    const ph = dockHome[id]; el.classList.remove('floating'); ['position', 'left', 'top', 'width', 'height', 'zIndex', 'resize', 'overflow', 'flex'].forEach((k) => el.style[k] = '');
+    if (ph && ph.parentNode) { ph.parentNode.insertBefore(el, ph); ph.remove(); } delete dockHome[id]; delete LAY.fl[id];
+  }
+  saveLay(); fit(); renderDockMenu();
+}
+function dockHeaders() {
+  DOCKS.forEach(([id]) => { const el = $(id), h = el && el.querySelector(':scope > h4'); if (!h || h.dataset.dm) return; h.dataset.dm = 1;
+    const b = document.createElement('button'); b.className = 'dkfloat'; b.type = 'button'; b.title = 'Float / dock this panel'; b.textContent = '⧉'; b.style.cssText = 'margin-left:auto;padding:0 6px;font-size:12px;line-height:18px;background:transparent;border:1px solid var(--line);border-radius:6px;color:var(--dim)';
+    b.onclick = (e) => { e.stopPropagation(); if (cfg.lockDocks) return note('Panels are locked (Docks menu)'); floatDock(id, !el.classList.contains('floating')); };
+    h.appendChild(b);
+    h.onpointerdown = (e) => { if (!el.classList.contains('floating') || cfg.lockDocks || e.target === b) return; const sx = e.clientX - el.offsetLeft, sy = e.clientY - el.offsetTop; h.setPointerCapture(e.pointerId);
+      const mv = (m) => { el.style.left = Math.max(0, m.clientX - sx) + 'px'; el.style.top = Math.max(0, m.clientY - sy) + 'px'; }, up = () => { h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); LAY.fl[id] = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight }; saveLay(); }; h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up); };
+    if (el.style.cursor === '') h.style.cursor = 'default';
+  });
+}
+function resetLayout() {
+  Object.keys(dockHome).forEach((id) => floatDock(id, false)); DOCKS.forEach(([id]) => { $(id).style.display = ''; }); $('left').style.display = '';
+  $('left').style.width = ''; $('app').style.gridTemplateRows = ''; LAY.leftW = LAY.mixH = 0; LAY.hid = []; LAY.fl = {}; cfg.lockDocks = false; saveLay(); fit(); renderDockMenu(); note('Layout reset');
+}
+addEventListener('resize', () => { Object.keys(LAY.fl).forEach((id) => { const el = $(id); if (el && el.classList.contains('floating')) { el.style.left = Math.min(el.offsetLeft, innerWidth - 80) + 'px'; el.style.top = Math.min(el.offsetTop, innerHeight - 40) + 'px'; } }); });
+
+/* ---------- Scripts (the browser's version of OBS scripts and plugins: small JavaScript files) ---------- */
+let scripts = store.get('scripts', []);
+const scriptHooks = { scene: [], tick: [] };
+const dsApi = {
+  scenes: () => scenes.map((q) => q.name), currentScene: () => scenes[cur].name,
+  switchScene: (n) => { const i = scenes.findIndex((q) => q.name === n); if (i < 0) return false; switchScene(i); return true; },
+  sources: (sceneName) => { const sc = scenes.find((q) => q.name === sceneName) || scenes[cur]; return allSources(sc.sources).map((x) => ({ name: x.name, type: x.type, visible: x.visible })); },
+  setVisible: (sceneName, srcName, v) => { const sc = scenes.find((q) => q.name === sceneName); const x = sc && allSources(sc.sources).find((q) => q.name === srcName); if (!x) return false; x.visible = !!v; renderSources(); return true; },
+  startStream: () => !live && toggleStream(), stopStream: () => live && stopStream(), startRecording: () => !recd && startRec(), stopRecording: () => recd && stopRec(),
+  isLive: () => !!live, isRecording: () => !!recd, note, on: (ev, fn) => { (scriptHooks[ev] || []).push(fn); }, every: (ms, fn) => setInterval(fn, Math.max(100, ms)), setLyrics: (t) => { lyr.text = String(t); },
+};
+let lastSceneName = '';
+setInterval(() => { const n = scenes[cur] && scenes[cur].name; if (n !== lastSceneName) { const was = lastSceneName; lastSceneName = n; if (was) scriptHooks.scene.forEach((f) => { try { f(n, was); } catch (e) { errL.push('Script: ' + e.message); } }); } }, 250);
+function runScripts() { scriptHooks.scene.length = scriptHooks.tick.length = 0; scripts.forEach((sc) => { if (sc.on) runScript(sc); }); }
+function runScript(sc) { try { new Function('ds', sc.code)(dsApi); note('Script ran: ' + sc.name); } catch (e) { errL.push(new Date().toLocaleString() + '  Script "' + sc.name + '": ' + e.message); note('Script "' + sc.name + '" failed: ' + e.message); } }
+function openScripts() {
+  const draw = (b) => {
+    b.innerHTML = ''; const hint = document.createElement('div'); hint.className = 'hint'; hint.textContent = 'Scripts are small JavaScript programs that control Stream (for example: switch scenes on a timer). Only add scripts you trust. They run when the app starts if "Run at start" is on. Reload the page after turning one off.'; b.appendChild(hint);
+    scripts.forEach((sc, i) => { const row = document.createElement('div'); row.className = 'fl'; row.style.cssText = 'display:flex;gap:8px;align-items:center'; const n = document.createElement('span'); n.textContent = sc.name; n.style.flex = '1';
+      const on = document.createElement('input'); on.type = 'checkbox'; on.checked = !!sc.on; on.title = 'Run at start'; on.onchange = () => { sc.on = on.checked; store.set('scripts', scripts); };
+      const mk = (t, f) => { const x = document.createElement('button'); x.textContent = t; x.onclick = f; return x; };
+      row.append(n, on, mk('Run', () => runScript(sc)), mk('Edit', () => edit(b, i)), mk('Delete', () => { scripts.splice(i, 1); store.set('scripts', scripts); draw(b); })); b.appendChild(row); });
+    const r = document.createElement('div'); r.className = 'btnrow'; r.append(Object.assign(document.createElement('button'), { textContent: 'New script', onclick: () => edit(b, -1) }), Object.assign(document.createElement('button'), { textContent: 'Load from file…', onclick: () => { const f = document.createElement('input'); f.type = 'file'; f.accept = '.js,text/javascript'; f.onchange = () => f.files[0] && f.files[0].text().then((t) => { scripts.push({ name: f.files[0].name.replace(/\.js$/i, ''), code: t, on: false }); store.set('scripts', scripts); draw(b); }); f.click(); } })); b.appendChild(r);
+  };
+  const edit = (b, i) => { const sc = i >= 0 ? scripts[i] : { name: 'My script', code: '// ds.switchScene("Scene 2");\n// ds.on("scene", (name) => ds.note("Now on " + name));\n', on: false };
+    b.innerHTML = ''; const nm = field(b, 'Name', inp('text', sc.name)); const ta = document.createElement('textarea'); ta.value = sc.code; ta.style.cssText = 'width:100%;height:220px;font:12px ui-monospace,monospace;box-sizing:border-box'; ta.spellcheck = false; b.appendChild(ta);
+    const r = document.createElement('div'); r.className = 'btnrow'; r.append(Object.assign(document.createElement('button'), { textContent: 'Save', onclick: () => { sc.name = nm.value || 'Script'; sc.code = ta.value; if (i < 0) scripts.push(sc); store.set('scripts', scripts); draw(b); } }), Object.assign(document.createElement('button'), { textContent: 'Cancel', onclick: () => draw(b) })); b.appendChild(r); };
+  modal('Scripts', draw, { width: 560 });
+}
+
+/* ---------- export / import everything ---------- */
+function exportAll() {
+  saveColl(); saveProf(); const c = clone(cfg); delete c.key; delete c.code;
+  dl('disciples-stream-backup.json', JSON.stringify({ kind: 'ds-backup', v: 1, cfg: c, colls, profiles: profs, profCur, collCur, trs: trs.map(({ vid, vname, ...r }) => r), trI, scripts }, null, 1)); note('Backup saved (the stream key and pairing code are not included)');
+}
+function importAll() {
+  pick((o) => { if (!o || o.kind !== 'ds-backup') return note('That is not a Stream backup file'); if (!confirm('Replace your settings, profiles, scene collections and scripts with this backup?')) return;
+    const keep = { key: cfg.key, code: cfg.code }; store.set('cfg', Object.assign({}, o.cfg, keep)); store.set('colls', o.colls || {}); store.set('collCur', o.collCur); store.set('profiles', o.profiles || {}); store.set('profCur', o.profCur); store.set('trs', o.trs || null); store.set('trI', o.trI || 0); store.set('scripts', o.scripts || []);
+    window.__noSave = true; location.reload(); });
+}
+
+LAY.hid.forEach((id) => { const e = $(id); if (e) e.style.display = 'none'; }); if (LAY.hid.includes('dkScenes') && LAY.hid.includes('dkSources')) $('left').style.display = 'none'; dockHeaders(); Object.keys(LAY.fl).forEach((id) => floatDock(id, true, LAY.fl[id])); runScripts();
+renderDockMenu();
 const CMDS = {};   // every menu action, by menu name: feeds the "Search functions" bar (Ctrl+K)
 function dyn(id, items) {
   const m = $(id); m.innerHTML = ''; const menu = (m.parentNode.firstChild.textContent || id).trim(); CMDS[id] = [];
@@ -1642,17 +2001,32 @@ function recs() {
   modal('Recordings (this session)', (b) => { if (!recList.length) { b.textContent = 'No recordings yet. Stop a recording and it appears here.'; return; }
     recList.forEach((r) => { const a = document.createElement('a'); a.href = r.url; a.download = r.name; a.textContent = r.name + '  (' + (r.size / 1048576).toFixed(1) + ' MB)'; a.style.cssText = 'display:block;color:var(--acc);padding:4px 0'; b.appendChild(a); }); }, { width: 480 });
 }
-function stats() { info('Stats', ['Canvas:  ' + cfg.res.replace('x', ' × ') + ' at ' + cfg.fps + ' FPS target', 'Output FPS:  ' + $('fps').textContent, 'Stream:  ' + (live ? $('tLive').textContent + '  ' + $('kbs').textContent + ' kb/s' : 'off'), 'Recording:  ' + (recd ? $('tRec').textContent : 'off'), 'Scenes:  ' + scenes.length, 'Profile:  ' + profCur, 'Scene collection:  ' + collCur], 380); }
+function stats() {
+  let timer = 0;
+  modal('Stats', (b) => {
+    const pre = document.createElement('pre'); pre.style.cssText = 'margin:0;white-space:pre-wrap;font:12px/1.6 ui-monospace,monospace;user-select:text'; b.appendChild(pre);
+    const upd = () => {
+      const mem = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) + ' MB' : 'n/a in this browser', o = outRes(), avg = FT.n ? (FT.sum / FT.n).toFixed(1) : '0';
+      pre.textContent = ['Canvas:  ' + cfg.res.replace('x', ' × ') + '   Output: ' + (o ? o.join(' × ') : 'same'), 'FPS:  ' + $('fps').textContent + ' of ' + $('fpsT').textContent, 'Average frame time:  ' + avg + ' ms',
+        'Skipped (late) frames:  ' + FT.skipped + ' of ' + FT.total + (FT.total ? '  (' + (100 * FT.skipped / FT.total).toFixed(2) + '%)' : ''), '',
+        'Stream:  ' + (live ? $('tLive').textContent + '   ' + $('kbs').textContent + ' kb/s' : rcn ? 'reconnecting…' : 'off'), 'Sent:  ' + (live ? (live.bytes / 1048576).toFixed(1) + ' MB' : '-') + '   Buffered:  ' + (live && live.ws ? Math.round(live.ws.bufferedAmount / 1024) + ' KB' : '-'),
+        'Recording:  ' + (recd ? $('tRec').textContent : 'off'), 'Replay buffer:  ' + (window.rbLive ? 'on' : 'off'), '', 'Scenes:  ' + scenes.length + '   Sources here:  ' + allSources(scenes[cur].sources).length,
+        'Memory used by this page:  ' + mem, 'Profile:  ' + profCur + '   Collection:  ' + collCur].join('\n');
+    };
+    upd(); timer = setInterval(upd, 500);
+    const r = document.createElement('div'); r.className = 'btnrow'; const x = document.createElement('button'); x.textContent = 'Reset counters'; x.onclick = () => { FT.skipped = FT.total = FT.sum = FT.n = 0; upd(); }; r.appendChild(x); b.appendChild(r);
+  }, { width: 460, after: () => clearInterval(timer) });
+}
 function renderMenus() {
-  dyn('mFile', [{ t: 'Show Recordings', f: recs }, { t: 'Remux Recordings', f: () => note('Remux needs the desktop version; browser recordings are WebM') }, { sep: 1 }, { t: 'Settings', f: () => openSettings() }, { sep: 1 },
+  dyn('mFile', [{ t: 'Show Recordings', f: recs }, { t: 'Export everything (backup)…', f: exportAll }, { t: 'Import backup…', f: importAll }, { t: 'Remux Recordings to MP4', f: remuxPick }, { sep: 1 }, { t: 'Settings', f: () => openSettings() }, { sep: 1 },
     { t: 'Start / Stop Streaming', f: toggleStream }, { t: 'Start / Stop Recording', f: toggleRec }, { t: 'Pause / Resume Recording', f: pauseRec }, { t: 'Split recording now', f: splitRec }, { t: 'Start / Stop Replay Buffer', f: () => toggleRB() }, { t: 'Save Replay', f: saveRB }, { t: 'Screenshot output', f: shotOutput }, { sep: 1 }, { t: 'Sign out' + (window.dscUser ? ' (' + window.dscUser + ')' : ''), f: () => authOut() }, { t: 'Exit', f: () => $('bExit').click() }]);
-  dyn('mEdit', [{ t: 'Undo', off: 1 }, { t: 'Redo', off: 1 }, { sep: 1 }, { t: 'Copy source', f: copySrc }, { t: 'Paste source', f: pasteSrc }, { sep: 1 }, { t: 'Transform…', f: openTransform }, { t: 'Order: Move up', f: () => moveSrc(-1) }, { t: 'Order: Move down', f: () => moveSrc(1) },
+  dyn('mEdit', [{ t: 'Undo (Ctrl+Z)', f: undo, off: !H.u.length }, { t: 'Redo (Ctrl+Y)', f: redo, off: !H.r.length }, { sep: 1 }, { t: 'Copy source', f: copySrc }, { t: 'Paste source', f: pasteSrc }, { sep: 1 }, { t: 'Transform…', f: openTransform }, { t: 'Order: Move up', f: () => moveSrc(-1) }, { t: 'Order: Move down', f: () => moveSrc(1) },
     { t: 'Rename source', f: renameSrc }, { t: 'Filters', f: openSrcFilters }, { t: 'Source properties', f: openProps }, { t: 'Screenshot source', f: () => { const q = curSrc(); q ? shotSource(q) : note('Select a source first'); } }, { t: 'Remove source', f: removeSource }, { sep: 1 }, { t: 'Preferences…', f: () => openSettings('pg') }]);
   dyn('mView', [{ t: 'Fullscreen interface', chk: !!document.fullscreenElement, f: () => $('tbFull').click() }, { t: 'Studio Mode', chk: studio, f: () => setStudio(!studio) }, { sep: 1 },
     { t: 'Toolbar', chk: cfg.bars.tb, f: () => { cfg.bars.tb = !cfg.bars.tb; store.set('cfg', cfg); applyPrefs(); } }, { t: 'Status bar', chk: cfg.bars.st, f: () => { cfg.bars.st = !cfg.bars.st; store.set('cfg', cfg); applyPrefs(); } }, { sep: 1 },
-    { t: 'PreCenter screen (third screen)', chk: !!window.pcOn, f: () => pc.stream ? setPcOn(!window.pcOn) : pcConnect() }, { t: 'Projector: output window', f: () => $('bCam').click() }, { t: 'Stats', f: stats }]);
+    { t: 'PreCenter screen (third screen)', chk: !!window.pcOn, f: () => pc.stream ? setPcOn(!window.pcOn) : pcConnect() }, { t: 'Multiview (window)', f: () => openProjector('multi') }, { t: 'Projector: Program', f: () => openProjector('program') }, { t: 'Projector: Preview', f: () => openProjector('preview'), off: !studio }, ...scenes.map((q, i) => ({ t: 'Projector: Scene ' + q.name, f: () => openProjector('scene', i) })), { t: 'Output window (capture it in Zoom / Meet)', f: () => $('bCam').click() }, { t: 'Stats', f: stats }]);
   dyn('mProf', profItems()); dyn('mColl', collItems());
-  dyn('mTools', [{ t: 'Auto-Configuration Wizard…', f: wizard }, { t: 'PreCenter StreamLink…', f: streamLink }, { t: 'Take PreCenter live', f: pcLive }, { t: 'Select PreCenter Lyrics', f: selectLyrics }, { t: 'Lyrics test text', chk: lyrTestOn(), f: () => lyrTest(!lyrTestOn()) },{ t: 'Output window', f: () => $('bCam').click() },
+  dyn('mTools', [{ t: 'Auto-Configuration Wizard…', f: wizard }, { t: 'Scripts…', f: openScripts }, { t: 'PreCenter StreamLink…', f: streamLink }, { t: 'Take PreCenter live', f: pcLive }, { t: 'Select PreCenter Lyrics', f: selectLyrics }, { t: 'Lyrics test text', chk: lyrTestOn(), f: () => lyrTest(!lyrTestOn()) },{ t: 'Output window', f: () => $('bCam').click() }, { t: 'Preview transition', f: previewTransition }, { t: 'Multiview', f: () => openProjector('multi') },
     { h: 'App' },
     ...(DESK ? [{ t: 'Link PreCenter (address and code)…', f: desk('showCode') }, { t: 'Copy pairing code', f: desk('copyCode') }]
              : [{ t: 'Link PreCenter (address and code)…', f: () => streamLink() }, { t: 'Copy pairing code', f: () => { try { navigator.clipboard.writeText(cfg.code || ''); note('Pairing code copied'); } catch { note('Could not copy'); } } }]),
@@ -1660,7 +2034,8 @@ function renderMenus() {
     { h: 'View' },
     { t: 'Reload', f: desk('reload', () => location.reload()) }, { t: 'Toggle full screen', f: () => $('tbFull').click() },
     ...(DESK ? [{ t: 'Zoom in', f: desk('zoomIn') }, { t: 'Zoom out', f: desk('zoomOut') }, { t: 'Reset zoom', f: desk('zoomReset') }, { t: 'Developer tools', f: desk('devtools') }] : [])]);
-  dyn('mHelp', [{ t: 'Keyboard shortcuts', f: () => info('Keyboard shortcuts', HK.map(([k, l]) => l.padEnd(26) + (cfg.keys[k] || '(not set)')).concat(['', 'Delete  remove source', 'Ctrl+C / Ctrl+V  copy / paste source', 'Arrows  nudge source (Shift = 10 px)']), 460) },
+  dyn('mHelp', [{ t: 'Keyboard shortcuts', f: () => info('Keyboard shortcuts', HK.map(([k, l]) => l.padEnd(26) + (cfg.keys[k] || '(not set)')).concat(['', 'Delete  remove source', 'Ctrl+C / Ctrl+V  copy / paste source', 'Ctrl+Z / Ctrl+Y  undo / redo', 'Ctrl+K  search functions', 'Arrows  nudge source (Shift = 10 px)']), 460) },
+    { t: 'What works in a browser', f: () => info('OBS features and this app', ['WORKS: scenes, sources, groups, filters, transitions, Studio Mode, audio mixer and filters, 6 audio tracks,', 'recording, replay buffer, streaming through the Stream server, Multiview, projectors, hotkeys, Undo / Redo, scripts.', '', 'NOT POSSIBLE in a web page (needs a native app): Browser source (CEF), Game Capture, Application Audio Capture,', 'VLC playlist source, Syphon / NDI, a real virtual-camera device, Render Delay filter, and more than one audio track', 'inside a single recording file. Use Display / Window capture, Media source, and the Output window instead.', '', 'Streaming and MP4 remux need the Stream server (desktop app or npm start) because browsers cannot send RTMP.'], 560) },
     { t: 'Log files', f: () => info('Log (this session)', logL) }, { t: 'Crash reports', f: () => info('Errors (this session)', errL) }, { t: 'Update information', f: () => info('Update information', ['Disciples: Stream ' + VER, 'This page updates when you reload it or when your host publishes a new version.'], 420) }, { sep: 1 },
     { t: 'About Disciples: Stream', f: () => note('Disciples: Stream ' + VER + ' · part of the Disciples ecosystem') }]);
   renderDockMenu();
@@ -1684,8 +2059,8 @@ setInterval(() => { syncRecUI(); if (recd && !recd.p && cfg.split > 0 && Date.no
 let rb = null;
 function startRB() {
   if (rb) return; audio();
-  const rec = new MediaRecorder(outStream(), { mimeType: mime(), videoBitsPerSecond: cfg.br * 1000, audioBitsPerSecond: (cfg.abr || 160) * 1000 });
-  const R2 = rb = { rec, head: null, q: [] };
+  const F = recFmt(), rec = new MediaRecorder(outStream('rec'), { mimeType: F.mime, videoBitsPerSecond: cfg.br * 1000, audioBitsPerSecond: (cfg.abr || 160) * 1000 });
+  const R2 = rb = { rec, head: null, q: [], F };
   rec.ondataavailable = (e) => { if (!e.data.size) return; if (!R2.head) { R2.head = e.data; return; } R2.q.push({ t: Date.now(), b: e.data }); const lim = Date.now() - (cfg.rbSec || 30) * 1000; while (R2.q.length && R2.q[0].t < lim) R2.q.shift(); };
   rec.start(1000); window.rbLive = true; note('Replay buffer on: keeps the last ' + (cfg.rbSec || 30) + ' seconds'); syncRecUI();
 }
@@ -1693,13 +2068,10 @@ function stopRB() { if (!rb) return; try { rb.rec.stop(); } catch {} rb = null; 
 const toggleRB = () => rb ? stopRB() : startRB();
 function saveRB() {
   if (!rb || !rb.head || !rb.q.length) return note(rb ? 'Replay buffer is still filling' : 'Start the replay buffer first');
-  const blob = new Blob([rb.head, ...rb.q.map((x) => x.b)], { type: 'video/webm' }), a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'replay-' + stamp() + '.webm'; a.click(); recList.push({ name: a.download, url: a.href, size: blob.size }); note('Replay saved');
+  const blob = new Blob([rb.head, ...rb.q.map((x) => x.b)], { type: rb.F.type }), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'replay-' + stamp() + '.' + rb.F.ext; a.click(); recList.push({ name: a.download, url: a.href, size: blob.size }); note('Replay saved');
 }
 let renderMs = 0; const draw0 = draw; draw = function () { const t = performance.now(); draw0.apply(this, arguments); renderMs = renderMs * 0.9 + (performance.now() - t) * 0.1; };
-stats = function () { const m = performance.memory; info('Stats', ['Canvas:  ' + cfg.res.replace('x', ' × ') + ' at ' + cfg.fps + ' FPS target', 'Output FPS:  ' + $('fps').textContent, 'Render time:  ' + renderMs.toFixed(1) + ' ms per frame (' + (renderMs > 1000 / cfg.fps ? 'rendering lag' : 'no lag') + ')',
-  'Stream:  ' + (live ? $('tLive').textContent + '  ' + $('kbs').textContent + ' kb/s' : 'off'), 'Recording:  ' + (recd ? (recd.p ? 'paused ' : '') + $('tRec').textContent : 'off'), 'Replay buffer:  ' + (rb ? 'on, ' + (cfg.rbSec || 30) + ' s' : 'off'),
-  'Memory:  ' + (m ? Math.round(m.usedJSHeapSize / 1048576) + ' MB' : 'not available in this browser'), 'Scenes:  ' + scenes.length, 'Profile:  ' + profCur, 'Scene collection:  ' + collCur, '', 'Dropped frames, encoding lag and CPU are not reported by browsers.'], 440); };
 (function addCtl() {
   const c = document.querySelector('#dkCtl .ctl'), mk = (id, t, f) => { const b = document.createElement('button'); b.id = id; b.textContent = t; b.onclick = () => { f(); renderMenus(); }; c.insertBefore(b, $('bCam')); };
   mk('bPause', 'Pause Recording', pauseRec); mk('bRB', 'Start Replay Buffer', toggleRB); mk('bSaveRB', 'Save Replay', saveRB); syncRecUI();
@@ -1714,6 +2086,7 @@ function srvWs(path) {
   const sec = /^(https|wss):/i.test(raw) || (location.protocol === 'https:' && !local);
   return (sec ? 'wss://' : 'ws://') + h + path;
 }
+function srvHttp(path) { const w = srvWs(path); return w.replace(/^ws/, 'http'); }
 async function pcConnect() {
   try {
     if (pc.stream) pcDisconnect();
@@ -1805,7 +2178,7 @@ async function authInit() {
     if (u) authOk(u); else authShow('Sign in with your Disciples account', true);
   } catch (e) { authShow(e.message || 'Could not connect.', false); $('auEr').textContent = ''; const b = $('auGo'); b.style.display = ''; b.textContent = 'Try again'; b.onclick = () => { b.textContent = 'Sign in'; b.onclick = authGo; authInit(); }; }
 }
-$('auSkip').onclick = () => authOk({ email: 'preview' }); $('auGo').onclick = authGo; $('auPw').onkeydown = (e) => { if (e.key === 'Enter') authGo(); }; $('auEm').onkeydown = (e) => { if (e.key === 'Enter') $('auPw').focus(); };
+$('auGo').onclick = authGo; $('auPw').onkeydown = (e) => { if (e.key === 'Enter') authGo(); }; $('auEm').onkeydown = (e) => { if (e.key === 'Enter') $('auPw').focus(); };
 authInit();
 renderMenus();
 
@@ -1841,8 +2214,8 @@ $('tbStudio').onclick = () => setStudio(!studio);
 
 function syncAir() {
   $('tbStudio').classList.toggle('on', !!studio);
-  const on = !!live; $('air').textContent = on ? 'ON AIR' : 'OFF AIR'; $('air').classList.toggle('on', on);
-  $('tbLive').classList.toggle('live', on); $('tbLive').innerHTML = on ? '<i>' + svg('stop') + '</i>Stop' : '<i>' + svg('play') + '</i>Go Live';
+  const on = !!live, rc = !!rcn; $('air').textContent = rc ? 'RECONNECTING' : on ? 'ON AIR' : 'OFF AIR'; $('air').classList.toggle('on', on || rc);
+  $('tbLive').classList.toggle('live', on || rc); $('tbLive').innerHTML = on || rc ? '<i>' + svg('stop') + '</i>Stop' : '<i>' + svg('play') + '</i>Go Live';
   $('tbRec').classList.toggle('live', !!recd); $('tbRec').innerHTML = recd ? '<i>' + svg('stop') + '</i>Stop' : '<i>' + svg('record') + '</i>Record';
 }
 setInterval(syncAir, 400);
@@ -1854,7 +2227,7 @@ $('tbLive').onclick = toggleStream; $('tbRec').onclick = toggleRec; $('tbLink').
 $('tbFull').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); };
 
 $('bStudio').onclick = () => setStudio(!studio);
-$('bExit').onclick = () => { if (cfg.confirmExit !== false && !confirm('Exit Disciples: Stream? Streaming and recording will stop.')) return; stopStream(); stopRec(); window.close(); setTimeout(() => note('You can close this tab now'), 400); };
+$('bExit').onclick = () => { if (cfg.confirmExit !== false && !confirm('Exit Disciples: Stream? Streaming and recording will stop.')) return; cancelReconnect(); stopStream(); stopRec(); if (window.desktop) return window.desktop.act('quit'); window.close(); setTimeout(() => note('You can close this tab now'), 400); };
 $('bCam').onclick = () => modal('Virtual Camera', (b) => {
   const p = document.createElement('div'); p.className = 'hint'; p.style.fontSize = '13px'; p.style.lineHeight = '1.5';
   p.textContent = 'A web page cannot create a camera device on your computer. That needs a desktop app (like OBS) or a plug-in. What this page can do is open the program picture in its own window. Capture that window in Zoom, Meet, OBS or any app that can capture a window.';
