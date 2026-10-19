@@ -424,9 +424,26 @@ html.rm *,html.rm *::before,html.rm *::after{animation:none!important;transition
 .split.sv{width:6px;margin:0 -4px;cursor:col-resize}.split.sh{position:absolute;left:10px;right:10px;top:-7px;height:8px;cursor:row-resize}
 .dock.floating{box-shadow:0 18px 50px rgba(0,0,0,.6)!important;border:1px solid var(--accline)!important}.dock.floating>h4{cursor:move}
 .dock>h4 .dkfloat:hover{color:var(--acc);border-color:var(--acc)}
+/* desktop (Windows): a slim black strip holds only the window buttons, like PreCenter; the menu row sits below it */
+#tbar{display:none}
+html.winbar #tbar{display:block;position:fixed;left:0;right:0;top:0;height:38px;background:#000;z-index:40;-webkit-app-region:drag}
+html.winbar #app{margin-top:38px;height:calc(100% - 38px)}
+html.winbar #menu{padding-right:10px}
+.thumb{display:block;background:#000;border-radius:6px;flex:none;width:64px;height:36px}
+.row .sgo{margin-left:auto;padding:2px 8px;font-size:11px;border-radius:6px;display:none}.row:hover .sgo{display:block}
+#wall{display:none;flex-direction:column;gap:8px;flex:1 1 44%;min-width:0;max-height:100%;overflow:hidden;padding:0 4px}
+#wallGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;overflow:auto;align-content:start;padding:2px}
+.wt{cursor:pointer;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:#000;position:relative}.wt:hover{border-color:var(--accline)}
+.wt.on{border-color:var(--red);box-shadow:0 0 0 2px rgba(229,72,77,.35)}
+.wt .thumb{width:100%;height:auto;border-radius:0;aspect-ratio:16/9}
+.wl{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#111115;font-size:12px}.wl b{color:var(--accink);background:var(--acc);border-radius:5px;min-width:18px;text-align:center;font-size:11px;padding:1px 4px}.wl b:empty{display:none}
+.wl span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wl em{font-style:normal;background:var(--red);color:#fff;border-radius:5px;padding:1px 6px;font-size:10px;font-weight:700}
+body.livemode #left{display:none!important}body.livemode #pvcol{display:none!important}
+#bUpd{background:linear-gradient(var(--acc2),var(--acc));color:var(--accink);font-weight:700;border-color:transparent;margin-bottom:6px;width:100%}
 </style>
 </head>
 <body>
+<div id="tbar"></div>
 <div id="app">
   <div id="menu">
     <div class="mi">File<div class="dd" id="mFile"></div></div>
@@ -443,6 +460,7 @@ html.rm *,html.rm *::before,html.rm *::after{animation:none!important;transition
   <div id="tb">
     <div class="tg"><button class="tb" id="tbAdd"><i data-i="plus"></i>Source</button><button class="tb" id="tbProps"><i data-i="gear"></i>Properties</button><button class="tb" id="tbFilt"><i data-i="filters"></i>Filters</button><button class="tb" id="tbTrans"><i data-i="transform"></i>Transform</button></div>
     <div class="tg"><button class="tb" id="tbLive"><i data-i="play"></i>Go Live</button><button class="tb" id="tbRec"><i data-i="record"></i>Record</button></div>
+    <div class="tg" id="modeTg"><button class="tb on" id="tbEdit" title="Edit mode: change scenes in Preview"><i data-i="gear"></i>Edit</button><button class="tb" id="tbLiveMode" title="Live mode: click or press 1-9 to send a scene to Live"><i data-i="radio"></i>Live</button></div>
     <div class="tg"><button class="tb" id="tbLink"><i data-i="link"></i>StreamLink</button><button class="tb" id="tbStudio"><i data-i="studio"></i>Studio</button><button class="tb" id="tbSet"><i data-i="sliders"></i>Settings</button><button class="tb" id="tbFull"><i data-i="expand"></i>Full</button></div>
   </div>
 
@@ -454,14 +472,14 @@ html.rm *,html.rm *::before,html.rm *::after{animation:none!important;transition
         <div class="tools"><button id="srAdd" title="Add source"><i data-i="plus"></i></button><button id="srDel" title="Remove source"><i data-i="trash"></i></button><button id="srProp" title="Properties"><i data-i="gear"></i></button><span class="gap"></span><button id="srUp" title="Move up"><i data-i="up"></i></button><button id="srDn" title="Move down"><i data-i="down"></i></button></div></div>
     </div>
     <div id="right"><div class="dock" id="dkPrev" style="flex:1"><h4>Preview</h4>
-      <div id="stage"><div class="pcol" id="pvcol" style="display:none"><div class="lbl">Preview</div><div id="pvwrap"><canvas id="pv" width="1280" height="720"></canvas><div class="sb" id="selbox2"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div><div class="pcol"><div class="lbl" id="pglbl" style="display:none">Program</div><div id="cvwrap"><canvas id="cv" width="1280" height="720"></canvas><div class="sb" id="selbox"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div><div class="pcol" id="pccol" style="display:none"><div class="lbl">PreCenter Live</div><div id="pcwrap"><video id="pcv" muted autoplay playsinline style="object-fit:contain;background:#000"></video></div><div class="btnrow" style="justify-content:center;margin-top:6px"><button id="pcTake">Take Live</button><button id="pcBack">Back</button><button id="pcOff">Disconnect</button></div></div></div>
+      <div id="stage"><div id="wall" style="display:none"><div class="lbl">Scenes: click to send to Live</div><div id="wallGrid"></div></div><div class="pcol" id="pvcol" style="display:none"><div class="lbl">Preview</div><div id="pvwrap"><canvas id="pv" width="1280" height="720"></canvas><div class="sb" id="selbox2"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div><div class="pcol"><div class="lbl" id="pglbl" style="display:none">Program</div><div id="cvwrap"><canvas id="cv" width="1280" height="720"></canvas><div class="sb" id="selbox"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div><div class="pcol" id="pccol" style="display:none"><div class="lbl">PreCenter Live</div><div id="pcwrap"><video id="pcv" muted autoplay playsinline style="object-fit:contain;background:#000"></video></div><div class="btnrow" style="justify-content:center;margin-top:6px"><button id="pcTake">Take Live</button><button id="pcBack">Back</button><button id="pcOff">Disconnect</button></div></div></div>
       <div id="srcbar"><span class="nm" id="srcName">No source selected</span><button id="bProps" disabled><i data-i="gear" data-s="14"></i>Properties</button><button id="bFilt" disabled><i data-i="filters" data-s="14"></i>Filters</button></div>
     </div></div>
     <div id="rcol">
       <div class="dock" id="dkTrans"><h4>Scene Transitions</h4><div class="pad">
         <div class="trrow"><select id="trType"></select><button id="trAdd" title="Add transition"><i data-i="plus"></i></button><button id="trDel" title="Remove transition"><i data-i="trash"></i></button><button id="trEdit" title="Transition properties"><i data-i="gear"></i></button></div>
         <label>Duration <span><input id="trMs" type="number" value="300" min="0" max="10000" step="50" style="width:78px"> ms</span></label>
-        <div id="qt" style="display:none"><button id="bTrans">Transition</button><div id="qchips"></div></div>
+        <div id="qt" style="display:none"><button id="bUpd" style="display:none" title="Send your Preview edits to Live (no transition)">Update Live</button><button id="bTrans">Transition</button><div id="qchips"></div></div>
       </div></div>
       <div class="dock" id="dkCtl"><h4>Controls</h4>
           <div class="ctl">
@@ -603,10 +621,13 @@ const note = (t) => { logL.push(new Date().toLocaleTimeString() + '  ' + t); $('
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const FULL = () => ({ x: 0, y: 0, w: 1, h: 1 });
 
-let studio = false, progSc = null;
+let studio = false, progSc = null, progData = null, mode = 'edit', studioBefore = false;
+const takeLive = (sc) => { progSc = sc; progData = sc ? clone(sc) : null; };
+function progScene() { if (!progSc || !scenes.includes(progSc)) takeLive(scenes[cur]); return cfg.liveFollow ? progSc : progData; }
 function fit() {
   const st = $('stage'); let pw = st.clientWidth - 20, ph = st.clientHeight - 20; if (pw < 50 || ph < 50) return;
-  const n = 1 + (studio ? 1 : 0) + (window.pcOn ? 1 : 0); if (n > 1) { pw = (pw - 14 * (n - 1)) / n; ph -= 22; }
+  if (mode === 'live') pw = pw * 0.55;
+  const n = 1 + (studio && mode !== 'live' ? 1 : 0) + (window.pcOn ? 1 : 0); if (n > 1) { pw = (pw - 14 * (n - 1)) / n; ph -= 22; }
   const k = Math.min(pw / cv.width, ph / cv.height), w = Math.floor(cv.width * k), h = Math.floor(cv.height * k);
   [['cv', 'cvwrap'], ['pv', 'pvwrap'], ['pcv', 'pcwrap']].forEach(([c, wr]) => { $(c).style.width = w + 'px'; $(c).style.height = h + 'px'; $(wr).style.width = w + 'px'; $(wr).style.height = h + 'px'; });
 }
@@ -1143,7 +1164,7 @@ function duplicateScene() { copyScene(); pasteScene(); }
 function removeScene() { if (scenes.length < 2) return note('You need at least one scene'); scenes.splice(cur, 1); cur = Math.max(0, cur - 1); selSrc = -1; gc(); renderScenes(); renderSources(); renderMixer(); }
 function sceneMenu(x, y) {
   popup(x, y, [{ t: 'Rename', f: renameScene }, { t: 'Duplicate', f: duplicateScene }, { t: 'Copy', f: copyScene }, { t: 'Paste', f: pasteScene, off: !clip.scene }, { sep: 1 },
-    { t: 'Scene projector (window)', f: () => openProjector('scene', cur) }, { t: 'Move up', f: () => moveScene(-1), off: cur === 0 }, { t: 'Move down', f: () => moveScene(1), off: cur === scenes.length - 1 }, { sep: 1 }, { t: 'Remove', f: removeScene, off: scenes.length < 2 }]);
+    { t: 'Send to Live', f: () => goLive(cur), off: !studio }, { t: 'Scene projector (window)', f: () => openProjector('scene', cur) }, { t: 'Move up', f: () => moveScene(-1), off: cur === 0 }, { t: 'Move down', f: () => moveScene(1), off: cur === scenes.length - 1 }, { sep: 1 }, { t: 'Remove', f: removeScene, off: scenes.length < 2 }]);
 }
 
 /* ---------- panels ---------- */
@@ -1151,13 +1172,15 @@ function renderScenes() {
   $('scenes').innerHTML = '';
   scenes.forEach((sc, i) => {
     const d = document.createElement('div'); d.className = 'row' + (i === cur ? ' sel' : '');
-    d.innerHTML = '<span class="nm"></span>'; d.firstChild.textContent = sc.name;
+    d.innerHTML = '<canvas class="thumb" width="160" height="90"></canvas><span class="nm"></span>'; d.firstChild.dataset.sid = sc.id; d.lastChild.textContent = sc.name;
     if (studio && sc === progSc) { const t = document.createElement('span'); t.className = 'tag'; t.textContent = 'LIVE'; d.appendChild(t); }
+    if (studio && sc !== progSc) { const g = document.createElement('button'); g.className = 'sgo'; g.title = 'Send this scene to Live'; g.textContent = 'Live'; g.onclick = (e) => { e.stopPropagation(); goLive(i); }; d.appendChild(g); }
     d.onclick = () => switchScene(i);
     d.ondblclick = renameScene;
     d.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); switchScene(i); sceneMenu(e.clientX, e.clientY); };
     $('scenes').appendChild(d);
   });
+  buildWall();
 }
 $('scenes').oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); sceneMenu(e.clientX, e.clientY); };
 function renderSources() {
@@ -1404,12 +1427,12 @@ function switchScene(i) {
 }
 function doTransition(t) {
   if (!studio) return note('Turn on Studio Mode to use quick transitions');
-  if (scenes[cur] === progSc) return note('Preview and Program are the same scene');
-  startTr(t || curTr()); progSc = scenes[cur]; renderScenes();
+  if (scenes[cur] === progSc) { takeLive(progSc); return note('Live updated with your edits'); }
+  startTr(t || curTr()); takeLive(scenes[cur]); renderScenes();
 }
 function setStudio(on) {
   studio = on; selSrc = -1;
-  if (on) progSc = scenes[cur]; else { const i = scenes.indexOf(progSc); cur = i >= 0 ? i : cur; }
+  if (on) takeLive(scenes[cur]); else { const i = scenes.indexOf(progSc); cur = i >= 0 ? i : cur; }
   $('pvcol').style.display = on ? '' : 'none'; $('pglbl').style.display = (on || window.pcOn) ? '' : 'none'; $('qt').style.display = on ? '' : 'none';
   $('bStudio').classList.toggle('on', on); fit(); renderScenes(); renderSources();
 }
@@ -1559,7 +1582,7 @@ let frames = 0; const pg = $('pv').getContext('2d');
 const FT = { last: 0, skipped: 0, total: 0, sum: 0, n: 0 };
 function draw() {
   { const n = performance.now(); if (FT.last) { const dt = n - FT.last; FT.total++; FT.sum += dt; FT.n++; if (dt > 1.6 * 1000 / (+cfg.fps || 30)) FT.skipped++; } FT.last = n; }
-  const P = studio ? (scenes.includes(progSc) ? progSc : (progSc = scenes[cur])) : scenes[cur];
+  const P = studio ? progScene() : scenes[cur];
   paintScene(g, P);
   if (studio) paintScene(pg, scenes[cur]);
   if (tr) { const p = (performance.now() - tr.t0) / tr.ms; if (p >= 1) { if (tr.t.vid) try { tr.t.vid.pause(); } catch {} tr = null; } else compose(p); }
@@ -1573,19 +1596,29 @@ setInterval(meters, 60);
 
 /* ---------- PreCenter link ---------- */
 let lws, lTimer;
-function linkConnect() {
-  clearTimeout(lTimer); if (lws) { lws.onclose = null; lws.close(); lws = null; }
-  if (!cfg.code) { $('dLink').className = 'dot'; $('linkTxt').textContent = 'no code set'; return; }
-  try { lws = new WebSocket(srvWs('/link?role=overlay&code=' + encodeURIComponent(cfg.code))); } catch { return; }
-  lws.onopen = () => { $('dLink').className = 'dot ok'; $('linkTxt').textContent = 'linked'; };
-  lws.onmessage = (e) => {
+let lTry = 0, lSeen = 0, lPeers = null, lHb = 0;
+function linkStatus(t, cls) { $('dLink').className = 'dot' + (cls ? ' ' + cls : ''); $('linkTxt').textContent = t; }
+function linkConnect(manual) {
+  clearTimeout(lTimer); clearInterval(lHb); if (lws) { lws.onclose = null; lws.onerror = null; try { lws.close(); } catch {} lws = null; }
+  if (manual) lTry = 0;
+  if (!cfg.code) { linkStatus('no code set'); return; }
+  let w; try { w = lws = new WebSocket(srvWs('/link?role=overlay&code=' + encodeURIComponent(cfg.code))); } catch { lTimer = setTimeout(linkConnect, 3000); return; }
+  w.onopen = () => { lTry = 0; lSeen = Date.now(); lPeers = null; linkStatus('linked (waiting for PreCenter)', 'ok'); if (window.linkWasDown) { note('PreCenter link restored. The last slide stayed on screen.'); window.linkWasDown = false; }
+    clearInterval(lHb); lHb = setInterval(() => { if (w !== lws) return clearInterval(lHb); if (Date.now() - lSeen > 12000) { try { w.close(); } catch {} return; } try { w.send('{"t":"hb"}'); } catch {} }, 4000); };
+  w.onmessage = (e) => {
+    lSeen = Date.now();
     let m; try { m = JSON.parse(e.data); } catch { return; }
+    if (m.t === 'hb') return;
+    if (m.t === 'peers') { lPeers = m.n; linkStatus(m.n ? 'linked to PreCenter' : 'linked (waiting for PreCenter)', 'ok'); return; }
     if (m.t === 'slide') { lyr.text = m.text || ''; lyr.ref = m.ref || ''; lyr.black = false; lyrSources().forEach((s) => { rt[s.ref] && (rt[s.ref].test = false); }); }
     else if (m.t === 'clear') lyr.text = '';
     else if (m.t === 'black') lyr.black = m.on !== false;
   };
-  lws.onclose = () => { $('dLink').className = 'dot'; $('linkTxt').textContent = 'reconnecting…'; lTimer = setTimeout(linkConnect, 2000); };
+  w.onclose = () => { if (w !== lws) return; clearInterval(lHb); window.linkWasDown = true; lTry++; const d = Math.min(8000, 800 * Math.pow(1.6, Math.min(lTry, 8))); linkStatus('connection lost, retrying (' + lTry + ')…'); lTimer = setTimeout(linkConnect, d); };
+  w.onerror = () => { try { w.close(); } catch {} };
 }
+addEventListener('online', () => { if (cfg.code) { lTry = 0; linkConnect(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && cfg.code && (!lws || lws.readyState !== 1)) { lTry = 0; linkConnect(); } });
 linkConnect();
 
 /* ---------- streaming + recording ---------- */
@@ -1807,7 +1840,7 @@ function saveColl() { if (window.__noSave) return; colls[collCur] = snapScenes()
 function loadColl(data) {
   const sc = data && data.length ? clone(data) : [{ id: uid++, name: 'Scene', sources: [] }];
   const walk = (a) => a.forEach((x) => { rt[x.ref] = rt[x.ref] || {}; if (x.children) walk(x.children); }); sc.forEach((q) => { walk(q.sources); uid = Math.max(uid, q.id + 1); });
-  scenes.splice(0, scenes.length, ...sc); cur = 0; selSrc = -1; progSc = null; renderScenes(); renderSources(); renderMixer();
+  scenes.splice(0, scenes.length, ...sc); cur = 0; selSrc = -1; progSc = null; progData = null; renderScenes(); renderSources(); renderMixer();
 }
 function useColl(n) { saveColl(); collCur = n; loadColl(colls[n]); store.set('collCur', n); note('Scene collection: ' + n); }
 function collItems() {
@@ -1981,6 +2014,46 @@ function importAll() {
 
 LAY.hid.forEach((id) => { const e = $(id); if (e) e.style.display = 'none'; }); if (LAY.hid.includes('dkScenes') && LAY.hid.includes('dkSources')) $('left').style.display = 'none'; dockHeaders(); Object.keys(LAY.fl).forEach((id) => floatDock(id, true, LAY.fl[id])); runScripts();
 renderDockMenu();
+/* ---------- Edit mode / Live mode, frozen Live output, scene wall ---------- */
+function goLive(i) {
+  const sc = scenes[i]; if (!sc) return; if (!studio) setStudio(true);
+  cur = i; if (progSc !== sc) startTr(curTr()); takeLive(sc); selSrc = -1; renderScenes(); renderSources(); note('Live: ' + sc.name);
+}
+function setMode(m) {
+  if (m === mode) return;
+  if (m === 'live') { studioBefore = studio; if (!studio) setStudio(true); mode = 'live'; }
+  else { mode = 'edit'; if (!studioBefore) setStudio(false); }
+  document.body.classList.toggle('livemode', mode === 'live'); $('tbEdit').classList.toggle('on', mode === 'edit'); $('tbLiveMode').classList.toggle('on', mode === 'live');
+  $('wall').style.display = mode === 'live' ? 'flex' : 'none'; buildWall(); fit(); renderScenes();
+  note(mode === 'live' ? 'Live mode: click a scene or press 1 to 9 to send it to Live. Editing is locked.' : 'Edit mode: changes stay in Preview until you press Transition or Update Live.');
+}
+function buildWall() {
+  const g = $('wallGrid'); if (!g) return; g.innerHTML = ''; if (mode !== 'live') return;
+  scenes.forEach((sc, i) => {
+    const t = document.createElement('div'); t.className = 'wt' + (sc === progSc ? ' on' : ''); const c = document.createElement('canvas'); c.className = 'thumb'; c.width = 320; c.height = 180; c.dataset.sid = sc.id;
+    const l = document.createElement('div'); l.className = 'wl'; const n = document.createElement('b'); n.textContent = i < 9 ? i + 1 : ''; const nm = document.createElement('span'); nm.textContent = sc.name; l.append(n, nm);
+    if (sc === progSc) { const tag = document.createElement('em'); tag.textContent = 'LIVE'; l.appendChild(tag); }
+    t.append(c, l); t.onclick = () => goLive(i); g.appendChild(t);
+  });
+}
+{ const tmp = document.createElement('canvas'), tg = tmp.getContext('2d'); let ti = 0;
+  setInterval(() => {
+    const list = [...document.querySelectorAll('canvas.thumb')].filter((c) => c.offsetParent); if (!list.length) return;
+    const c = list[ti++ % list.length], sc = scenes.find((q) => q.id === +c.dataset.sid); if (!sc) return;
+    if (tmp.width !== cv.width || tmp.height !== cv.height) { tmp.width = cv.width; tmp.height = cv.height; }
+    try { paintScene(tg, sc === progSc && !cfg.liveFollow && progData ? progData : sc); c.getContext('2d').drawImage(tmp, 0, 0, c.width, c.height); } catch {}
+  }, 100); }
+setInterval(() => {   // the Update Live button appears when Preview differs from the frozen Live picture
+  const dirty = studio && progSc && !cfg.liveFollow && progData && scenes.includes(progSc) && JSON.stringify(progSc) !== JSON.stringify(progData);
+  $('bUpd').style.display = dirty ? '' : 'none';
+}, 500);
+$('bUpd').onclick = () => { if (progSc) { takeLive(progSc); note('Live updated with your edits'); } };
+$('tbEdit').onclick = () => setMode('edit'); $('tbLiveMode').onclick = () => setMode('live');
+document.addEventListener('keydown', (e) => {
+  if (mode !== 'live' || modalOpen() || e.ctrlKey || e.metaKey || e.altKey || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (/^[1-9]$/.test(e.key) && scenes[+e.key - 1]) { e.preventDefault(); goLive(+e.key - 1); }
+});
+
 const CMDS = {};   // every menu action, by menu name: feeds the "Search functions" bar (Ctrl+K)
 function dyn(id, items) {
   const m = $(id); m.innerHTML = ''; const menu = (m.parentNode.firstChild.textContent || id).trim(); CMDS[id] = [];
@@ -1991,6 +2064,7 @@ function dyn(id, items) {
 }
 /* desktop shell bridge (only exists inside the installed app; in a browser these fall back to the web equivalents) */
 const DESK = window.desktop;
+if (DESK && DESK.platform === 'win32') document.documentElement.classList.add('winbar');
 const desk = (name, fallback) => () => DESK ? DESK.act(name) : (fallback && fallback());
 function wizard() {
   modal('Auto-Configuration Wizard', (b) => { const l = document.createElement('label'); l.className = 'fl'; l.innerHTML = 'Upload speed <select id="wz"><option value="3">3 Mbps or less</option><option value="5" selected>About 5 Mbps</option><option value="10">10 Mbps or more</option></select>'; b.appendChild(l);
@@ -2022,7 +2096,7 @@ function renderMenus() {
     { t: 'Start / Stop Streaming', f: toggleStream }, { t: 'Start / Stop Recording', f: toggleRec }, { t: 'Pause / Resume Recording', f: pauseRec }, { t: 'Split recording now', f: splitRec }, { t: 'Start / Stop Replay Buffer', f: () => toggleRB() }, { t: 'Save Replay', f: saveRB }, { t: 'Screenshot output', f: shotOutput }, { sep: 1 }, { t: 'Sign out' + (window.dscUser ? ' (' + window.dscUser + ')' : ''), f: () => authOut() }, { t: 'Exit', f: () => $('bExit').click() }]);
   dyn('mEdit', [{ t: 'Undo (Ctrl+Z)', f: undo, off: !H.u.length }, { t: 'Redo (Ctrl+Y)', f: redo, off: !H.r.length }, { sep: 1 }, { t: 'Copy source', f: copySrc }, { t: 'Paste source', f: pasteSrc }, { sep: 1 }, { t: 'Transform…', f: openTransform }, { t: 'Order: Move up', f: () => moveSrc(-1) }, { t: 'Order: Move down', f: () => moveSrc(1) },
     { t: 'Rename source', f: renameSrc }, { t: 'Filters', f: openSrcFilters }, { t: 'Source properties', f: openProps }, { t: 'Screenshot source', f: () => { const q = curSrc(); q ? shotSource(q) : note('Select a source first'); } }, { t: 'Remove source', f: removeSource }, { sep: 1 }, { t: 'Preferences…', f: () => openSettings('pg') }]);
-  dyn('mView', [{ t: 'Fullscreen interface', chk: !!document.fullscreenElement, f: () => $('tbFull').click() }, { t: 'Studio Mode', chk: studio, f: () => setStudio(!studio) }, { sep: 1 },
+  dyn('mView', [{ t: 'Fullscreen interface', chk: !!document.fullscreenElement, f: () => $('tbFull').click() }, { t: 'Studio Mode', chk: studio, f: () => setStudio(!studio) }, { t: 'Edit mode', chk: mode === 'edit', f: () => setMode('edit') }, { t: 'Live mode', chk: mode === 'live', f: () => setMode('live') }, { t: 'Live follows Preview edits (like OBS)', chk: !!cfg.liveFollow, f: () => { cfg.liveFollow = !cfg.liveFollow; store.set('cfg', cfg); if (!cfg.liveFollow && progSc) takeLive(progSc); } }, { sep: 1 },
     { t: 'Toolbar', chk: cfg.bars.tb, f: () => { cfg.bars.tb = !cfg.bars.tb; store.set('cfg', cfg); applyPrefs(); } }, { t: 'Status bar', chk: cfg.bars.st, f: () => { cfg.bars.st = !cfg.bars.st; store.set('cfg', cfg); applyPrefs(); } }, { sep: 1 },
     { t: 'PreCenter screen (third screen)', chk: !!window.pcOn, f: () => pc.stream ? setPcOn(!window.pcOn) : pcConnect() }, { t: 'Multiview (window)', f: () => openProjector('multi') }, { t: 'Projector: Program', f: () => openProjector('program') }, { t: 'Projector: Preview', f: () => openProjector('preview'), off: !studio }, ...scenes.map((q, i) => ({ t: 'Projector: Scene ' + q.name, f: () => openProjector('scene', i) })), { t: 'Output window (capture it in Zoom / Meet)', f: () => $('bCam').click() }, { t: 'Stats', f: stats }]);
   dyn('mProf', profItems()); dyn('mColl', collItems());
