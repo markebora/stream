@@ -421,7 +421,7 @@ html.rm *,html.rm *::before,html.rm *::after{animation:none!important;transition
 .acc-row{display:flex;gap:8px;flex-wrap:wrap}.acc-row button{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid transparent;min-width:0}.acc-row button.on{border-color:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.6)}
 #po.simple .adv-only{display:none}
 .split{flex:none;background:transparent;z-index:5}.split:hover{background:var(--accline)}
-.split.sv{width:6px;margin:0 -4px;cursor:col-resize}.split.sh{position:absolute;left:10px;right:10px;top:-7px;height:8px;cursor:row-resize}
+.split.sv{width:6px;margin:0 -4px;cursor:col-resize}.split.sh{position:absolute;left:0;right:0;top:-9px;height:8px;cursor:row-resize}
 .dock.floating{box-shadow:0 18px 50px rgba(0,0,0,.6)!important;border:1px solid var(--accline)!important}.dock.floating>h4{cursor:move}
 .dock>h4 .dkfloat:hover{color:var(--acc);border-color:var(--acc)}
 /* desktop (Windows): a slim black strip holds only the window buttons, like PreCenter; the menu row sits below it */
@@ -440,6 +440,33 @@ html.winbar #menu{padding-right:10px}
 .wl span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wl em{font-style:normal;background:var(--red);color:#fff;border-radius:5px;padding:1px 6px;font-size:10px;font-weight:700}
 body.livemode #left{display:none!important}body.livemode #pvcol{display:none!important}
 #bUpd{background:linear-gradient(var(--acc2),var(--acc));color:var(--accink);font-weight:700;border-color:transparent;margin-bottom:6px;width:100%}
+/* layout: Scenes + Sources run the full height; Audio Mixer in the centre, Cameras on its right */
+#app{grid-template-rows:auto auto 1fr auto!important}
+#body{display:flex;min-height:0;gap:10px;padding:10px 10px 8px}
+#left{width:268px;flex:none;display:flex;flex-direction:column;gap:10px;min-height:0}
+#left .dock{flex:1;min-height:0}
+#col{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;gap:10px}
+#main{flex:1;min-height:0;padding:0!important;gap:10px}
+#mixrow{flex:none;height:250px;display:flex;gap:10px;padding:0!important;position:relative;min-height:0}
+#mixrow .dock{min-width:0;min-height:0}
+#dkCam{flex:1 1 0}
+#camBody{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:8px;overflow:auto;align-content:start}
+.ct{cursor:pointer;border:2px solid var(--line);border-radius:9px;overflow:hidden;background:#000}.ct:hover{border-color:var(--accline)}.ct.sel{border-color:var(--acc)}
+.ct canvas{display:block;width:100%;aspect-ratio:16/9;background:#000}.ct div{padding:4px 8px;font-size:11.5px;background:#111115;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mixer{display:flex!important;flex-direction:column;overflow-x:hidden;overflow-y:auto}
+.ch2{padding:8px 14px 6px;border-bottom:1px solid var(--line2);display:flex;flex-direction:column;gap:3px;flex:none}
+.ch2 .top{display:flex;align-items:center;gap:8px}.ch2 .nm{font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch2 .cn{font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:5px;padding:0 6px}
+.ch2 .rd{font:600 12px ui-monospace,Consolas,monospace;min-width:74px;text-align:right;color:#7fe0a5}
+.ch2 .rd.warn{color:var(--acc)}.ch2 .rd.clip{color:var(--red)}
+.mtr{position:relative;height:13px;background:#0b0b0e;border-radius:3px;overflow:hidden}
+.mtr .g{position:absolute;inset:0;background:linear-gradient(90deg,#2fb86f 0,#2fb86f 62%,#e8b923 82%,#e5484d 94%,#e5484d 100%)}
+.mtr .m{position:absolute;top:0;bottom:0;right:0;width:100%;background:rgba(14,14,18,.86)}
+.mtr .pk{position:absolute;top:0;bottom:0;width:2px;background:#fff;left:0}
+.scl{position:relative;height:11px;font-size:9px;color:var(--dim);margin-bottom:1px}.scl span{position:absolute;transform:translateX(-50%);top:0}.scl span:first-child{transform:none}.scl span:last-child{transform:translateX(-100%)}
+.ch2 .fd{display:flex;align-items:center;gap:8px}.ch2 .fd input[type=range]{flex:1;margin:0;accent-color:var(--acc);writing-mode:horizontal-tb;direction:ltr;width:auto;height:auto}
+.ch2 .fd .fv{min-width:62px;text-align:right;color:var(--dim);font-size:11px}
+.ch2 .fd button{display:grid;place-items:center;width:28px;height:26px;padding:0;background:transparent;border:0;border-radius:8px;color:#d0d0d6;cursor:pointer}.ch2 .fd button:hover{background:var(--hov)}.ch2 .fd .mute.on{background:var(--red);color:#fff}
 </style>
 </head>
 <body>
@@ -464,13 +491,15 @@ body.livemode #left{display:none!important}body.livemode #pvcol{display:none!imp
     <div class="tg"><button class="tb" id="tbLink"><i data-i="link"></i>StreamLink</button><button class="tb" id="tbStudio"><i data-i="studio"></i>Studio</button><button class="tb" id="tbSet"><i data-i="sliders"></i>Settings</button><button class="tb" id="tbFull"><i data-i="expand"></i>Full</button></div>
   </div>
 
-  <div id="main">
+  <div id="body">
     <div id="left">
       <div class="dock" id="dkScenes"><h4>Scenes</h4><div class="body" id="scenes"></div>
         <div class="tools"><button id="sAdd" title="Add scene"><i data-i="plus"></i></button><button id="sDel" title="Remove scene"><i data-i="trash"></i></button><span class="gap"></span><button id="sUp" title="Move up"><i data-i="up"></i></button><button id="sDn" title="Move down"><i data-i="down"></i></button></div></div>
       <div class="dock" id="dkSources"><h4>Sources</h4><div class="body" id="sources"></div>
         <div class="tools"><button id="srAdd" title="Add source"><i data-i="plus"></i></button><button id="srDel" title="Remove source"><i data-i="trash"></i></button><button id="srProp" title="Properties"><i data-i="gear"></i></button><span class="gap"></span><button id="srUp" title="Move up"><i data-i="up"></i></button><button id="srDn" title="Move down"><i data-i="down"></i></button></div></div>
     </div>
+    <div id="col">
+      <div id="main">
     <div id="right"><div class="dock" id="dkPrev" style="flex:1"><h4>Preview</h4>
       <div id="stage"><div id="wall" style="display:none"><div class="lbl">Scenes: click to send to Live</div><div id="wallGrid"></div></div><div class="pcol" id="pvcol" style="display:none"><div class="lbl">Preview</div><div id="pvwrap"><canvas id="pv" width="1280" height="720"></canvas><div class="sb" id="selbox2"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div><div class="pcol"><div class="lbl" id="pglbl" style="display:none">Program</div><div id="cvwrap"><canvas id="cv" width="1280" height="720"></canvas><div class="sb" id="selbox"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div><div class="pcol" id="pccol" style="display:none"><div class="lbl">PreCenter Live</div><div id="pcwrap"><video id="pcv" muted autoplay playsinline style="object-fit:contain;background:#000"></video></div><div class="btnrow" style="justify-content:center;margin-top:6px"><button id="pcTake">Take Live</button><button id="pcBack">Back</button><button id="pcOff">Disconnect</button></div></div></div>
       <div id="srcbar"><span class="nm" id="srcName">No source selected</span><button id="bProps" disabled><i data-i="gear" data-s="14"></i>Properties</button><button id="bFilt" disabled><i data-i="filters" data-s="14"></i>Filters</button></div>
@@ -491,9 +520,10 @@ body.livemode #left{display:none!important}body.livemode #pvcol{display:none!imp
             <button id="bExit">Exit</button>
           </div></div>
     </div>
+    </div>
+    <div id="mixrow"><div class="dock" id="dkMixer" style="flex:1.5"><h4>Audio Mixer</h4><div class="body" id="mixer"></div><div class="tools"><button id="mAdv" title="Advanced Audio Properties"><i data-i="gear"></i></button><span style="flex:1"></span><button id="mOpt" style="width:auto;padding:0 10px">Options <i data-i="down" data-s="12"></i></button></div></div><div class="dock" id="dkCam"><h4>Cameras</h4><div class="body" id="camBody"></div><div class="tools"><button id="camAdd" title="Add a camera source to this scene"><i data-i="plus"></i></button><span style="flex:1"></span><span class="hint" style="margin:0 8px">Click a camera to select it</span></div></div></div>
+    </div>
   </div>
-  <div id="mixrow"><div class="dock" id="dkMixer" style="flex:1"><h4>Audio Mixer</h4><div class="body" id="mixer"></div><div class="tools"><button id="mAdv" title="Advanced Audio Properties"><i data-i="gear"></i></button><span style="flex:1"></span><button id="mOpt" style="width:auto;padding:0 10px">Options <i data-i="down" data-s="12"></i></button></div></div></div>
-
   <div id="status">
     <span id="msg"></span>
     <span><span class="dot" id="dLink"></span>PreCenter: <b id="linkTxt">not linked</b></span>
@@ -1225,31 +1255,36 @@ function chanMenu(x, y, s) {
 function renderMixer() {
   const box = $('mixer'); box.innerHTML = '';
   audioRefs().forEach((s) => {
-    const r = rt[s.ref], d = document.createElement('div'); d.className = 'ch';
-    let sc = ''; for (let db = 0; db >= -60; db -= 6) sc += '<span style="top:' + (-db / 60 * 100) + '%">' + (db === 0 ? '0' : db) + '</span>';
-    d.innerHTML = '<div class="cn"></div><div class="nm"></div><div class="db"></div><div class="fm"><div class="sc">' + sc + '</div><div class="mt"><i></i></div><input type="range" min="-60" max="0" step="0.5"></div><div class="cb"><button class="mute" title="Mute"></button><button class="gear" title="Channel menu">'+svg('gear',15)+'</button></div>';
+    const r = rt[s.ref], d = document.createElement('div'); d.className = 'ch2';
+    let sc = ''; for (let db = -60; db <= 0; db += 6) sc += '<span style="left:' + ((db + 60) / 60 * 100) + '%">' + db + '</span>';
+    d.innerHTML = '<div class="top"><span class="nm"></span><span class="rd" title="Level being received (peak)">-inf dB</span><span class="cn"></span></div>'
+      + '<div class="mtr"><div class="g"></div><div class="m"></div><div class="pk"></div></div><div class="scl">' + sc + '</div>'
+      + '<div class="fd"><button class="mute" title="Mute"></button><input type="range" min="-60" max="0" step="0.5" title="Volume"><span class="fv"></span><button class="gear" title="Channel menu">' + svg('gear', 15) + '</button></div>';
     d.querySelector('.cn').textContent = r.mon === 'off' ? 'Global' : (r.mon === 'only' ? 'Monitor' : 'Monitor+Out');
     d.querySelector('.nm').textContent = s.name; d.querySelector('.nm').title = s.name;
-    r.bar = d.querySelector('.mt i'); r.dbEl = d.querySelector('.db'); r.dbEl.textContent = mixLabel(r);
+    r.bar = d.querySelector('.m'); r.pkEl = d.querySelector('.pk'); r.rdEl = d.querySelector('.rd'); r.dbEl = d.querySelector('.fv'); r.dbEl.textContent = mixLabel(r); r.pkV = -100; r.pkT = 0;
     const mb = d.querySelector('.mute'), sl = d.querySelector('input');
     sl.value = r.fader;
     const paint = () => { mb.classList.toggle('on', r.muted); mb.innerHTML = svg(r.muted ? 'speakeroff' : 'speaker', 15); }; paint();
     mb.onclick = () => { r.muted = !r.muted; applyGain(r); paint(); };
     sl.oninput = () => { r.fader = +sl.value; applyGain(r); r.dbEl.textContent = mixLabel(r); };
-    d.querySelector('.gear').onclick = (e) => { const b = e.currentTarget.getBoundingClientRect(); chanMenu(b.left, b.bottom, s); e.stopPropagation(); };
+    d.querySelector('.gear').onclick = (e) => { const bb = e.currentTarget.getBoundingClientRect(); chanMenu(bb.left, bb.bottom, s); e.stopPropagation(); };
     d.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); chanMenu(e.clientX, e.clientY, s); };
     box.appendChild(d);
   });
   if (!box.children.length) box.innerHTML = '<div class="empty" style="width:100%">No audio sources. Add Audio Input Capture, or a Display Capture with audio.</div>';
 }
 function meters() {
-  const buf = new Uint8Array(256);
+  const buf = new Float32Array(1024), now = performance.now();
   for (const id in rt) {
-    const r = rt[id]; if (!r.an || !r.bar) continue;
-    r.an.getByteTimeDomainData(buf);
-    let pk = 0; for (let i = 0; i < buf.length; i++) pk = Math.max(pk, Math.abs(buf[i] - 128));
-    const db = pk > 0 ? 20 * Math.log10(pk / 128) : -100;
-    r.bar.style.height = (100 - Math.max(0, Math.min(1, (db + 60) / 60)) * 100) + '%';
+    const r = rt[id]; if (!r.an || !r.bar || !r.bar.isConnected) continue;
+    r.an.getFloatTimeDomainData(buf);
+    let pk = 0; for (let i = 0; i < buf.length; i++) { const v = Math.abs(buf[i]); if (v > pk) pk = v; }
+    const db = pk > 0 ? Math.max(-100, 20 * Math.log10(pk)) : -100, lvl = Math.max(0, Math.min(1, (db + 60) / 60));
+    r.bar.style.width = ((1 - lvl) * 100) + '%';
+    if (db >= r.pkV || now - r.pkT > 900) { r.pkV = db; r.pkT = now; } else r.pkV = Math.max(db, r.pkV - 0.7);
+    r.pkEl.style.left = 'calc(' + (Math.max(0, Math.min(1, (r.pkV + 60) / 60)) * 100) + '% - 2px)';
+    r.rdEl.textContent = db <= -60 ? '-inf dB' : db.toFixed(1) + ' dB'; r.rdEl.className = 'rd' + (db > -3 ? ' clip' : db > -12 ? ' warn' : '');
   }
 }
 function openAudioFilters(ref) {
@@ -1718,7 +1753,7 @@ document.querySelectorAll('.dd div').forEach((d) => d.addEventListener('click', 
   else if (a === 'copy') copySrc(); else if (a === 'paste') pasteSrc(); else if (a === 'filters') openSrcFilters(); else if (a === 'transform') openTransform();
   else if (a === 'fullscreen') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
 }));
-const DOCKS = [['dkScenes', 'Scenes'], ['dkSources', 'Sources'], ['dkMixer', 'Audio Mixer'], ['dkTrans', 'Scene Transitions'], ['dkCtl', 'Controls']];
+const DOCKS = [['dkScenes', 'Scenes'], ['dkSources', 'Sources'], ['dkMixer', 'Audio Mixer'], ['dkTrans', 'Scene Transitions'], ['dkCtl', 'Controls'], ['dkCam', 'Cameras']];
 function renderDockMenu() {
   const m = $('dockMenu'); m.innerHTML = '';
   DOCKS.forEach(([id, label]) => {
@@ -1937,9 +1972,9 @@ function mkSplit(cls, host, before, onDrag) {
   return h;
 }
 function setLeftW(w) { w = Math.max(160, Math.min(520, w)); $('left').style.width = w + 'px'; LAY.leftW = w; }
-function setMixH(h) { h = Math.max(110, Math.min(520, h)); $('app').style.gridTemplateRows = 'auto auto 1fr ' + h + 'px auto'; LAY.mixH = h; }
-mkSplit('sv', $('main'), $('right'), (m) => setLeftW(m.clientX - 8));
-{ const mr = $('mixrow'); mr.style.position = 'relative'; mkSplit('sh', mr, null, (m) => setMixH(innerHeight - m.clientY - $('status').offsetHeight - 6)); }
+function setMixH(h) { h = Math.max(140, Math.min(620, h)); $('mixrow').style.height = h + 'px'; LAY.mixH = h; }
+mkSplit('sv', $('body'), $('col'), (m) => setLeftW(m.clientX - 10));
+{ const mr = $('mixrow'); mr.style.position = 'relative'; mkSplit('sh', mr, null, (m) => setMixH($('status').getBoundingClientRect().top - 8 - m.clientY)); }
 if (LAY.leftW) setLeftW(LAY.leftW); if (LAY.mixH) setMixH(LAY.mixH);
 const dockHome = {};
 function floatDock(id, on, box) {
@@ -1967,7 +2002,7 @@ function dockHeaders() {
 }
 function resetLayout() {
   Object.keys(dockHome).forEach((id) => floatDock(id, false)); DOCKS.forEach(([id]) => { $(id).style.display = ''; }); $('left').style.display = '';
-  $('left').style.width = ''; $('app').style.gridTemplateRows = ''; LAY.leftW = LAY.mixH = 0; LAY.hid = []; LAY.fl = {}; cfg.lockDocks = false; saveLay(); fit(); renderDockMenu(); note('Layout reset');
+  $('left').style.width = ''; $('mixrow').style.height = ''; LAY.leftW = LAY.mixH = 0; LAY.hid = []; LAY.fl = {}; cfg.lockDocks = false; saveLay(); fit(); renderDockMenu(); note('Layout reset');
 }
 addEventListener('resize', () => { Object.keys(LAY.fl).forEach((id) => { const el = $(id); if (el && el.classList.contains('floating')) { el.style.left = Math.min(el.offsetLeft, innerWidth - 80) + 'px'; el.style.top = Math.min(el.offsetTop, innerHeight - 40) + 'px'; } }); });
 
@@ -2053,6 +2088,22 @@ document.addEventListener('keydown', (e) => {
   if (mode !== 'live' || modalOpen() || e.ctrlKey || e.metaKey || e.altKey || /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
   if (/^[1-9]$/.test(e.key) && scenes[+e.key - 1]) { e.preventDefault(); goLive(+e.key - 1); }
 });
+
+/* ---------- Cameras dock: live picture of every camera source, click to select ---------- */
+function camList() { const out = [], seen = new Set(); scenes.forEach((sc, si) => allSources(sc.sources).forEach((x) => { if (x.type === 'cam' && !seen.has(x.ref)) { seen.add(x.ref); out.push({ s: x, si }); } })); return out; }
+let camSig = '';
+function renderCams() {
+  const list = camList(), sig = list.map((q) => q.s.id + ':' + q.s.name).join('|') + '#' + cur + selSrc; if (sig === camSig) return; camSig = sig;
+  const box = $('camBody'); box.innerHTML = '';
+  if (!list.length) { box.innerHTML = '<div class="empty" style="grid-column:1/-1">No cameras yet. Press + below to add one to this scene.</div>'; return; }
+  list.forEach(({ s, si }) => {
+    const t = document.createElement('div'), c = document.createElement('canvas'), n = document.createElement('div'); t.className = 'ct'; c.width = 320; c.height = 180; c.dataset.ref = s.ref; n.textContent = s.name; t.append(c, n);
+    t.onclick = () => { if (mode === 'live') return note('Switch to Edit mode to change cameras'); if (si !== cur) switchScene(si); const k = flat().findIndex((q) => q.s === s); if (k >= 0) { selSrc = k; renderSources(); } };
+    box.appendChild(t);
+  });
+}
+setInterval(() => { renderCams(); document.querySelectorAll('#camBody canvas').forEach((c) => { const v = rt[c.dataset.ref] && rt[c.dataset.ref].video; if (v && v.videoWidth) { const g2 = c.getContext('2d'); g2.drawImage(v, 0, 0, c.width, c.height); } }); }, 120);
+$('camAdd').onclick = () => { if (mode === 'live') return note('Switch to Edit mode to add a camera'); addSource('cam'); };
 
 const CMDS = {};   // every menu action, by menu name: feeds the "Search functions" bar (Ctrl+K)
 function dyn(id, items) {
