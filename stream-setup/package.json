@@ -5,16 +5,50 @@
   "description": "Disciples Stream desktop app with a built-in server and ffmpeg",
   "main": "main.js",
   "author": "Disciples",
-  "scripts": { "start": "electron .", "dist": "electron-builder --win --publish never" },
-  "dependencies": { "ffmpeg-static": "^5.2.0", "ws": "^8.18.0" },
-  "devDependencies": { "electron": "^31.0.0", "electron-builder": "^24.13.3" },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
   "build": {
     "appId": "app.disciples.stream",
     "productName": "Disciples Stream",
-    "directories": { "output": "dist" },
-    "files": ["main.js", "preload.js", "server.js", "public/**", "package.json"],
-    "asarUnpack": ["node_modules/ffmpeg-static/**"],
-    "win": { "target": ["nsis"] },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "perMachine": true, "createDesktopShortcut": true, "artifactName": "Disciples-Stream-Setup-${version}.exe" }
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "server.js",
+      "update.json",
+      "public/**",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true,
+      "createDesktopShortcut": true,
+      "artifactName": "Disciples-Stream-Setup-${version}.exe",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
+    }
   }
 }

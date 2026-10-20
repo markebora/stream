@@ -1,6 +1,7 @@
 // Disciples Stream desktop shell: runs the server inside the app, with ffmpeg bundled (ffmpeg-static).
-const { app, BrowserWindow, Menu, Tray, nativeImage, dialog, clipboard, session, desktopCapturer, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, Tray, nativeImage, dialog, clipboard, session, desktopCapturer, ipcMain, net } = require('electron');
 const path = require('path');
+const fs = require('fs');
 if (!app.requestSingleInstanceLock()) app.quit();
 
 let ff = ''; try { ff = require('ffmpeg-static') || ''; } catch {}
@@ -25,11 +26,50 @@ function pickSource(sources) {
   });
 }
 
+
+/* ---- interface updates: the app pulls the newest index.html from your Vercel site and uses it instead of the built-in copy ---- */
+let UPD = { url: '', intervalMinutes: 30 };
+try { UPD = Object.assign(UPD, JSON.parse(fs.readFileSync(path.join(__dirname, 'update.json'), 'utf8'))); } catch {}
+try { const o = fs.readFileSync(path.join(app.getPath('userData'), 'update-url.txt'), 'utf8').trim(); if (/^https:\/\//i.test(o)) UPD.url = o; } catch {}
+if (process.env.DS_UPDATE_URL) UPD.url = process.env.DS_UPDATE_URL;
+const UI_DIR = path.join(app.getPath('userData'), 'ui-cache'), UI_META = path.join(UI_DIR, 'meta.json');
+process.env.UI_CACHE_DIR = UI_DIR;
+const readMeta = () => { try { return JSON.parse(fs.readFileSync(UI_META, 'utf8')); } catch { return null; } };
+function useCacheOk() {   // a cache made by an older installer is ignored
+  const m = readMeta(); if (!m || m.appVersion !== app.getVersion()) { try { fs.rmSync(UI_DIR, { recursive: true, force: true }); } catch {} return false; } return fs.existsSync(path.join(UI_DIR, 'index.html'));
+}
+async function pullUi() {
+  if (!/^https:\/\//i.test(UPD.url || '')) return { ok: false, msg: 'No update site is set (update.json).' };
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 8000);
+  try {
+    const r = await net.fetch(UPD.url.replace(/\/+$/, '') + '/index.html?t=' + Date.now(), { signal: ac.signal, headers: { 'Cache-Control': 'no-cache' } });
+    if (!r.ok) return { ok: false, msg: 'The update site answered ' + r.status + '.' };
+    const txt = await r.text();
+    if (txt.length < 100000 || !txt.includes('Disciples Stream') || !txt.includes('id="app"') || !txt.includes('</html>')) return { ok: false, msg: 'The file on the update site does not look like Stream, so it was ignored.' };
+    fs.mkdirSync(UI_DIR, { recursive: true });
+    const cur = path.join(UI_DIR, 'index.html'), had = fs.existsSync(cur) ? fs.readFileSync(cur, 'utf8') : null;
+    const changed = had !== txt;
+    if (changed) { fs.writeFileSync(cur + '.tmp', txt); fs.renameSync(cur + '.tmp', cur); }
+    fs.writeFileSync(UI_META, JSON.stringify({ appVersion: app.getVersion(), url: UPD.url, at: Date.now(), bytes: txt.length }));
+    return { ok: true, changed, bytes: txt.length };
+  } catch (e) { return { ok: false, msg: 'Could not reach the update site (' + (e.name === 'AbortError' ? 'timed out' : e.message) + ').' }; }
+  finally { clearTimeout(t); }
+}
+let uiLoadedSig = '';   // what the open window is showing
+ipcMain.handle('ds:updInfo', () => { const m = readMeta(); return { source: m && fs.existsSync(path.join(UI_DIR, 'index.html')) ? 'site' : 'built-in', url: UPD.url, at: m && m.at }; });
+ipcMain.handle('ds:updCheck', async () => {
+  const r = await pullUi(); if (!r.ok) return { msg: r.msg };
+  const sig = String(readMeta() && readMeta().bytes) + ':' + fs.statSync(path.join(UI_DIR, 'index.html')).mtimeMs;
+  if (r.changed) return { changed: true, msg: 'A new version was downloaded. Press Reload now to use it.' };
+  return { msg: 'You have the latest version.' };
+});
+
 function createWindow() {
   const opts = { width: 1440, height: 900, minWidth: 960, minHeight: 600, backgroundColor: '#000000', title: 'Disciples Stream', autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } };   // keep drawing/streaming when the window is hidden or minimized
   // Windows: draw the page's own menu bar in the title bar (like PreCenter) and keep the native min/max/close buttons.
   if (process.platform === 'win32') { opts.titleBarStyle = 'hidden'; opts.titleBarOverlay = { color: '#000000', symbolColor: '#f7f7f7', height: 38 }; }
+  opts.icon = path.join(__dirname, 'public', 'icon.png');
   win = new BrowserWindow(opts);
   win.setMenuBarVisibility(false);
   const url = 'http://localhost:' + srv.PORT + '/?code=' + encodeURIComponent(srv.CODE);
@@ -50,7 +90,7 @@ const zoom = (d) => { if (!win) return; const w = win.webContents; w.setZoomLeve
 function setTray(on) {
   trayOn = !!on;
   if (on && !tray) {
-    const img = nativeImage.createFromDataURL('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMElEQVR4nGP4z8DwHwMzMDAwMDAyMDD8Z2D4z0AlwDBqwKgBwwYMGzBswLABw8YAAJ0kEtgUnmMsAAAAAElFTkSuQmCC');
+    const img = nativeImage.createFromPath(path.join(__dirname, 'public', 'icon.png')).resize({ width: 16, height: 16 });
     tray = new Tray(img); tray.setToolTip('Disciples Stream');
     tray.setContextMenu(Menu.buildFromTemplate([{ label: 'Show', click: () => { if (win) { win.show(); win.focus(); } } }, { label: 'Quit', click: () => { quitting = true; app.quit(); } }]));
     tray.on('click', () => { if (win) { win.show(); win.focus(); } });
@@ -80,7 +120,7 @@ function showCode() {
     .then((r) => { if (r.response === 0) clipboard.writeText('Address: ' + addr + '\nCode: ' + srv.CODE); });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   srv = require('./server.js');
   session.defaultSession.setPermissionRequestHandler((wc, perm, cb) => cb(['media', 'display-capture', 'fullscreen'].includes(perm)));
   session.defaultSession.setDisplayMediaRequestHandler(async (req, cb) => {
@@ -91,7 +131,11 @@ app.whenReady().then(() => {
     } catch { cb({}); }
   });
   Menu.setApplicationMenu(null);   // the old App / View bar is gone: those items now live in the page's Tools menu
+  useCacheOk();
+  await Promise.race([pullUi(), new Promise((r) => setTimeout(r, 5000))]).catch(() => {});   // newest interface from your site (falls back to the built-in copy offline)
+  useCacheOk();
   createWindow();
+  setInterval(async () => { const r = await pullUi(); if (r.ok && r.changed && win) win.webContents.send('ds:ui-new'); }, Math.max(5, +UPD.intervalMinutes || 30) * 60000);
 });
 app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
 app.on('window-all-closed', () => { if (!trayOn) app.quit(); });

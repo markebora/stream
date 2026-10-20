@@ -1,0 +1,5 @@
+Upload everything in this ZIP to your GitHub repo (markebora/stream), keeping the folders, and replace files when asked.
+- index.html (root) = what Vercel serves AND what the installer app pulls.
+- .github/workflows/build-windows.yml = builds the installer (delete your old build-windows.ym).
+- stream-setup/ = the Windows app. build/installer.nsh already in your repo - keep it.
+Later updates to the look/features: replace only index.html at the repo root. Installed apps pull it by themselves.

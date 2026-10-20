@@ -46,6 +46,9 @@ const server = http.createServer((req, res) => {
     f.on('exit', () => { try { res.end(); } catch {} }); res.on('close', () => { try { f.kill('SIGTERM'); } catch {} });
     return;
   }
+  if (p === '/index.html' && process.env.UI_CACHE_DIR) {   // the newest interface pulled from your site (see main.js), if there is one
+    try { const c = path.join(process.env.UI_CACHE_DIR, 'index.html'); if (fs.existsSync(c)) { res.writeHead(200, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-cache' }); return res.end(fs.readFileSync(c)); } } catch {}
+  }
   const f = path.normalize(path.join(PUB, p));
   if (!f.startsWith(PUB)) { res.writeHead(403); return res.end(); }
   fs.readFile(f, (err, data) => {
