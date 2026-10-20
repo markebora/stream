@@ -539,6 +539,16 @@ html.light .lbl,html.light #stage .lbl{color:#555!important}
 #dscSplash .sN{margin:4px 0 0;font:700 36px/1.1 Poppins,Inter,sans-serif;color:#f7f7f7;letter-spacing:-.01em}
 @keyframes sPop{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){#dscSplash,#dscSplash .sT{transition:none}#dscSplash .sL{animation:none}}
+#auth{background:#000}
+#auth .card{width:min(420px,100%);background:#161618;border:1px solid #26262b;border-radius:20px;padding:30px 30px 28px;gap:10px;box-shadow:0 20px 60px #000a}
+#auth .kk{text-align:center;font:700 12px Poppins,Inter,sans-serif;letter-spacing:.34em;color:#E8B923;padding-left:.34em}
+#auth h1{font-size:42px;line-height:1.1;font-weight:700;letter-spacing:-.01em;color:#f7f7f7;margin:2px 0 0}
+#auth .sub{color:#a9a9b2;font-size:15px;margin:4px 0 14px}
+#auth label{font-size:13px;color:#a9a9b2;gap:6px}
+#auth input{background:#000;border:1px solid #2a2a30;border-radius:10px;padding:11px 12px;font-size:14px}
+#auth input:focus{border-color:#E8B923;box-shadow:0 0 0 2px rgba(232,185,35,.35)}
+#auth button{background:#E8B923;color:#1a1400;border-radius:10px;padding:11px;font-size:14px;margin-top:4px}
+html.light #auth{background:#f5f3ee}html.light #auth .card{background:#fff;border-color:#e2dfd6;box-shadow:0 20px 60px #0002}html.light #auth h1{color:#1a1a1d}html.light #auth .sub,html.light #auth label{color:#666}html.light #auth input{background:#faf9f5;border-color:#ddd9cc;color:#1a1a1d}
 </style>
 <link rel="icon" type="image/png" href="icon.png"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap">
 </head>
@@ -611,7 +621,7 @@ html.light .lbl,html.light #stage .lbl{color:#555!important}
   </div>
 </div>
 
-<div id="auth"><div class="card"><h1>Disciples Stream</h1><p class="sub" id="auSub">Sign in with your Disciples account</p><label>Email<input id="auEm" type="email" autocomplete="username"></label><label>Password<input id="auPw" type="password" autocomplete="current-password"></label><button id="auGo">Sign in</button><div class="er" id="auEr"></div></div></div>
+<div id="auth"><div class="card"><div class="kk">DISCIPLES</div><h1>Stream</h1><p class="sub" id="auSub">Sign in with your Disciples account to start.</p><label>Email<input id="auEm" type="email" autocomplete="username"></label><label>Password<input id="auPw" type="password" autocomplete="current-password"></label><button id="auGo">Sign in</button><div class="er" id="auEr"></div></div></div>
 <div id="addMenu" class="pm"></div><div id="subMenu" class="pm"></div>
 <div id="cmdk"><div class="box"><input id="cmdIn" placeholder="Search functions and buttons…" autocomplete="off" spellcheck="false"><div id="cmdList"></div><div class="cmdft"><span>↑ ↓ to move</span><span>Enter to run</span><span>Esc to close</span></div></div></div>
 
@@ -1275,11 +1285,13 @@ function sceneMenu(x, y) {
 }
 
 /* ---------- panels ---------- */
+const CVK = {};   // thumbnails survive re-renders so they never flash blank
+function keepCv(key, w, h, sid) { let c = CVK[key]; if (!c) { c = CVK[key] = document.createElement('canvas'); c.className = 'thumb'; c.width = w; c.height = h; } c.dataset.sid = sid; return c; }
 function renderScenes() {
   $('scenes').innerHTML = '';
   scenes.forEach((sc, i) => {
     const d = document.createElement('div'); d.className = 'row' + (i === cur ? ' sel' : '');
-    d.innerHTML = '<canvas class="thumb" width="160" height="90"></canvas><span class="nm"></span>'; d.firstChild.dataset.sid = sc.id; d.lastChild.textContent = sc.name;
+    d.innerHTML = '<span class="nm"></span>'; d.insertBefore(keepCv('s' + sc.id, 160, 90, sc.id), d.firstChild); d.lastChild.textContent = sc.name;
     if (studio && sc === progSc) { const t = document.createElement('span'); t.className = 'tag'; t.textContent = 'LIVE'; d.appendChild(t); }
     if (studio && sc !== progSc) { const g = document.createElement('button'); g.className = 'sgo'; g.title = 'Send this scene to Live'; g.textContent = 'Live'; g.onclick = (e) => { e.stopPropagation(); goLive(i); }; d.appendChild(g); }
     d.onclick = () => switchScene(i);
@@ -2142,7 +2154,7 @@ function setMode(m) {
 function buildWall() {
   const g = $('wallGrid'); if (!g) return; g.innerHTML = ''; if (mode !== 'live') return;
   scenes.forEach((sc, i) => {
-    const t = document.createElement('div'); t.className = 'wt' + (sc === progSc ? ' on' : ''); const c = document.createElement('canvas'); c.className = 'thumb'; c.width = 320; c.height = 180; c.dataset.sid = sc.id;
+    const t = document.createElement('div'); t.className = 'wt' + (sc === progSc ? ' on' : ''); const c = keepCv('w' + sc.id, 320, 180, sc.id);
     const l = document.createElement('div'); l.className = 'wl'; const n = document.createElement('b'); n.textContent = i < 9 ? i + 1 : ''; const nm = document.createElement('span'); nm.textContent = sc.name; l.append(n, nm);
     if (sc === progSc) { const tag = document.createElement('em'); tag.textContent = 'LIVE'; l.appendChild(tag); }
     t.append(c, l); t.onclick = () => goLive(i); g.appendChild(t);
@@ -2170,11 +2182,11 @@ document.addEventListener('keydown', (e) => {
 function camList() { const out = [], seen = new Set(); scenes.forEach((sc, si) => allSources(sc.sources).forEach((x) => { if (x.type === 'cam' && !seen.has(x.ref)) { seen.add(x.ref); out.push({ s: x, si }); } })); return out; }
 let camSig = '';
 function renderCams() {
-  const list = camList(), sig = list.map((q) => q.s.id + ':' + q.s.name).join('|') + '#' + cur + selSrc; if (sig === camSig) return; camSig = sig;
+  const list = camList(), sig = list.map((q) => q.s.id + ':' + q.s.name).join('|') ; if (sig === camSig) return; camSig = sig;
   const box = $('camBody'); box.innerHTML = '';
   if (!list.length) { box.innerHTML = '<div class="empty" style="grid-column:1/-1">No cameras yet. Press + below to add one to this scene.</div>'; return; }
   list.forEach(({ s, si }) => {
-    const t = document.createElement('div'), c = document.createElement('canvas'), n = document.createElement('div'); t.className = 'ct'; c.width = 320; c.height = 180; c.dataset.ref = s.ref; n.textContent = s.name; t.append(c, n);
+    const t = document.createElement('div'), n = document.createElement('div'); t.className = 'ct'; const c = (CVK['c' + s.ref] = CVK['c' + s.ref] || document.createElement('canvas')); if (c.width !== 320) { c.width = 320; c.height = 180; } c.dataset.ref = s.ref; n.textContent = s.name; t.append(c, n);
     t.onclick = () => { if (mode === 'live') return note('Switch to Edit mode to change cameras'); if (si !== cur) switchScene(si); const k = flat().findIndex((q) => q.s === s); if (k >= 0) { selSrc = k; renderSources(); } };
     box.appendChild(t);
   });
@@ -2367,7 +2379,7 @@ async function authGo() {
   $('auGo').disabled = true; $('auEr').textContent = '';
   try { await dscAuth.signInWithEmailAndPassword(em, pw); authOk(dscAuth.currentUser); } catch (e) { $('auEr').textContent = auErr(e); } $('auGo').disabled = false;
 }
-async function authOut() { try { stopStream(); stopRec(); await dscAuth.signOut(); } catch {} window.dscUser = ''; $('auEr').textContent = ''; authShow('Sign in with your Disciples account', true); renderMenus(); }
+async function authOut() { try { stopStream(); stopRec(); await dscAuth.signOut(); } catch {} window.dscUser = ''; $('auEr').textContent = ''; authShow('Sign in with your Disciples account to start.', true); renderMenus(); }
 async function authInit() {
   authShow('Connecting…', false);
   try {
@@ -2377,7 +2389,7 @@ async function authInit() {
     const c = await r.json(); if (!c || !c.apiKey) throw new Error('Disciples is missing its Firebase settings.');
     if (!firebase.apps.length) firebase.initializeApp(c); dscAuth = firebase.auth();
     const u = await new Promise((res) => { const off = dscAuth.onAuthStateChanged((x) => { off(); res(x); }); });
-    if (u) authOk(u); else authShow('Sign in with your Disciples account', true);
+    if (u) authOk(u); else authShow('Sign in with your Disciples account to start.', true);
   } catch (e) { authShow(e.message || 'Could not connect.', false); $('auEr').textContent = ''; const b = $('auGo'); b.style.display = ''; b.textContent = 'Try again'; b.onclick = () => { b.textContent = 'Sign in'; b.onclick = authGo; authInit(); }; }
 }
 $('auGo').onclick = authGo; $('auPw').onkeydown = (e) => { if (e.key === 'Enter') authGo(); }; $('auEm').onkeydown = (e) => { if (e.key === 'Enter') $('auPw').focus(); };
@@ -2486,7 +2498,7 @@ function openProfile(start) {
       if (ts.length > 1) { const sw = g('pfSw'); sw.hidden = false; sw.onclick = () => { const n = prompt('Team name to use:\n' + ts.map((x) => x.name).join('\n')); const f = ts.find((x) => x.name === n); if (f) { store.set('team', f.id); acc(); } }; }
     }).catch(() => { tm.textContent = 'Could not load the team'; }); else tm.textContent = 'Not available (not signed in)';
     g('pfOpen').onclick = () => window.open(DSC_SITE, '_blank', 'noopener');
-    g('pfOut').onclick = () => { done(); if (window.dscUser === 'preview') { authShow('Sign in with your Disciples account', true); } else authOut(); };
+    g('pfOut').onclick = () => { done(); if (window.dscUser === 'preview') { authShow('Sign in with your Disciples account to start.', true); } else authOut(); };
   }
   function gen() {
     body.innerHTML = '<h3>General</h3><div class="pfG">' + sel('gTh', 'Theme', [['dark', 'Dark'], ['light', 'Light'], ['auto', 'Match this computer']], cfg.theme || 'dark') + sel('gSz', 'Interface text size', [['13', 'Normal'], ['15', 'Large'], ['17', 'Extra large']], cfg.size || 13) + '</div>'
