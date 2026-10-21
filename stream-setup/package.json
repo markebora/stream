@@ -1,7 +1,7 @@
 {
   "name": "disciples-stream-desktop",
   "productName": "Disciples Stream",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Disciples Stream desktop app with a built-in server and ffmpeg",
   "main": "main.js",
   "author": "Disciples",
