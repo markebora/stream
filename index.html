@@ -1868,7 +1868,7 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ---------- OBS-style menus, profiles, collections, extra settings ---------- */
-const VER = '1.0';
+const VER = '1.0.1';
 const HK = [['stream', 'Start / Stop Streaming', () => toggleStream()], ['rec', 'Start / Stop Recording', () => toggleRec()], ['pause', 'Pause / Resume Recording', () => pauseRec()], ['split', 'Split recording', () => splitRec()], ['rbt', 'Start / Stop Replay Buffer', () => toggleRB()], ['rbs', 'Save Replay', () => saveRB()], ['pclive', 'Take PreCenter live', () => pcLive()], ['studio', 'Studio Mode', () => setStudio(!studio)], ['trans', 'Transition', () => $('bTrans').click()], ['full', 'Fullscreen interface', () => $('tbFull').click()], ['shot', 'Screenshot output', () => shotOutput()]];
 const ACCENTS = ['#E8B923', '#4f8cff', '#38c98a', '#ef5da8', '#ff7a45', '#9b7bff', '#2fc7d9'];
 function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }
@@ -1941,6 +1941,46 @@ function dl(name, text) { const a = document.createElement('a'); a.href = URL.cr
 function pick(cb) { const i = document.createElement('input'); i.type = 'file'; i.accept = '.json,application/json'; i.onchange = () => i.files[0] && i.files[0].text().then((t) => { try { cb(JSON.parse(t), i.files[0].name.replace(/\.json$/i, '')); } catch { note('That file is not valid'); } }); i.click(); }
 function uniq(map, n) { let k = n, i = 2; while (map[k]) k = n + ' ' + i++; return k; }
 
+/* ---------- Import an OBS Studio scene collection (.json) ---------- */
+function obsToColl(o) {
+  const W = (o.resolution && o.resolution.x) || 1920, H = (o.resolution && o.resolution.y) || 1080, byName = {}, rep = { scenes: 0, items: 0, kept: 0, replace: [] };
+  (o.sources || []).forEach((x) => { byName[x.name] = x; });
+  const rgb = (c) => { c = (+c >>> 0) & 0xffffff; return '#' + [c & 255, (c >> 8) & 255, (c >> 16) & 255].map((v) => v.toString(16).padStart(2, '0')).join(''); };
+  const sceneNames = (o.scene_order && o.scene_order.length ? o.scene_order.map((q) => q.name) : (o.sources || []).filter((x) => x.id === 'scene').map((x) => x.name)).filter((n) => byName[n]);
+  const sceneId = {}; sceneNames.forEach((n) => { sceneId[n] = uid++; });
+  const build = (items) => (items || []).map((it) => {
+    const src = byName[it.name] || {}, st = src.settings || {}, id = (src.id || '').replace(/_v\d+$/, ''), sc = it.scale || { x: 1, y: 1 };
+    const t = { id: uid++, name: it.name, visible: it.visible !== false, locked: !!it.locked, color: '#1d2a4a', size: 5.8, filters: [] }; t.ref = t.id; rep.items++;
+    let w = 0, h = 0;
+    if (it.bounds && it.bounds_type && it.bounds.x) { w = it.bounds.x; h = it.bounds.y; }
+    else if (id === 'color_source') { w = (st.width || W) * sc.x; h = (st.height || H) * sc.y; }
+    else if (id === 'text_gdiplus' || id === 'text_ft2_source') { w = Math.max(80, (st.text || '').split('\n').reduce((m, l) => Math.max(m, l.length), 4) * ((st.font && st.font.size) || 48) * 0.55) * sc.x; h = ((st.font && st.font.size) || 48) * 1.35 * ((st.text || '').split('\n').length) * sc.y; }
+    else { w = W * sc.x; h = H * sc.y; }
+    t.rect = { x: ((it.pos && it.pos.x) || 0) / W, y: ((it.pos && it.pos.y) || 0) / H, w: w / W, h: h / H };
+    if (id === 'color_source') { t.type = 'color'; t.color = rgb(st.color === undefined ? 0xff000000 : st.color); }
+    else if (id === 'text_gdiplus' || id === 'text_ft2_source') {
+      t.type = 'text'; Object.assign(t, { text: st.text || '', font: (st.font && st.font.face) || 'system-ui', tsize: ((st.font && st.font.size) || 48) / H * 100, tcolor: rgb(st.color === undefined ? 0xffffffff : st.color), bold: !!(st.font && /bold/i.test(st.font.style || '')), italic: !!(st.font && /italic/i.test(st.font.style || '')), align: st.align || 'left', bg: false, bgcolor: '#000000' });
+    }
+    else if (id === 'scene' && sceneId[it.name] !== undefined) { t.type = 'scene'; t.sceneId = sceneId[it.name]; }
+    else if (id === 'group') { t.type = 'group'; t.children = build(st.items).reverse(); t.open = true; t.rect = FULL(); rep.kept++; return t; }
+    else { t.type = 'color'; t.color = '#26262c'; t.name = '[Re-add] ' + it.name; if (/wasapi|pulse|coreaudio|alsa|audio|jack/i.test(src.id || '')) { t.visible = false; t.rect = { x: 0, y: 0, w: 0.1, h: 0.1 }; } else if (!(it.bounds && it.bounds_type && it.bounds.x)) t.rect.w = t.rect.h = 0.25; rep.replace.push(it.name + '  (' + (src.id || 'unknown') + ')'); return t; }
+    rep.kept++; return t;
+  });
+  const out = sceneNames.map((n) => { rep.scenes++; return { id: sceneId[n], name: n, sources: build((byName[n].settings || {}).items).reverse() }; });
+  const fixRt = (a) => a.forEach((x) => { rt[x.ref] = rt[x.ref] || {}; if (x.children) fixRt(x.children); });
+  out.forEach((q) => fixRt(q.sources));
+  return { scenes: out, rep, name: o.name };
+}
+function importObs() {
+  pick((o, n) => {
+    if (!o.sources) return note('That is not an OBS scene collection (.json)');
+    const r = obsToColl(o); if (!r.scenes.length) return note('No scenes found in that file');
+    saveColl(); const k = uniq(colls, r.name || n || 'OBS import'); colls[k] = r.scenes; useColl(k);
+    info('OBS import finished', ['Scenes imported: ' + r.rep.scenes, 'Sources placed: ' + r.rep.items,
+      r.rep.replace.length ? 'These need to be added again (cameras, audio, files and browser pages cannot be read from OBS). They sit in the same place as grey boxes named "[Re-add] ...":' : 'Everything was converted.', ...r.rep.replace.slice(0, 30)]);
+  });
+}
+
 /* profiles: streaming + recording settings */
 const profs = store.get('profiles', { Untitled: {} }); let profCur = store.get('profCur', 'Untitled'); if (!profs[profCur]) profCur = Object.keys(profs)[0];
 const saveProf = () => { if (window.__noSave) return; profs[profCur] = clone(cfg); store.set('profiles', profs); store.set('profCur', profCur); };
@@ -1972,7 +2012,8 @@ function collItems() {
     { t: 'Duplicate…', f: () => { const n = prompt('Name for the copy', collCur + ' copy'); if (n && n.trim()) { saveColl(); const k = uniq(colls, n.trim()); colls[k] = clone(colls[collCur]); useColl(k); } } },
     { t: 'Rename…', f: () => { const n = prompt('Scene collection name', collCur); if (n && n.trim() && n.trim() !== collCur) { saveColl(); colls[n.trim()] = colls[collCur]; delete colls[collCur]; collCur = n.trim(); saveColl(); } } },
     { t: 'Remove', off: Object.keys(colls).length < 2, f: () => { if (!confirm('Remove scene collection "' + collCur + '"?')) return; delete colls[collCur]; collCur = Object.keys(colls)[0]; loadColl(colls[collCur]); saveColl(); } },
-    { t: 'Import…', f: () => pick((o, n) => { if (!o.scenes) return note('That file is not a scene collection'); saveColl(); const k = uniq(colls, n || 'Imported'); colls[k] = o.scenes; useColl(k); }) },
+    { t: 'Import from OBS Studio…', f: importObs },
+    { t: 'Import…', f: () => pick((o, n) => { if (o.sources && !o.scenes) { const r = obsToColl(o); if (r.scenes.length) { saveColl(); const k = uniq(colls, r.name || n || 'OBS import'); colls[k] = r.scenes; return useColl(k); } } if (!o.scenes) return note('That file is not a scene collection'); saveColl(); const k = uniq(colls, n || 'Imported'); colls[k] = o.scenes; useColl(k); }) },
     { t: 'Export…', f: () => { const r = snapScenes(); dl(collCur + '.json', JSON.stringify({ scenes: r.scenes }, null, 1)); if (r.skipped) note(r.skipped + ' camera, screen, image or video source(s) were left out of the export'); } }, { sep: 1 }];
   Object.keys(colls).forEach((n) => it.push({ t: n, chk: n === collCur, f: () => n !== collCur && useColl(n) }));
   return it;
