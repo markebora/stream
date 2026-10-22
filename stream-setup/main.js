@@ -10,7 +10,7 @@ process.env.DATA_DIR = app.getPath('userData');
 process.env.PUBLIC_DIR = path.join(__dirname, 'public');
 process.env.PORT = process.env.PORT || '3000';
 
-let win, srv, tray = null, trayOn = false, quitting = false;
+let appUpd = null, win, srv, tray = null, trayOn = false, quitting = false;
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 /* screen / window picker for getDisplayMedia (Electron has no built-in one on Windows) */
@@ -122,6 +122,9 @@ ipcMain.on('ds:b-open', (e, o) => {
 });
 ipcMain.on('ds:b-close', (e, id) => { if (win && e.sender === win.webContents) closeB(+id); });
 ipcMain.on('ds:b-reload', (e, id) => { if (!win || e.sender !== win.webContents) return; const w = bwins.get(+id); if (w && !w.isDestroyed()) w.webContents.reloadIgnoringCache(); });
+ipcMain.handle('ds:appCheck', async (e) => { if (!win || e.sender !== win.webContents) return { status: 'off' }; if (!appUpd) return { status: 'off' }; await appUpd.check(); return { version: app.getVersion(), ...appUpd.state }; });
+ipcMain.handle('ds:appInfo', () => ({ version: app.getVersion(), packaged: app.isPackaged, ...(appUpd ? appUpd.state : { status: 'off' }) }));
+ipcMain.handle('ds:appInstall', (e) => !!(win && e.sender === win.webContents && appUpd && appUpd.install()));
 ipcMain.handle('ds:tray', (e, on) => { if (win && e.sender === win.webContents) setTray(on); return true; });
 ipcMain.handle('ds:act', (e, name) => {
   if (!win || e.sender !== win.webContents) return false;
@@ -161,6 +164,7 @@ app.whenReady().then(async () => {
   await Promise.race([pullUi(), new Promise((r) => setTimeout(r, 5000))]).catch(() => {});   // newest interface from your site (falls back to the built-in copy offline)
   useCacheOk();
   createWindow();
+  appUpd = require('./appupdate').start({ app, log: { info: (t) => console.log(t), warn: (t) => console.log(t), error: (t) => console.log(t) }, notify: (i) => { if (win && !win.isDestroyed()) win.webContents.send('ds:app-update', i); } });
   setInterval(async () => { const r = await pullUi(); if (r.ok && r.changed && win) win.webContents.send('ds:ui-new'); }, Math.max(5, +UPD.intervalMinutes || 30) * 60000);
 });
 app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });

@@ -1,7 +1,7 @@
 {
   "name": "disciples-stream-desktop",
   "productName": "Disciples Stream",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Disciples Stream desktop app with a built-in server and ffmpeg",
   "main": "main.js",
   "author": "Disciples",
@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "electron-updater": "^6.3.9"
   },
   "devDependencies": {
     "electron": "^31.0.0",
@@ -27,6 +28,7 @@
       "main.js",
       "preload.js",
       "server.js",
+      "appupdate.js",
       "update.json",
       "public/**",
       "package.json"
@@ -49,6 +51,14 @@
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "installerHeaderIcon": "build/icon.ico"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "markebora",
+        "repo": "stream",
+        "releaseType": "release"
+      }
+    ]
   }
 }

@@ -10,5 +10,9 @@ contextBridge.exposeInMainWorld('desktop', {
   browserClose: (id) => ipcRenderer.send('ds:b-close', id),
   browserReload: (id) => ipcRenderer.send('ds:b-reload', id),
   onBrowserFrame: (cb) => ipcRenderer.on('ds:b-frame', (e, id, w, h, buf) => cb(id, w, h, buf)),
+  appInfo: () => ipcRenderer.invoke('ds:appInfo'),
+  appCheck: () => ipcRenderer.invoke('ds:appCheck'),
+  appInstall: () => ipcRenderer.invoke('ds:appInstall'),
+  onAppUpdate: (cb) => ipcRenderer.on('ds:app-update', (e, i) => cb(i)),
   act: (name) => ipcRenderer.invoke('ds:act', String(name)),
 });
