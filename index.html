@@ -450,6 +450,13 @@ body.livemode #left{display:none!important}body.livemode #pvcol{display:none!imp
 #mixrow{flex:none;height:250px;display:flex;gap:10px;padding:0!important;position:relative;min-height:0}
 #mixrow .dock{min-width:0;min-height:0}
 #dkCam{flex:1 1 0}
+#dkLive{display:none;flex:2 1 0}body.livemode #dkLive{display:flex;flex-direction:column}body.livemode #dkCam{display:none}
+#liveBody{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;padding:8px;overflow:auto;align-content:start}
+.lt{border:2px solid var(--line);border-radius:9px;overflow:hidden;background:#111115;display:flex;flex-direction:column}.lt{flex:none}.lt.off canvas,.lt.off .ph{opacity:.45;filter:grayscale(1)}
+.lt canvas{display:block;width:100%;aspect-ratio:16/8;background:#000}.lt .ph{aspect-ratio:16/8;display:flex;align-items:center;justify-content:center;background:#000;color:var(--mut,#888)}
+.lt .nm{padding:5px 8px 2px;line-height:1.3;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lt .bt{display:flex;gap:6px;padding:5px 8px 7px}.lt .bt button{flex:1;height:28px;font-size:11.5px;display:flex;align-items:center;justify-content:center;gap:5px}
+.lt .bt button.hid{background:var(--red);color:#fff;border-color:transparent}.lt.vs{border-color:var(--accline)}
 #body>#rcol{width:292px;flex:none;display:flex;flex-direction:column;gap:10px;min-height:0;overflow:auto}#body>#rcol .dock{flex:none}#body>#rcol #dkCtl{flex:1 0 auto}
 #dkMixer{flex:1 1 0!important}
 #camBody{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:8px;overflow:auto;align-content:start}
@@ -607,7 +614,7 @@ html.light #auth{background:#f5f3ee}html.light #auth .card{background:#fff;borde
       <div id="srcbar"><span class="nm" id="srcName">No source selected</span><button id="bProps" disabled><i data-i="gear" data-s="14"></i>Properties</button><button id="bFilt" disabled><i data-i="filters" data-s="14"></i>Filters</button></div>
     </div></div>
     </div>
-    <div id="mixrow"><div class="dock" id="dkMixer" style="flex:1.5"><h4>Audio Mixer</h4><div class="body" id="mixer"></div><div class="tools"><button id="mAdv" title="Advanced Audio Properties"><i data-i="gear"></i></button><span style="flex:1"></span><button id="mOpt" style="width:auto;padding:0 10px">Options <i data-i="down" data-s="12"></i></button></div></div><div class="dock" id="dkCam"><h4>Cameras</h4><div class="body" id="camBody"></div><div class="tools"><button id="camAdd" title="Add a camera source to this scene"><i data-i="plus"></i></button><span style="flex:1"></span><span class="hint" style="margin:0 8px">Click a camera to select it</span></div></div></div>
+    <div id="mixrow"><div class="dock" id="dkMixer" style="flex:1.5"><h4>Audio Mixer</h4><div class="body" id="mixer"></div><div class="tools"><button id="mAdv" title="Advanced Audio Properties"><i data-i="gear"></i></button><span style="flex:1"></span><button id="mOpt" style="width:auto;padding:0 10px">Options <i data-i="down" data-s="12"></i></button></div></div><div class="dock" id="dkCam"><h4>Cameras</h4><div class="body" id="camBody"></div><div class="tools"><button id="camAdd" title="Add a camera source to this scene"><i data-i="plus"></i></button><span style="flex:1"></span><span class="hint" style="margin:0 8px">Click a camera to select it</span></div></div><div class="dock" id="dkLive"><h4>Live Sources <span class="hint" style="margin-left:8px;font-weight:400" id="liveName"></span></h4><div class="body" id="liveBody"></div><div class="tools"><span class="hint" style="margin:0 8px">Hide or show things in the scene that is on air, instantly</span></div></div></div>
     </div>
     <div id="rcol">
       <div class="dock" id="dkTrans"><h4>Scene Transitions</h4><div class="pad">
@@ -1982,7 +1989,7 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ---------- OBS-style menus, profiles, collections, extra settings ---------- */
-const VER = '1.2.3';
+const VER = '1.2.4';
 const HK = [['stream', 'Start / Stop Streaming', () => toggleStream()], ['rec', 'Start / Stop Recording', () => toggleRec()], ['pause', 'Pause / Resume Recording', () => pauseRec()], ['split', 'Split recording', () => splitRec()], ['rbt', 'Start / Stop Replay Buffer', () => toggleRB()], ['rbs', 'Save Replay', () => saveRB()], ['pclive', 'Take PreCenter live', () => pcLive()], ['studio', 'Studio Mode', () => setStudio(!studio)], ['trans', 'Transition', () => $('bTrans').click()], ['full', 'Fullscreen interface', () => $('tbFull').click()], ['shot', 'Screenshot output', () => shotOutput()]];
 const ACCENTS = ['#E8B923', '#4f8cff', '#38c98a', '#ef5da8', '#ff7a45', '#9b7bff', '#2fc7d9'];
 function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }
@@ -2303,7 +2310,7 @@ function setMode(m) {
   if (m === 'live') { studioBefore = studio; if (!studio) setStudio(true); mode = 'live'; }
   else { mode = 'edit'; if (!studioBefore) setStudio(false); }
   document.body.classList.toggle('livemode', mode === 'live'); $('tbEdit').classList.toggle('on', mode === 'edit'); $('tbLiveMode').classList.toggle('on', mode === 'live');
-  $('wall').style.display = mode === 'live' ? 'flex' : 'none'; buildWall(); fit(); renderScenes();
+  $('wall').style.display = mode === 'live' ? 'flex' : 'none'; liveSig = ''; buildWall(); fit(); renderScenes();
   note(mode === 'live' ? 'Live mode: click a scene or press 1 to 9 to send it to Live. Editing is locked.' : 'Edit mode: changes stay in Preview until you press Transition or Update Live.');
 }
 function buildWall() {
@@ -2349,6 +2356,32 @@ function renderCams() {
 setInterval(() => { renderCams(); document.querySelectorAll('#camBody canvas').forEach((c) => { const v = rt[c.dataset.ref] && rt[c.dataset.ref].video; if (v && v.videoWidth) { const g2 = c.getContext('2d'); g2.drawImage(v, 0, 0, c.width, c.height); } }); }, 120);
 $('camAdd').onclick = () => { if (mode === 'live') return note('Switch to Edit mode to add a camera'); addSource('cam'); };
 
+
+/* ---------- Live Sources dock (Live mode): every source of the on-air scene with a quick Hide/Show and Mute ---------- */
+let liveSig = '';
+function liveSet(src, vis) {   // change the on-air picture and the scene it came from, so Preview stays in step
+  [progSc, progData].forEach((sc) => { if (!sc) return; const m = allSources(sc.sources).find((q) => q.id === src.id); if (m) m.visible = vis; });
+  liveSig = ''; renderLive();
+}
+function renderLive() {
+  if (mode !== 'live') return; const sc = progScene(); if (!sc) return;
+  const list = allSources(sc.sources).filter((x) => x.type !== 'group');
+  const sig = sc.id + '|' + list.map((x) => x.id + ':' + x.name + ':' + x.visible + ':' + (rt[x.ref] && rt[x.ref].muted)).join(',');
+  if (sig === liveSig) return; liveSig = sig;
+  $('liveName').textContent = '· ' + sc.name; const box = $('liveBody'); box.innerHTML = '';
+  if (!list.length) { box.innerHTML = '<div class="empty" style="grid-column:1/-1">This scene has no sources.</div>'; return; }
+  list.forEach((x) => {
+    const r = rt[x.ref] || {}, t = document.createElement('div'); t.className = 'lt' + (x.visible ? '' : ' off') + (x.type === 'bible' || x.type === 'lyrics' ? ' vs' : '');
+    if (x.type === 'cam' || x.type === 'display' || x.type === 'window') { const c = (CVK['l' + x.ref] = CVK['l' + x.ref] || document.createElement('canvas')); c.width = 320; c.height = 180; c.dataset.ref = x.ref; t.appendChild(c); }
+    else { const ph = document.createElement('div'); ph.className = 'ph'; ph.innerHTML = svg(TYPE_ICON[x.type] || 'image', 26); t.appendChild(ph); }
+    const n = document.createElement('div'); n.className = 'nm'; n.textContent = x.name; n.title = x.name; t.appendChild(n);
+    const bt = document.createElement('div'); bt.className = 'bt';
+    const eye = document.createElement('button'); eye.className = x.visible ? '' : 'hid'; eye.innerHTML = svg(x.visible ? 'eye' : 'eyeoff', 15) + (x.visible ? 'Hide' : 'Show'); eye.onclick = () => liveSet(x, !x.visible); bt.appendChild(eye);
+    if (r.gain) { const m = document.createElement('button'); m.className = r.muted ? 'hid' : ''; m.innerHTML = svg(r.muted ? 'speakeroff' : 'speaker', 15) + (r.muted ? 'Unmute' : 'Mute'); m.onclick = () => { r.muted = !r.muted; applyGain(r); liveSig = ''; renderLive(); try { renderMixer(); } catch {} }; bt.appendChild(m); }
+    t.appendChild(bt); box.appendChild(t);
+  });
+}
+setInterval(() => { if (mode !== 'live') return; renderLive(); document.querySelectorAll('#liveBody canvas').forEach((c) => { const v = rt[c.dataset.ref] && rt[c.dataset.ref].video; if (v && v.videoWidth) { try { c.getContext('2d').drawImage(v, 0, 0, c.width, c.height); } catch {} } }); }, 150);
 const CMDS = {};   // every menu action, by menu name: feeds the "Search functions" bar (Ctrl+K)
 function dyn(id, items) {
   const m = $(id); m.innerHTML = ''; const menu = (m.parentNode.firstChild.textContent || id).trim(); CMDS[id] = [];
