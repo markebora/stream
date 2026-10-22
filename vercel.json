@@ -1,7 +1,14 @@
 {
-  "builds": [{ "src": "index.html", "use": "@vercel/static" }],
   "cleanUrls": true,
   "headers": [
-    { "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
   ]
 }
