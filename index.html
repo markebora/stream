@@ -554,6 +554,7 @@ html.light #auth{background:#f5f3ee}html.light #auth .card{background:#fff;borde
 .bdk{display:flex;flex-direction:column;gap:8px;padding:10px;flex:1;min-height:0}
 .bRow{display:flex;gap:6px;align-items:stretch}.bRow>select,.bRow>input{flex:1;min-width:0;padding:6px 8px;font-size:12px}
 .bRow>button{padding:6px 10px;font-size:12px;font-weight:600;background:var(--btn);border:1px solid var(--line);border-radius:8px;color:var(--txt);cursor:pointer}
+#bdList .bv2{color:var(--dim);font-size:11.5px;margin-top:3px}
 #bdList{flex:1;min-height:120px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg);outline:none}
 #bdList:focus{border-color:var(--accline)}
 .bv{display:flex;gap:8px;padding:7px 8px;border-bottom:1px solid var(--line2);cursor:pointer;font-size:12.5px;line-height:1.35}
@@ -627,6 +628,7 @@ html.light #auth{background:#f5f3ee}html.light #auth .card{background:#fff;borde
       <div class="dock" id="dkBible" style="display:none"><h4>Bible</h4>
         <div class="bdk">
           <div class="bRow"><select id="bdTr" title="Translation"></select><input id="bdRef" placeholder="John 3:16-18" title="Type a verse and press Enter"><button id="bdGo">Go</button></div>
+          <div class="bOpt" id="bdDualRow"><span>2 versions</span><div class="seg" id="bdDual"><button data-d="1">On</button><button data-d="0">Off</button></div><select id="bdTr2" title="Second translation" style="flex:1;min-width:0;padding:4px 6px;font-size:12px"></select></div>
           <div class="bRow"><select id="bdBook" title="Book"></select><select id="bdCh" title="Chapter" style="flex:0 0 70px"></select></div>
           <div id="bdList" tabindex="0"></div>
           <textarea id="bdPaste" rows="7" style="display:none;flex:1;resize:none" placeholder="Paste the verse text here (only the verses you need)"></textarea>
@@ -2749,15 +2751,17 @@ if (window.desktop && window.desktop.onUiNew) window.desktop.onUiNew(() => { if 
 applyTheme(); setAvatar();
 
 /* ---------- Bible Verse source, Browser source frames, Playlist (VLC-style) source ---------- */
-const PASTEV = { mbb: ['MBB', 'MBBTAG Magandang Balita Biblia (Tagalog) – paste text', 'Scripture texts are from the Magandang Balita Biblia © 2012 Philippine Bible Society, used with permission.'], asnd: ['ASND', 'ASND Ang Salita ng Dios (Tagalog) – paste text', 'Ang Salita ng Dios (Tagalog Contemporary Bible) Copyright © 2009, 2011, 2014, 2015 by Biblica, Inc.® Used by permission of Biblica, Inc.® All rights reserved worldwide.'], esv: ['ESV', 'ESV English Standard Version – paste text', 'Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission.'], ab: ['AB', 'Ang Biblia 2001 (Tagalog) – paste text', 'Scripture texts are from the Ang Biblia © 2001 Philippine Bible Society, used with permission.'] };
+const PASTEV = { esv: ['ESV', 'ESV English Standard Version – paste text', 'Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission.'], ab: ['AB', 'Ang Biblia 2001 (Tagalog) – paste text', 'Scripture texts are from the Ang Biblia © 2001 Philippine Bible Society, used with permission.'] };
 const isPaste = (id) => String(id || '').startsWith('p:'), pasteInfo = (id) => PASTEV[String(id).slice(2)] || ['?', id, ''];
-const bibleOptions = (sel) => { BIBL.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); }); Object.keys(PASTEV).forEach((k) => { const o = document.createElement('option'); o.value = 'p:' + k; o.textContent = PASTEV[k][1]; sel.appendChild(o); }); };
-const BIB = {}, BIBL = [['kjv', 'King James Version (KJV)'], ['asv', 'American Standard Version (ASV)'], ['bbe', 'Bible in Basic English (BBE)'], ['abtag', 'Ang Biblia 1905 (Tagalog)']];
+const bibleOptions = (sel, noPaste) => { BIBL.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); }); if (!noPaste) Object.keys(PASTEV).forEach((k) => { const o = document.createElement('option'); o.value = 'p:' + k; o.textContent = PASTEV[k][1]; sel.appendChild(o); }); };
+const BIB = {}, BIBL = [['kjv', 'King James Version (KJV)'], ['asv', 'American Standard Version (ASV)'], ['bbe', 'Bible in Basic English (BBE)'], ['abtag', 'Ang Biblia 1905 (Tagalog)'], ['mbb', 'Magandang Balita Biblia 2005 (Tagalog)'], ['asnd', 'Ang Salita ng Dios (Tagalog)'], ['niv', 'New International Version (NIV)'], ['nkrv', '개역개정 Korean (NKRV)']];
 const BEN = ['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi','Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'];
+const BKO = ['창세기', '출애굽기', '레위기', '민수기', '신명기', '여호수아', '사사기', '룻기', '사무엘상', '사무엘하', '열왕기상', '열왕기하', '역대상', '역대하', '에스라', '느헤미야', '에스더', '욥기', '시편', '잠언', '전도서', '아가', '이사야', '예레미야', '예레미야애가', '에스겔', '다니엘', '호세아', '요엘', '아모스', '오바댜', '요나', '미가', '나훔', '하박국', '스바냐', '학개', '스가랴', '말라기', '마태복음', '마가복음', '누가복음', '요한복음', '사도행전', '로마서', '고린도전서', '고린도후서', '갈라디아서', '에베소서', '빌립보서', '골로새서', '데살로니가전서', '데살로니가후서', '디모데전서', '디모데후서', '디도서', '빌레몬서', '히브리서', '야고보서', '베드로전서', '베드로후서', '요한일서', '요한이서', '요한삼서', '유다서', '요한계시록'];
 const BAL = { gen: 0, ge: 0, gn: 0, ex: 1, exo: 1, lev: 2, lv: 2, num: 3, nu: 3, nm: 3, deut: 4, dt: 4, josh: 5, jos: 5, judg: 6, jdg: 6, jg: 6, ru: 7, '1sam': 8, '1sa': 8, '1sm': 8, '2sam': 9, '2sa': 9, '2sm': 9, '1ki': 10, '1kgs': 10, '2ki': 11, '2kgs': 11, '1chr': 12, '1ch': 12, '2chr': 13, '2ch': 13, ezr: 14, neh: 15, ne: 15, est: 16, esth: 16, jb: 17, ps: 18, psa: 18, pss: 18, psalm: 18, prov: 19, pr: 19, pro: 19, eccl: 20, ecc: 20, song: 21, sos: 21, songofsongs: 21, isa: 22, is: 22, jer: 23, lam: 24, ezek: 25, eze: 25, dan: 26, dn: 26, hos: 27, jl: 28, am: 29, obad: 30, ob: 30, jon: 31, jnh: 31, mic: 32, nah: 33, hab: 34, zeph: 35, zep: 35, hag: 36, zech: 37, zec: 37, mal: 38, matt: 39, mt: 39, mat: 39, mk: 40, mrk: 40, lk: 41, luk: 41, jn: 42, joh: 42, ac: 43, rom: 44, ro: 44, '1cor': 45, '1co': 45, '2cor': 46, '2co': 46, gal: 47, ga: 47, eph: 48, phil: 49, php: 49, col: 50, '1thess': 51, '1th': 51, '2thess': 52, '2th': 52, '1tim': 53, '1ti': 53, '2tim': 54, '2ti': 54, tit: 55, philem: 56, phm: 56, heb: 57, jas: 58, jm: 58, '1pet': 59, '1pe': 59, '2pet': 60, '2pe': 60, '1jn': 61, '1john': 61, '2jn': 62, '2john': 62, '3jn': 63, '3john': 63, jud: 64, rev: 65, re: 65 };
-const bKey = (t) => String(t).toLowerCase().replace(/[^a-z0-9ñ]/g, '');
+const bKey = (t) => String(t).toLowerCase().replace(/[^a-z0-9ñ\uAC00-\uD7A3]/g, '');
 async function bibleLoad(id) {
   if (BIB[id]) return BIB[id];
+  id = { 'p:mbb': 'mbb', 'p:asnd': 'asnd' }[id] || id; if (BIB[id]) return BIB[id];
   const r = await fetch('bible/' + id + '.json'); if (!r.ok) throw new Error('Bible file missing');
   const d = await r.json(); d.keys = d.books.map((b) => bKey(b.n)); BIB[id] = d; return d;
 }
@@ -2765,12 +2769,13 @@ function bibleBook(txt, d) {
   const k = bKey(txt); if (k.length < 2) return -1; if (BAL[k] !== undefined) return BAL[k];
   let i = d.keys.findIndex((x) => x === k); if (i >= 0) return i;
   i = BEN.findIndex((x) => bKey(x) === k); if (i >= 0) return i;
+  i = BKO.findIndex((x) => x === k); if (i >= 0) return i;
   i = d.keys.findIndex((x) => x.startsWith(k)); if (i >= 0) return i;
   i = BEN.findIndex((x) => bKey(x).startsWith(k)); if (i >= 0) return i;
   return k.length >= 4 ? d.keys.findIndex((x) => x.includes(k)) : -1;
 }
 function bibleParse(str, d) {
-  const m = String(str || '').trim().match(/^(.*?[A-Za-zñÑ.])\s*(\d+)(?:\s*[:.]\s*(\d+)(?:\s*[-–—]\s*(\d+))?)?\s*$/); if (!m) return { err: 'Type a verse like John 3:16 or Psalm 23' };
+  const m = String(str || '').trim().match(/^(.*?[A-Za-zñÑ.\uAC00-\uD7A3])\s*(\d+)(?:\s*[:.]\s*(\d+)(?:\s*[-–—]\s*(\d+))?)?\s*$/); if (!m) return { err: 'Type a verse like John 3:16 or Psalm 23' };
   const bi = bibleBook(m[1], d); if (bi < 0 || !d.books[bi]) return { err: 'Book not found: ' + m[1].trim() };
   const bk = d.books[bi], ch = +m[2]; if (ch < 1 || ch > bk.c.length) return { err: bk.n + ' has ' + bk.c.length + ' chapters' };
   const n = bk.c[ch - 1].length; let v1 = m[3] ? +m[3] : 0, v2 = m[4] ? +m[4] : 0;
@@ -2780,9 +2785,13 @@ function bibleParse(str, d) {
 }
 function bibleCalc(s, d) {
   const p = bibleParse(s.bref, d); if (p.err) return { text: '', label: '', err: p.err };
-  const bk = d.books[p.bi], vs = bk.c[p.ch - 1].slice(p.v1 - 1, p.v2), multi = vs.length > 1;
-  const text = vs.map((t, i) => (multi ? (p.v1 + i) + ' ' : '') + t).join(' ');
-  return { text, label: bk.n + ' ' + p.ch + (p.whole ? '' : ':' + p.v1 + (p.v2 > p.v1 ? '-' + p.v2 : '')) + '  ·  ' + String(d.id).toUpperCase() };
+  const get = (dd) => {
+    const bk = dd.books[p.bi], ch = bk && bk.c[p.ch - 1]; if (!ch) return null;
+    const vs = ch.slice(p.v1 - 1, p.v2), multi = vs.length > 1, v2 = Math.min(p.v2, ch.length);
+    return { text: vs.map((t, i) => (t ? (multi ? (p.v1 + i) + ' ' : '') + t : '')).filter(Boolean).join(' '), label: bk.n + ' ' + p.ch + (p.whole ? '' : ':' + p.v1 + (v2 > p.v1 ? '-' + v2 : '')) + '  ·  ' + String(dd.id).toUpperCase() };
+  };
+  const a = get(d); if (!a) return { text: '', label: '', err: 'Verse not found' };
+  return a;
 }
 function bibleStep(ref, d, dir) {
   const p = bibleParse(ref, d); if (p.err) return null; let { bi, ch } = p, v = dir > 0 ? p.v2 + 1 : p.v1 - 1;
@@ -2812,13 +2821,14 @@ function drawBible(c, src) {
 }
 function bibleNav(dir) {
   if (bdData && $('dkBible').style.display !== 'none' && BD.on) return bdMove(dir);
-  const find = (arr, fn) => { for (const x of arr) { if (x.type === 'bible') return x; if (x.children) { const q = find(x.children, fn); if (q) return q; } } return null; };
+  const find = (arr, fn, sec) => { for (const x of arr) { if (x.type === 'bible' && !!x.b2 === !!sec) return x; if (x.children) { const q = find(x.children, fn, sec); if (q) return q; } } return null; };
   const live = (studio || mode === 'live') ? progScene() : scenes[cur]; let t = live && find(live.sources); if (!t && scenes[cur]) t = find(scenes[cur].sources); if (!t) return note('Add a Bible Verse source first');
   if (isPaste(t.bible)) return note('Pasted text: paste the next verses in the Bible dock, then Project Live');
   bibleLoad(t.bible).then((d) => {
     const q = bibleStep(t.bref, d, dir); if (!q) return note('Type a valid verse first');
     t.bref = q; (rt[t.ref] || {}).bKey = '';
-    if (progSc && progData && live !== progSc) { const o = find(progSc.sources); if (o) { o.bible = t.bible; o.bref = q; } }
+    const t2 = find(live.sources, 0, true); if (t2) { t2.bref = q; (rt[t2.ref] || {}).bKey = ''; }
+    if (progSc && progData && live !== progSc) { const o = find(progSc.sources); if (o) { o.bible = t.bible; o.bref = q; } const o2 = find(progSc.sources, 0, true); if (o2) { o2.bref = q; } }
     note(q);
   }).catch(() => note('Could not load the Bible'));
 }
@@ -2851,9 +2861,10 @@ function plNext(s, dir) {
 }
 
 /* ---------- Bible dock: pick a verse, preview it in the list, project it to the live picture ---------- */
-const BD = Object.assign({ pn: 1, tr: 'kjv', bi: 42, ch: 3, v: 16, lines: 1, mode: 'lt', bg: 1, on: false }, cfg.bd || {}); BD.on = false;
-const bdSave = () => { cfg.bd = { tr: BD.tr, bi: BD.bi, ch: BD.ch, v: BD.v, lines: BD.lines, mode: BD.mode, bg: BD.bg, paste: BD.paste, pref: BD.pref }; try { saveCfg(); } catch {} };
-let bdData = null;
+const BD = Object.assign({ pn: 1, tr: 'kjv', bi: 42, ch: 3, v: 16, lines: 1, mode: 'lt', bg: 1, dual: 0, tr2: 'niv', on: false }, cfg.bd || {}); BD.on = false; if (BD.tr === 'p:mbb' || BD.tr === 'p:asnd') BD.tr = BD.tr.slice(2);
+const bdSave = () => { cfg.bd = { tr: BD.tr, bi: BD.bi, ch: BD.ch, v: BD.v, lines: BD.lines, mode: BD.mode, bg: BD.bg, dual: BD.dual, tr2: BD.tr2, paste: BD.paste, pref: BD.pref }; try { saveCfg(); } catch {} };
+let bdData = null, bdData2 = null;
+const bdDualOn = () => !!BD.dual && !bdPasteOn() && !!BD.tr2;
 const bdPasteOn = () => isPaste(BD.tr);
 const bdRef = () => { const bk = bdData.books[BD.bi], n = bk.c[BD.ch - 1].length, v2 = Math.min(n, BD.v + BD.lines - 1); return bk.n + ' ' + BD.ch + ':' + BD.v + (v2 > BD.v ? '-' + v2 : ''); };
 function bdSplit(text, start) {
@@ -2887,12 +2898,13 @@ function bdPVis() {
 }
 function bdUI() {
   const pa = bdPasteOn(); $('bdList').style.display = pa ? 'none' : ''; $('bdBook').parentNode.style.display = pa ? 'none' : ''; $('bdLines').parentNode.style.display = pa ? 'none' : '';
-  $('bdPaste').style.display = pa ? '' : 'none'; $('bdCredit').style.display = pa ? '' : 'none'; $('bdCred').style.display = pa ? '' : 'none';
+  $('bdDualRow').style.display = pa ? 'none' : ''; $('bdPaste').style.display = pa ? '' : 'none'; $('bdCredit').style.display = pa ? '' : 'none'; $('bdCred').style.display = pa ? '' : 'none';
   if (pa) { $('bdPaste').value = (BD.paste && BD.paste[BD.tr]) || ''; $('bdCred').textContent = 'Paste a chapter or just the verses you need: Stream splits them by verse number. Copyrighted: check your publisher\'s limits. Credit: ' + pasteInfo(BD.tr)[2]; $('bdRef').placeholder = 'Juan 3  (or Juan 3:16)'; $('bdRef').value = BD.pref || ''; $('bdGo').style.display = 'none'; bdPParse(); } else { $('bdRef').placeholder = 'John 3:16-18'; $('bdGo').style.display = ''; }
 }
 async function bdLoad() {
   bdUI(); if (bdPasteOn()) { bdData = bdData || {}; $('bdInfo').textContent = BD.on ? 'Live: ' + BD.liveRef : 'Paste the verses, type the label, then Project Live'; return; }
   try { bdData = await bibleLoad(BD.tr); } catch { $('bdInfo').textContent = 'Could not load this Bible.'; return; }
+  bdData2 = null; if (BD.dual && BD.tr2) { try { bdData2 = await bibleLoad(BD.tr2); } catch { bdData2 = null; $('bdInfo').textContent = 'Could not load the second Bible.'; } }
   const bs = $('bdBook'); bs.innerHTML = ''; bdData.books.forEach((b, i) => { const o = document.createElement('option'); o.value = i; o.textContent = b.n; bs.appendChild(o); }); bs.value = BD.bi;
   bdChapters(); bdRender();
 }
@@ -2902,11 +2914,12 @@ function bdChapters() {
 }
 function bdRender(scroll) {
   const L = $('bdList'), vs = bdData.books[BD.bi].c[BD.ch - 1]; L.innerHTML = '';
-  vs.forEach((t, i) => { const d = document.createElement('div'), b = document.createElement('b'), x = document.createElement('span'); d.className = 'bv'; b.textContent = i + 1; x.textContent = t; d.append(b, x); d.dataset.v = i + 1;
+  vs.forEach((t, i) => { const d = document.createElement('div'), b = document.createElement('b'), x = document.createElement('span'); d.className = 'bv'; b.textContent = i + 1; x.append(document.createTextNode(t)); const t2 = bdData2 && BD.dual && bdData2.books[BD.bi] && bdData2.books[BD.bi].c[BD.ch - 1] && bdData2.books[BD.bi].c[BD.ch - 1][i]; if (t2) { const q = document.createElement('div'); q.className = 'bv2'; q.textContent = t2; x.appendChild(q); } d.append(b, x); d.dataset.v = i + 1;
     d.onclick = () => { BD.v = i + 1; bdMark(); bdSave(); L.focus(); }; d.ondblclick = () => { BD.v = i + 1; bdMark(); bdProject(); }; L.appendChild(d); });
   bdMark(scroll !== false);
 }
 function bdMark(scroll) {
+  $('bdDual').querySelectorAll('button').forEach((b) => b.classList.toggle('on', +b.dataset.d === (BD.dual ? 1 : 0))); $('bdTr2').disabled = !BD.dual;
   if (bdPasteOn()) { $('bdList').querySelectorAll('.bv').forEach((d) => { const v = +d.dataset.v; d.classList.toggle('sel', v >= BD.pn && v < BD.pn + BD.lines); d.classList.toggle('on', BD.on && v >= (BD.liveV || 0) && v < (BD.liveV || 0) + (BD.liveN || 1)); }); $('bdLines').querySelectorAll('button').forEach((b) => b.classList.toggle('on', +b.dataset.n === BD.lines)); $('bdLive').classList.toggle('on', BD.on); $('bdMode').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === BD.mode)); $('bdBg').querySelectorAll('button').forEach((b) => b.classList.toggle('on', +b.dataset.b === BD.bg)); $('bdInfo').textContent = BD.on ? 'Live: ' + BD.liveRef : (bdPRef() ? 'Selected: ' + bdPRef() : 'Paste the verses, type the label, then Project Live'); return; }
   const n = bdData.books[BD.bi].c[BD.ch - 1].length; BD.v = Math.max(1, Math.min(BD.v, n));
   let first = null; $('bdList').querySelectorAll('.bv').forEach((d) => { const v = +d.dataset.v, inr = v >= BD.v && v < BD.v + BD.lines; d.classList.toggle('sel', inr); if (v === BD.v) first = d; });
@@ -2916,32 +2929,40 @@ function bdMark(scroll) {
   $('bdMode').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === BD.mode)); $('bdBg').querySelectorAll('button').forEach((b) => b.classList.toggle('on', +b.dataset.b === BD.bg));
   $('bdLive').classList.toggle('on', BD.on); $('bdList').querySelectorAll('.bv').forEach((d) => d.classList.toggle('on', BD.on && BD.liveCh === BD.bi + ':' + BD.ch && +d.dataset.v >= BD.liveV && +d.dataset.v < BD.liveV + BD.liveN));
 }
-function bdFind(arr, id) { for (const x of arr) { if (id ? x.id === id : x.type === 'bible') return x; if (x.children) { const q = bdFind(x.children, id); if (q) return q; } } return null; }
-function bdTargets(create) {
+function bdFind(arr, id, sec) { for (const x of arr) { if (id ? x.id === id : (x.type === 'bible' && !!x.b2 === !!sec)) return x; if (x.children) { const q = bdFind(x.children, id, sec); if (q) return q; } } return null; }
+function bdTargets(create, sec) {
   const live = (studio || mode === 'live') ? progScene() : scenes[cur]; if (!live) return [];
-  let t = bdFind(live.sources.filter((x) => true), 0);
+  let t = bdFind(live.sources, 0, sec);
   if (!t && create) {
-    t = { id: uid++, type: 'bible', name: 'Bible Verse', visible: true, locked: false, color: '#1d2a4a', size: 5.8, rect: { x: 0.04, y: 0.6, w: 0.92, h: 0.36 }, filters: [] }; t.ref = t.id; Object.assign(t, LYR_DEF, { bible: BD.tr, bref: bdRef(), valign: 'middle', bgop: 40 }); rt[t.ref] = {};
+    t = { id: uid++, type: 'bible', name: sec ? 'Bible Verse 2' : 'Bible Verse', visible: true, locked: false, color: '#1d2a4a', size: 5.8, rect: { x: 0.04, y: sec ? 0.74 : 0.5, w: 0.92, h: 0.22 }, filters: [] }; if (sec) t.b2 = 1; t.ref = t.id; Object.assign(t, LYR_DEF, { bible: sec ? BD.tr2 : BD.tr, bref: bdRef(), valign: 'middle', bgop: 40 }); rt[t.ref] = {};
     live.sources.unshift(t); if (progSc && progData && live !== progSc) progSc.sources.unshift(clone(t)); renderSources();
   }
   if (!t) return [];
   const out = [t]; if (progSc && progData && live !== progSc) { const o = bdFind(progSc.sources, t.id); if (o) out.push(o); } return out;
 }
+// default layout for each box; only re-applied when Mode or 1/2-version changes, so boxes you move stay where you put them
+function bdLayout(t, sec, dual, full) {
+  const key = (full ? 'F' : 'L') + (dual ? 2 : 1); if (t.blay === key) return; t.blay = key;
+  const a = dual ? (sec ? [0.52, 0.42] : [0.08, 0.42]) : [0.08, 0.84], l = dual ? (sec ? [0.74, 0.22] : [0.5, 0.22]) : [0.62, 0.34];
+  const [y, h] = full ? a : l; t.rect = { x: full ? 0.05 : 0.04, y, w: full ? 0.9 : 0.92, h }; t.size = full ? (dual ? 7 : 11) : (dual ? 5.5 : 7);
+}
 function bdProject(credit) {
   if (bdPasteOn()) return bdProjectPaste(credit === true);
-  const ts = bdTargets(true); if (!ts.length) return; const ref = bdRef(), full = BD.mode === 'full';
-  ts.forEach((t) => { Object.assign(t, { bible: BD.tr, bref: ref, bshow: true, visible: true, bgop: BD.bg ? (full ? 60 : 40) : 0, size: full ? 11 : 7, valign: 'middle', rect: full ? { x: 0.05, y: 0.08, w: 0.9, h: 0.84 } : { x: 0.04, y: 0.62, w: 0.92, h: 0.34 } }); (rt[t.ref] || (rt[t.ref] = {})).bKey = ''; });
+  const ts = bdTargets(true, false); if (!ts.length) return; const ref = bdRef(), full = BD.mode === 'full', dual = bdDualOn();
+  const put = (arr, tr, sec) => arr.forEach((t) => { Object.assign(t, { bible: tr, bref: ref, btxt: '', bshow: true, visible: true, bgop: BD.bg ? (full ? 60 : 40) : 0, valign: 'middle' }); bdLayout(t, sec, dual, full); (rt[t.ref] || (rt[t.ref] = {})).bKey = ''; });
+  put(ts, BD.tr, false);
+  if (dual) put(bdTargets(true, true), BD.tr2, true); else bdTargets(false, true).forEach((t) => { t.bshow = false; });
   Object.assign(BD, { on: true, liveRef: ref, liveCh: BD.bi + ':' + BD.ch, liveV: BD.v, liveN: BD.lines }); bdMark(false); note('Projected: ' + ref);
 }
 function bdProjectPaste(credit) {
   const P = pasteInfo(BD.tr); let txt, ref, sel = credit ? [] : bdPSel();
   if (credit) { txt = P[2]; ref = ''; } else if ((BD.pv || []).length > 1 && sel.length) { txt = sel.length > 1 ? sel.map((x) => x.n + ' ' + x.text).join(' ') : sel[0].text; ref = bdPRef(); } else { txt = String($('bdPaste').value || '').trim(); ref = $('bdRef').value.trim(); }
   if (!txt) return note('Paste the verse text first');
-  const ts = bdTargets(true); if (!ts.length) return; const full = BD.mode === 'full';
-  ts.forEach((t) => { Object.assign(t, { bible: BD.tr, bref: ref, btxt: txt, bshow: true, visible: true, bgop: BD.bg ? (full ? 60 : 40) : 0, size: credit ? 4 : (full ? 11 : 7), valign: 'middle', rect: full ? { x: 0.05, y: 0.08, w: 0.9, h: 0.84 } : { x: 0.04, y: 0.62, w: 0.92, h: 0.34 } }); (rt[t.ref] || (rt[t.ref] = {})).bKey = ''; });
+  const ts = bdTargets(true); if (!ts.length) return; const full = BD.mode === 'full'; bdTargets(false, true).forEach((t) => { t.bshow = false; });
+  ts.forEach((t) => { t.blay = ''; Object.assign(t, { bible: BD.tr, bref: ref, btxt: txt, bshow: true, visible: true, bgop: BD.bg ? (full ? 60 : 40) : 0, size: credit ? 4 : (full ? 11 : 7), valign: 'middle', rect: full ? { x: 0.05, y: 0.08, w: 0.9, h: 0.84 } : { x: 0.04, y: 0.62, w: 0.92, h: 0.34 } }); (rt[t.ref] || (rt[t.ref] = {})).bKey = ''; });
   Object.assign(BD, { on: true, liveRef: credit ? 'Credit' : (ref || 'pasted text'), liveV: sel.length ? sel[0].n : 0, liveN: sel.length || 1 }); bdMark(false); note('Projected: ' + BD.liveRef);
 }
-function bdClear() { bdTargets(false).forEach((t) => { t.bshow = false; }); BD.on = false; bdMark(false); note('Bible cleared'); }
+function bdClear() { bdTargets(false).concat(bdTargets(false, true)).forEach((t) => { t.bshow = false; }); BD.on = false; bdMark(false); note('Bible cleared'); }
 function bdMove(d) {
   if (bdPasteOn()) { const pv = BD.pv || []; if (pv.length < 2) return note('Paste a chapter with verse numbers to step through it'); const nums = pv.map((x) => x.n), i = nums.indexOf(BD.pn); let j = i + d * BD.lines; if (j < 0 || j >= nums.length) return note(j < 0 ? 'Start of the pasted text' : 'End of the pasted text'); BD.pn = nums[j]; bdMark(); const el = $('bdList').querySelector('.bv.sel'); el && el.scrollIntoView({ block: 'nearest' }); if (BD.on) bdProject(); return; }
   const book = bdData.books[BD.bi]; let v = BD.v + d * BD.lines, n = book.c[BD.ch - 1].length;
@@ -2957,6 +2978,9 @@ function bdGo() {
 {
   const tr = $('bdTr'); bibleOptions(tr); tr.value = BD.tr; BD.paste = BD.paste || {};
   tr.onchange = () => { BD.tr = tr.value; bdSave(); bdLoad(); };
+  const tr2 = $('bdTr2'); bibleOptions(tr2, true); tr2.value = BD.tr2; if (tr2.value !== BD.tr2) { BD.tr2 = tr2.value; }
+  tr2.onchange = async () => { BD.tr2 = tr2.value; bdSave(); await bdLoad(); if (BD.on) bdProject(); };
+  $('bdDual').querySelectorAll('button').forEach((b) => b.onclick = async () => { BD.dual = +b.dataset.d; bdSave(); await bdLoad(); if (BD.on) bdProject(); });
   $('bdPaste').oninput = () => { BD.paste[BD.tr] = $('bdPaste').value; bdSave(); bdPParse(); }; $('bdRef').oninput = () => { if (bdPasteOn()) { BD.pref = $('bdRef').value; bdSave(); bdPParse(); } }; $('bdPaste').onkeydown = (e) => e.stopPropagation(); $('bdCredit').onclick = () => bdProject(true);
   const ln = $('bdLines'); for (let i = 1; i <= 6; i++) { const b = document.createElement('button'); b.textContent = i; b.dataset.n = i; b.onclick = () => { BD.lines = i; bdMark(); bdSave(); }; ln.appendChild(b); }
   $('bdMode').querySelectorAll('button').forEach((b) => b.onclick = () => { BD.mode = b.dataset.m; bdMark(false); bdSave(); });
