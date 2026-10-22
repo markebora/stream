@@ -82,7 +82,7 @@ function createWindow() {
   });
   win.loadURL(url);
   win.on('close', (e) => { if (trayOn && !quitting) { e.preventDefault(); win.hide(); } });
-  win.on('closed', () => { win = null; });
+  win.on('closed', () => { win = null; [...bwins.keys()].forEach(closeB); });
 }
 
 /* actions the page asks for from Tools > App / View */
@@ -96,6 +96,32 @@ function setTray(on) {
     tray.on('click', () => { if (win) { win.show(); win.focus(); } });
   } else if (!on && tray) { tray.destroy(); tray = null; }
 }
+
+/* ---- Browser sources: each one is a hidden off-screen page whose pictures are sent to the Stream window ---- */
+const bwins = new Map();
+function closeB(id) { const w = bwins.get(id); if (w) { bwins.delete(id); try { if (!w.isDestroyed()) w.destroy(); } catch {} } }
+ipcMain.on('ds:b-open', (e, o) => {
+  if (!win || e.sender !== win.webContents || !o) return;
+  let u; try { u = new URL(String(o.url || '')); } catch { return; }
+  if (!['http:', 'https:', 'file:'].includes(u.protocol)) return;
+  const id = +o.id; closeB(id);
+  const w = Math.max(64, Math.min(3840, +o.w || 1280)), h = Math.max(64, Math.min(2160, +o.h || 720));
+  const bw = new BrowserWindow({ show: false, width: w, height: h, useContentSize: true, frame: false, transparent: true, backgroundColor: '#00000000', skipTaskbar: true,
+    webPreferences: { offscreen: true, sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false, partition: 'persist:browser-source' } });
+  bwins.set(id, bw);
+  bw.webContents.setFrameRate(Math.max(1, Math.min(60, +o.fps || 30)));
+  bw.webContents.setAudioMuted(true);
+  bw.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  bw.webContents.on('dom-ready', () => { if (o.css) bw.webContents.insertCSS(String(o.css)).catch(() => {}); });
+  bw.webContents.on('paint', (ev, dirty, img) => {
+    if (!win || win.isDestroyed() || bw.isDestroyed()) return;
+    const s = img.getSize(); if (s.width < 1) return;
+    win.webContents.send('ds:b-frame', id, s.width, s.height, img.toBitmap());
+  });
+  bw.loadURL(u.href).catch(() => {});
+});
+ipcMain.on('ds:b-close', (e, id) => { if (win && e.sender === win.webContents) closeB(+id); });
+ipcMain.on('ds:b-reload', (e, id) => { if (!win || e.sender !== win.webContents) return; const w = bwins.get(+id); if (w && !w.isDestroyed()) w.webContents.reloadIgnoringCache(); });
 ipcMain.handle('ds:tray', (e, on) => { if (win && e.sender === win.webContents) setTray(on); return true; });
 ipcMain.handle('ds:act', (e, name) => {
   if (!win || e.sender !== win.webContents) return false;
