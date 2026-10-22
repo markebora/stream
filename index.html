@@ -422,7 +422,7 @@ html.rm *,html.rm *::before,html.rm *::after{animation:none!important;transition
 #po.simple .adv-only{display:none}
 .split{flex:none;background:transparent;z-index:5}.split:hover{background:var(--accline)}
 .split.sv{width:6px;margin:0 -4px;cursor:col-resize}.split.sh{position:absolute;left:0;right:0;top:-9px;height:8px;cursor:row-resize}
-.dock.floating{box-shadow:0 18px 50px rgba(0,0,0,.6)!important;border:1px solid var(--accline)!important}.dock.floating>h4{cursor:move}
+.dock.floating{box-shadow:0 18px 50px rgba(0,0,0,.6)!important;border:1px solid var(--accline)!important}.dock.floating>h4{cursor:move}.dock.floating{-webkit-app-region:no-drag}
 .dock>h4 .dkfloat:hover{color:var(--acc);border-color:var(--acc)}
 /* desktop (Windows): a slim black strip holds only the window buttons, like PreCenter; the menu row sits below it */
 #tbar{display:none}
@@ -2193,7 +2193,7 @@ function floatDock(id, on, box) {
   const el = $(id); if (!el) return;
   if (on) {
     if (!dockHome[id]) { const ph = document.createComment('dock:' + id); el.parentNode.insertBefore(ph, el); dockHome[id] = ph; }
-    const r = el.getBoundingClientRect(), b = box || { x: Math.max(20, r.left + 30), y: Math.max(60, r.top + 30), w: Math.max(260, r.width), h: Math.max(180, Math.min(420, r.height)) };
+    const r = el.getBoundingClientRect(), b = box ? { ...box, y: Math.max(48, box.y) } : { x: Math.max(20, r.left + 30), y: Math.max(60, r.top + 30), w: Math.max(260, r.width), h: Math.max(180, Math.min(420, r.height)) };
     el.classList.add('floating'); el.style.cssText += ';position:fixed;left:' + b.x + 'px;top:' + b.y + 'px;width:' + b.w + 'px;height:' + b.h + 'px;z-index:60;resize:both;overflow:auto;flex:none';
     document.body.appendChild(el); LAY.fl[id] = b;
   } else {
@@ -2208,7 +2208,7 @@ function dockHeaders() {
     b.onclick = (e) => { e.stopPropagation(); if (cfg.lockDocks) return note('Panels are locked (Docks menu)'); floatDock(id, !el.classList.contains('floating')); };
     h.appendChild(b);
     h.onpointerdown = (e) => { if (!el.classList.contains('floating') || cfg.lockDocks || e.target === b) return; const sx = e.clientX - el.offsetLeft, sy = e.clientY - el.offsetTop; h.setPointerCapture(e.pointerId);
-      const mv = (m) => { el.style.left = Math.max(0, m.clientX - sx) + 'px'; el.style.top = Math.max(0, m.clientY - sy) + 'px'; }, up = () => { h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); LAY.fl[id] = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight }; saveLay(); }; h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up); };
+      const mv = (m) => { el.style.left = Math.max(0, m.clientX - sx) + 'px'; el.style.top = Math.max(48, m.clientY - sy) + 'px'; }, up = () => { h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); LAY.fl[id] = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight }; saveLay(); }; h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up); };
     if (el.style.cursor === '') h.style.cursor = 'default';
   });
 }
@@ -2216,7 +2216,7 @@ function resetLayout() {
   Object.keys(dockHome).forEach((id) => floatDock(id, false)); DOCKS.forEach(([id]) => { $(id).style.display = ''; }); $('left').style.display = '';
   $('left').style.width = ''; $('mixrow').style.height = ''; LAY.leftW = LAY.mixH = 0; LAY.hid = []; LAY.fl = {}; cfg.lockDocks = false; saveLay(); fit(); renderDockMenu(); note('Layout reset');
 }
-addEventListener('resize', () => { Object.keys(LAY.fl).forEach((id) => { const el = $(id); if (el && el.classList.contains('floating')) { el.style.left = Math.min(el.offsetLeft, innerWidth - 80) + 'px'; el.style.top = Math.min(el.offsetTop, innerHeight - 40) + 'px'; } }); });
+addEventListener('resize', () => { Object.keys(LAY.fl).forEach((id) => { const el = $(id); if (el && el.classList.contains('floating')) { el.style.left = Math.min(el.offsetLeft, innerWidth - 80) + 'px'; el.style.top = Math.max(48, Math.min(el.offsetTop, innerHeight - 40)) + 'px'; } }); });
 
 /* ---------- Scripts (the browser's version of OBS scripts and plugins: small JavaScript files) ---------- */
 let scripts = store.get('scripts', []);
@@ -2751,7 +2751,7 @@ if (window.desktop && window.desktop.onUiNew) window.desktop.onUiNew(() => { if 
 applyTheme(); setAvatar();
 
 /* ---------- Bible Verse source, Browser source frames, Playlist (VLC-style) source ---------- */
-const PASTEV = { esv: ['ESV', 'ESV English Standard Version – paste text', 'Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission.'], ab: ['AB', 'Ang Biblia 2001 (Tagalog) – paste text', 'Scripture texts are from the Ang Biblia © 2001 Philippine Bible Society, used with permission.'] };
+const PASTEV = {};
 const isPaste = (id) => String(id || '').startsWith('p:'), pasteInfo = (id) => PASTEV[String(id).slice(2)] || ['?', id, ''];
 const bibleOptions = (sel, noPaste) => { BIBL.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); }); if (!noPaste) Object.keys(PASTEV).forEach((k) => { const o = document.createElement('option'); o.value = 'p:' + k; o.textContent = PASTEV[k][1]; sel.appendChild(o); }); };
 const BIB = {}, BIBL = [['kjv', 'King James Version (KJV)'], ['asv', 'American Standard Version (ASV)'], ['bbe', 'Bible in Basic English (BBE)'], ['abtag', 'Ang Biblia 1905 (Tagalog)'], ['mbb', 'Magandang Balita Biblia 2005 (Tagalog)'], ['asnd', 'Ang Salita ng Dios (Tagalog)'], ['niv', 'New International Version (NIV)'], ['nkrv', '개역개정 Korean (NKRV)']];
@@ -2775,9 +2775,9 @@ function bibleBook(txt, d) {
   return k.length >= 4 ? d.keys.findIndex((x) => x.includes(k)) : -1;
 }
 function bibleParse(str, d) {
-  const m = String(str || '').trim().match(/^(.*?[A-Za-zñÑ.\uAC00-\uD7A3])\s*(\d+)(?:\s*[:.]\s*(\d+)(?:\s*[-–—]\s*(\d+))?)?\s*$/); if (!m) return { err: 'Type a verse like John 3:16 or Psalm 23' };
+  const m = String(str || '').trim().match(/^(.*?[A-Za-zñÑ.\uAC00-\uD7A3])(?:\s*(\d+)(?:\s*[:.]\s*(\d+)(?:\s*[-–—]\s*(\d+))?)?)?\s*$/); if (!m) return { err: 'Type a verse like John 3:16 or Psalm 23' };
   const bi = bibleBook(m[1], d); if (bi < 0 || !d.books[bi]) return { err: 'Book not found: ' + m[1].trim() };
-  const bk = d.books[bi], ch = +m[2]; if (ch < 1 || ch > bk.c.length) return { err: bk.n + ' has ' + bk.c.length + ' chapters' };
+  const bk = d.books[bi], ch = m[2] ? +m[2] : 1; if (ch < 1 || ch > bk.c.length) return { err: bk.n + ' has ' + bk.c.length + ' chapters' };
   const n = bk.c[ch - 1].length; let v1 = m[3] ? +m[3] : 0, v2 = m[4] ? +m[4] : 0;
   if (v1 && v1 > n) return { err: bk.n + ' ' + ch + ' has ' + n + ' verses' };
   if (!v1) { v1 = 1; v2 = n; } else if (!v2) v2 = v1; v2 = Math.min(Math.max(v2, v1), n);
@@ -2861,7 +2861,7 @@ function plNext(s, dir) {
 }
 
 /* ---------- Bible dock: pick a verse, preview it in the list, project it to the live picture ---------- */
-const BD = Object.assign({ pn: 1, tr: 'kjv', bi: 42, ch: 3, v: 16, lines: 1, mode: 'lt', bg: 1, dual: 0, tr2: 'niv', on: false }, cfg.bd || {}); BD.on = false; if (BD.tr === 'p:mbb' || BD.tr === 'p:asnd') BD.tr = BD.tr.slice(2);
+const BD = Object.assign({ pn: 1, tr: 'kjv', bi: 42, ch: 3, v: 16, lines: 1, mode: 'lt', bg: 1, dual: 0, tr2: 'niv', on: false }, cfg.bd || {}); BD.on = false; if (BD.tr === 'p:mbb' || BD.tr === 'p:asnd') BD.tr = BD.tr.slice(2); else if (isPaste(BD.tr)) BD.tr = 'kjv';
 const bdSave = () => { cfg.bd = { tr: BD.tr, bi: BD.bi, ch: BD.ch, v: BD.v, lines: BD.lines, mode: BD.mode, bg: BD.bg, dual: BD.dual, tr2: BD.tr2, paste: BD.paste, pref: BD.pref }; try { saveCfg(); } catch {} };
 let bdData = null, bdData2 = null;
 const bdDualOn = () => !!BD.dual && !bdPasteOn() && !!BD.tr2;
@@ -2972,6 +2972,7 @@ function bdMove(d) {
 }
 function bdGo() {
   if (bdPasteOn()) return;
+  if (!bdData || !bdData.books) { $('bdInfo').textContent = 'This Bible did not load. Check that the bible folder is published on your site.'; bdLoad(); return; }
   const p = bibleParse($('bdRef').value, bdData); if (p.err) { $('bdInfo').textContent = p.err; return; }
   BD.bi = p.bi; BD.ch = p.ch; BD.v = p.whole ? 1 : p.v1; BD.lines = Math.max(1, Math.min(6, p.whole ? 1 : p.v2 - p.v1 + 1)); $('bdBook').value = BD.bi; bdChapters(); bdRender(); bdSave();
 }
