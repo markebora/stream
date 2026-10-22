@@ -1,9 +1,9 @@
 name: Build Windows installer
 
+# Run it by hand (Actions tab -> Build Windows installer -> Run workflow) to get a test installer,
+# or publish a release / push a tag like v1.2.1 to ship an update: installed apps then update themselves.
 on:
   push:
-    branches: [main]
-    paths: ['stream-setup/**', 'index.html', '.github/workflows/build-windows.yml']
     tags: ['v*']
   workflow_dispatch:
 
@@ -33,10 +33,16 @@ jobs:
       - name: Use the root index.html (same file Vercel serves) inside the app
         run: |
           if [ -f index.html ]; then mkdir -p "$APP_DIR/public"; cp index.html "$APP_DIR/public/index.html"; echo "Copied root index.html"; fi
+          if [ -d bible ]; then mkdir -p "$APP_DIR/public/bible"; cp -r bible/. "$APP_DIR/public/bible/"; echo "Copied root bible folder"; fi
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Set the program version from the tag (v1.2.1 -> 1.2.1)
+        if: startsWith(github.ref, 'refs/tags/v')
+        working-directory: ${{ env.APP_DIR }}
+        run: npm version "${GITHUB_REF_NAME#v}" --no-git-tag-version --allow-same-version
 
       - name: Install dependencies
         working-directory: ${{ env.APP_DIR }}
@@ -48,15 +54,21 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: npx electron-builder --win --publish never
 
-      - name: Upload installer (download it from the run's Artifacts)
+      - name: Keep the files (download them from the run's Artifacts)
         uses: actions/upload-artifact@v4
         with:
           name: Disciples-Stream-Windows-Installer
-          path: ${{ env.APP_DIR }}/dist/*.exe
+          path: |
+            ${{ env.APP_DIR }}/dist/*.exe
+            ${{ env.APP_DIR }}/dist/latest.yml
+            ${{ env.APP_DIR }}/dist/*.blockmap
           if-no-files-found: error
 
-      - name: Publish a release (only when you push a tag like v1.0.1)
+      - name: Publish the release (only for tags like v1.2.1). Installed apps update from this.
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.APP_DIR }}/dist/*.exe
+          files: |
+            ${{ env.APP_DIR }}/dist/*.exe
+            ${{ env.APP_DIR }}/dist/latest.yml
+            ${{ env.APP_DIR }}/dist/*.blockmap
