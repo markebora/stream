@@ -1093,6 +1093,23 @@ function pickFiles(accept, multiple) {
 const loadImg = (f) => new Promise((res, rej) => { const im = new Image(), u = URL.createObjectURL(f); im.onload = () => res({ im, u }); im.onerror = () => rej(new Error('That file is not an image')); im.src = u; });
 async function videoFrom(stream) { const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.srcObject = stream; await v.play(); return v; }
 
+/* ---------- audio input choice ---------- */
+const openMic = (id, o) => navigator.mediaDevices.getUserMedia({ audio: { deviceId: id ? { exact: id } : undefined, echoCancellation: !!(o && o.echo), noiseSuppression: !!(o && o.noise), autoGainControl: !!(o && o.agc) } });
+async function audioInputs() { const all = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === 'audioinput'); return all.filter((d) => d.deviceId !== 'default' && d.deviceId !== 'communications').length ? all.filter((d) => d.deviceId !== 'communications') : all; }
+function pickAudioDevice(list, cur) {
+  return new Promise((res) => {
+    let chosen = null, sel;
+    modal('Choose the audio input', (b) => {
+      const h = document.createElement('div'); h.className = 'hint'; h.textContent = 'Pick the microphone, mixer or audio interface this source should listen to. You can change it later in the source\'s Properties.'; b.appendChild(h);
+      sel = field(b, 'Device', document.createElement('select')); list.forEach((d, i) => { const o = document.createElement('option'); o.value = d.deviceId; o.textContent = (d.label || 'Audio input ' + (i + 1)) + (d.deviceId === 'default' ? ' (system default)' : ''); sel.appendChild(o); }); if (cur) sel.value = cur;
+    }, { width: 460, ok: () => { chosen = sel.value; }, after: () => res(chosen) });
+  });
+}
+async function swapMic(s, id) {
+  const r = R(s), old = r.stream, st = await openMic(id, s.mo || {}); r.stream = st;
+  try { r.src && r.src.disconnect(); } catch {} r.src = audio().createMediaStreamSource(new MediaStream(st.getAudioTracks())); buildAudio(r);
+  old && old.getTracks().forEach((t) => t.stop()); s.devId = st.getAudioTracks()[0].getSettings().deviceId || id || '';
+}
 async function addSource(type) {
   const s = { id: uid++, type, name: TYPES[type].name, visible: true, locked: false, color: '#1d2a4a', size: 5.8, rect: FULL(), filters: [] };
   s.ref = s.id; let n = 0; eachSource((x) => { if (x.type === type) n++; }); if (n) s.name += ' ' + (n + 1);
@@ -1107,7 +1124,15 @@ async function addSource(type) {
       if (!st.getAudioTracks().length) throw new Error('No audio was shared. Pick a screen or tab and tick "Share audio".');
       rt[s.ref] = { stream: st }; wireAudio(s.ref, st);
     } else if (type === 'mic') {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      s.mo = { echo: false, noise: false, agc: false };
+      let stream = await openMic(null, s.mo);
+      const list = await audioInputs();
+      if (list.length > 1) {
+        const cur = stream.getAudioTracks()[0].getSettings().deviceId, pk = await pickAudioDevice(list, cur);
+        if (pk === null) { stream.getTracks().forEach((t) => t.stop()); return; }
+        if (pk !== cur) { stream.getTracks().forEach((t) => t.stop()); stream = await openMic(pk, s.mo); }
+      }
+      const tr = stream.getAudioTracks()[0]; s.devId = (tr.getSettings().deviceId) || ''; if (tr.label) s.name = tr.label.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*$/i, '');
       rt[s.ref] = { stream }; wireAudio(s.ref, stream);
     } else if (type === 'cam') {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
@@ -1276,6 +1301,14 @@ function openProps() {
     }
     if (s.type === 'group') note2(b, 'Add sources into this group by selecting it first, then adding. Moving or resizing the group moves all its sources.');
     if (s.type === 'display' || s.type === 'window') note2(b, 'To pick a different screen or window, remove this source and add it again.');
+    if (s.type === 'mic') {
+      if (!s.devId && r.stream && r.stream.getAudioTracks()[0]) s.devId = r.stream.getAudioTracks()[0].getSettings().deviceId || '';
+      f.mdev = field(b, 'Audio input', document.createElement('select'));
+      audioInputs().then((ds) => ds.forEach((d, i) => { const o = document.createElement('option'); o.value = d.deviceId; o.textContent = (d.label || 'Audio input ' + (i + 1)) + (d.deviceId === 'default' ? ' (system default)' : ''); f.mdev.appendChild(o); if (s.devId && d.deviceId === s.devId) f.mdev.value = d.deviceId; }));
+      const mo = s.mo || (s.mo = { echo: false, noise: false, agc: false });
+      f.mecho = field(b, 'Echo cancellation', inp('checkbox', '')); f.mecho.checked = !!mo.echo; f.mnoise = field(b, 'Noise suppression', inp('checkbox', '')); f.mnoise.checked = !!mo.noise; f.magc = field(b, 'Automatic gain', inp('checkbox', '')); f.magc.checked = !!mo.agc;
+      note2(b, 'Leave these three off for a sound desk or audio interface: they are meant for headset microphones and can make music sound thin or pumping.');
+    }
     if (s.type === 'mic' || s.type === 'audioout') note2(b, 'Volume, monitoring and filters are in the Audio Mixer.');
   }, { width: 470, ok: async () => {
     s.name = nm.v.trim() || s.name;
@@ -1288,6 +1321,7 @@ function openProps() {
     if (f.interval) { s.interval = +f.interval.value || 5; s.cross = +f.cross.value || 0; }
     if (f.loop) { s.loop = f.loop.checked; if (s.type === 'media') r.video.loop = s.loop; }
     if (f.scene) s.sceneId = +f.scene.value;
+    if (f.mdev) { const mo = { echo: f.mecho.checked, noise: f.mnoise.checked, agc: f.magc.checked }, chg = JSON.stringify(mo) !== JSON.stringify(s.mo || {}) || (f.mdev.value && f.mdev.value !== s.devId); s.mo = mo; if (chg && f.mdev.value) { try { await swapMic(s, f.mdev.value); note('Audio input changed'); } catch (e) { note('Could not open that audio input'); } } }
     if (f.dev && f.dev.value) { try { const st = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: f.dev.value } }, audio: false }); r.stream && r.stream.getTracks().forEach((t) => t.stop()); r.stream = st; r.video.srcObject = st; await r.video.play(); } catch (e) { note('Could not open that camera'); } }
     renderSources(); renderMixer();
   } });
@@ -1948,7 +1982,7 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ---------- OBS-style menus, profiles, collections, extra settings ---------- */
-const VER = '1.2.0';
+const VER = '1.2.2';
 const HK = [['stream', 'Start / Stop Streaming', () => toggleStream()], ['rec', 'Start / Stop Recording', () => toggleRec()], ['pause', 'Pause / Resume Recording', () => pauseRec()], ['split', 'Split recording', () => splitRec()], ['rbt', 'Start / Stop Replay Buffer', () => toggleRB()], ['rbs', 'Save Replay', () => saveRB()], ['pclive', 'Take PreCenter live', () => pcLive()], ['studio', 'Studio Mode', () => setStudio(!studio)], ['trans', 'Transition', () => $('bTrans').click()], ['full', 'Fullscreen interface', () => $('tbFull').click()], ['shot', 'Screenshot output', () => shotOutput()]];
 const ACCENTS = ['#E8B923', '#4f8cff', '#38c98a', '#ef5da8', '#ff7a45', '#9b7bff', '#2fc7d9'];
 function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }
@@ -2752,11 +2786,11 @@ if (window.desktop && window.desktop.onUiNew) window.desktop.onUiNew(() => { if 
 applyTheme(); setAvatar();
 
 /* ---------- Bible Verse source, Browser source frames, Playlist (VLC-style) source ---------- */
-const PASTEV = { esv: ['ESV', 'ESV English Standard Version – paste text', 'Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission.'], ab: ['AB', 'Ang Biblia 2001 (Tagalog) – paste text', 'Scripture texts are from the Ang Biblia © 2001 Philippine Bible Society, used with permission.'] };
+const PASTEV = {};   // paste-in versions (none right now: every version has its own file in /bible)
 const isPaste = (id) => String(id || '').startsWith('p:'), pasteInfo = (id) => PASTEV[String(id).slice(2)] || ['?', id, ''];
 const bibleOptions = (sel) => { BIBL.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); }); Object.keys(PASTEV).forEach((k) => { const o = document.createElement('option'); o.value = 'p:' + k; o.textContent = PASTEV[k][1]; sel.appendChild(o); }); };
-const BIB = {}, BIBL = [['kjv', 'King James Version (KJV)'], ['asv', 'American Standard Version (ASV)'], ['bbe', 'Bible in Basic English (BBE)'], ['abtag', 'Ang Biblia 1905 (Tagalog)'], ['mbb', 'Magandang Balita Biblia 2005 (Tagalog)'], ['asnd', 'Ang Salita ng Dios (Tagalog)'], ['niv', 'New International Version (NIV)'], ['nkrv', '개역개정 Korean (NKRV)']];
-const CREDITS = { mbb: 'Scripture texts are from the Magandang Balita Biblia © 2012 Philippine Bible Society, used with permission.', asnd: 'Ang Salita ng Dios (Tagalog Contemporary Bible) Copyright © 2009, 2011, 2014, 2015 by Biblica, Inc.® Used by permission of Biblica, Inc.® All rights reserved worldwide.', niv: 'The Holy Bible, New International Version® NIV® Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.® Used by Permission of Biblica, Inc.® All rights reserved worldwide.' };
+const BIB = {}, BIBL = [['kjv', 'King James Version (KJV)'], ['asv', 'American Standard Version (ASV)'], ['bbe', 'Bible in Basic English (BBE)'], ['abtag', 'Ang Biblia 1905 (Tagalog)'], ['mbb', 'Magandang Balita Biblia 2005 (Tagalog)'], ['asnd', 'Ang Salita ng Dios (Tagalog)'], ['niv', 'New International Version (NIV)'], ['esv', 'English Standard Version (ESV)'], ['ab2001', 'Ang Biblia 2001 (Tagalog)'], ['nkrv', '개역개정 Korean (NKRV)']];
+const CREDITS = { esv: 'Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission.', ab2001: 'Scripture texts are from the Ang Biblia © 2001 Philippine Bible Society, used with permission.', mbb: 'Scripture texts are from the Magandang Balita Biblia © 2012 Philippine Bible Society, used with permission.', asnd: 'Ang Salita ng Dios (Tagalog Contemporary Bible) Copyright © 2009, 2011, 2014, 2015 by Biblica, Inc.® Used by permission of Biblica, Inc.® All rights reserved worldwide.', niv: 'The Holy Bible, New International Version® NIV® Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.® Used by Permission of Biblica, Inc.® All rights reserved worldwide.' };
 const creditText = (id) => isPaste(id) ? pasteInfo(id)[2] : (CREDITS[id] || '');
 const BEN = ['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi','Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'];
 const BAL = { gen: 0, ge: 0, gn: 0, ex: 1, exo: 1, lev: 2, lv: 2, num: 3, nu: 3, nm: 3, deut: 4, dt: 4, josh: 5, jos: 5, judg: 6, jdg: 6, jg: 6, ru: 7, '1sam': 8, '1sa': 8, '1sm': 8, '2sam': 9, '2sa': 9, '2sm': 9, '1ki': 10, '1kgs': 10, '2ki': 11, '2kgs': 11, '1chr': 12, '1ch': 12, '2chr': 13, '2ch': 13, ezr: 14, neh: 15, ne: 15, est: 16, esth: 16, jb: 17, ps: 18, psa: 18, pss: 18, psalm: 18, prov: 19, pr: 19, pro: 19, eccl: 20, ecc: 20, song: 21, sos: 21, songofsongs: 21, isa: 22, is: 22, jer: 23, lam: 24, ezek: 25, eze: 25, dan: 26, dn: 26, hos: 27, jl: 28, am: 29, obad: 30, ob: 30, jon: 31, jnh: 31, mic: 32, nah: 33, hab: 34, zeph: 35, zep: 35, hag: 36, zech: 37, zec: 37, mal: 38, matt: 39, mt: 39, mat: 39, mk: 40, mrk: 40, lk: 41, luk: 41, jn: 42, joh: 42, ac: 43, rom: 44, ro: 44, '1cor': 45, '1co': 45, '2cor': 46, '2co': 46, gal: 47, ga: 47, eph: 48, phil: 49, php: 49, col: 50, '1thess': 51, '1th': 51, '2thess': 52, '2th': 52, '1tim': 53, '1ti': 53, '2tim': 54, '2ti': 54, tit: 55, philem: 56, phm: 56, heb: 57, jas: 58, jm: 58, '1pet': 59, '1pe': 59, '2pet': 60, '2pe': 60, '1jn': 61, '1john': 61, '2jn': 62, '2john': 62, '3jn': 63, '3john': 63, jud: 64, rev: 65, re: 65 };
