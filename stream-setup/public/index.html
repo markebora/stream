@@ -1982,7 +1982,7 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ---------- OBS-style menus, profiles, collections, extra settings ---------- */
-const VER = '1.2.2';
+const VER = '1.2.3';
 const HK = [['stream', 'Start / Stop Streaming', () => toggleStream()], ['rec', 'Start / Stop Recording', () => toggleRec()], ['pause', 'Pause / Resume Recording', () => pauseRec()], ['split', 'Split recording', () => splitRec()], ['rbt', 'Start / Stop Replay Buffer', () => toggleRB()], ['rbs', 'Save Replay', () => saveRB()], ['pclive', 'Take PreCenter live', () => pcLive()], ['studio', 'Studio Mode', () => setStudio(!studio)], ['trans', 'Transition', () => $('bTrans').click()], ['full', 'Fullscreen interface', () => $('tbFull').click()], ['shot', 'Screenshot output', () => shotOutput()]];
 const ACCENTS = ['#E8B923', '#4f8cff', '#38c98a', '#ef5da8', '#ff7a45', '#9b7bff', '#2fc7d9'];
 function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }
@@ -2797,8 +2797,16 @@ const BAL = { gen: 0, ge: 0, gn: 0, ex: 1, exo: 1, lev: 2, lv: 2, num: 3, nu: 3,
 const bKey = (t) => String(t).toLowerCase().replace(/[^a-z0-9ñ]/g, '');
 async function bibleLoad(id) {
   if (BIB[id]) return BIB[id];
-  const r = await fetch('bible/' + id + '.json'); if (!r.ok) throw new Error('Bible file missing');
-  const d = await r.json(); d.keys = d.books.map((b) => bKey(b.n)); BIB[id] = d; return d;
+  let d = null;
+  try { const r = await fetch('bible/' + id + '.json'); if (r.ok) d = await r.json(); } catch {}
+  // not inside this copy of the app (the installer is older than the page)? use the saved copy, else get it from your site once and keep it
+  const ck = 'https://ds-bible-cache/' + id + '.json'; let cache = null; try { cache = 'caches' in window ? await caches.open('ds-bibles') : null; } catch {}
+  if (!d && cache) { try { const m = await cache.match(ck); if (m) d = await m.json(); } catch {} }
+  if (!d && window.desktop && window.desktop.updateInfo) {
+    try { const u = ((await window.desktop.updateInfo()) || {}).url; if (u) { const r = await fetch(u.replace(/\/+$/, '') + '/bible/' + id + '.json', { cache: 'no-store' }); if (r.ok) { const t = await r.text(); d = JSON.parse(t); if (cache) { try { await cache.put(ck, new Response(t, { headers: { 'Content-Type': 'application/json' } })); } catch {} } } } } catch {}
+  }
+  if (!d) throw new Error('Bible file missing');
+  d.keys = d.books.map((b) => bKey(b.n)); BIB[id] = d; return d;
 }
 function bibleBook(txt, d) {
   const k = bKey(txt); if (k.length < 2) return -1; if (BAL[k] !== undefined) return BAL[k];
