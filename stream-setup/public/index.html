@@ -766,7 +766,81 @@ let uid = 1, cur = 0, selSrc = -1;
 const scenes = [{ id: uid++, name: 'Scene', sources: [] }];
 const rt = {};                                   // runtime objects, keyed by a source's ref (copies share one)
 const clip = { scene: null, source: null };
-const lyr = { text: '', ref: '', black: false };
+const lyr = { text: '', ref: '', black: false, dim: 0 };
+/* ---------- PreCenter background: drawn full frame behind the lyrics (can be switched off per lyrics source) ---------- */
+const lbg = { key: '', kind: '', css: '', img: null, vid: null };
+function lbgClear() { if (lbg.vid) { try { lbg.vid.onerror = null; lbg.vid.pause(); lbg.vid.removeAttribute('src'); lbg.vid.load(); } catch {} } lbg.key = ''; lbg.kind = ''; lbg.css = ''; lbg.img = null; lbg.vid = null; }
+function lbgSet(bg) {
+  if (!bg || typeof bg !== 'object') { lbgClear(); return; }
+  const key = [bg.k, bg.v, bg.u || '', bg.iu || ''].join('|');
+  if (key === lbg.key) return;
+  lbgClear(); lbg.key = key; lbg.kind = String(bg.k || '');
+  if (lbg.kind === 'color' || lbg.kind === 'grad') { lbg.css = String(bg.t || bg.v || ''); return; }
+  const loadImg = (url, cors) => { const im = new Image(); if (cors) im.crossOrigin = 'anonymous'; im.onload = () => { if (lbg.key === key) lbg.img = im; }; im.src = url; return im; };
+  if (bg.t) loadImg(bg.t, false);                                   // small thumbnail first (only sent when no link exists yet)
+  if (lbg.kind === 'img' && bg.iu) { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => { if (lbg.key === key) lbg.img = im; }; im.src = bg.iu; }
+  if (lbg.kind === 'vid') {
+    const urls = [bg.u, bg.u2].filter(Boolean); if (!urls.length && bg.iu) { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => { if (lbg.key === key) lbg.img = im; }; im.src = bg.iu; return; }
+    const v = document.createElement('video'); v.muted = true; v.loop = true; v.playsInline = true; v.crossOrigin = 'anonymous'; v.preload = 'auto'; let i = 0;
+    const next = () => { if (lbg.key !== key || i >= urls.length) return; v.src = urls[i++]; v.play().catch(() => {}); };
+    v.onerror = next; lbg.vid = v; next();
+  }
+}
+const splitTop = (str) => { const out = []; let d = 0, cur = ''; for (const ch of str) { if (ch === '(') d++; if (ch === ')') d--; if (ch === ',' && d === 0) { out.push(cur.trim()); cur = ''; } else cur += ch; } if (cur.trim()) out.push(cur.trim()); return out; };
+const gcache = new Map();
+function parseGrad(css) {
+  if (gcache.has(css)) return gcache.get(css);
+  let g = null;
+  try {
+    const m = /^(linear|radial)-gradient\((.*)\)$/is.exec(css.trim());
+    if (m) {
+      const parts = splitTop(m[2]); let cfg = '';
+      if (/^(-?[\d.]+(deg|turn|rad)|to\s|circle|ellipse|closest|farthest|at\s)/i.test(parts[0])) cfg = parts.shift();
+      const stops = parts.map((p) => { const x = /^(.*?)\s+(-?[\d.]+)%$/.exec(p); return x ? [parseFloat(x[2]) / 100, x[1]] : [null, p]; });
+      if (stops.length >= 2) {
+        stops.forEach((st, i) => { if (st[0] === null) st[0] = i / (stops.length - 1); });
+        g = { type: m[1], stops };
+        if (m[1] === 'linear') {
+          const a = /(-?[\d.]+)deg/i.exec(cfg), to = /to\s+(top|right|bottom|left)/i.exec(cfg);
+          g.angle = a ? parseFloat(a[1]) : to ? { top: 0, right: 90, bottom: 180, left: 270 }[to[1].toLowerCase()] : 180;
+        } else {
+          const at = /at\s+(-?[\d.]+)%\s+(-?[\d.]+)%/i.exec(cfg);
+          g.x = at ? parseFloat(at[1]) / 100 : 0.5; g.y = at ? parseFloat(at[2]) / 100 : 0.5; g.circle = /circle/i.test(cfg);
+        }
+      }
+    }
+    if (!g) {   // anything more complex (several layers, conic, repeating...): blend its colors top to bottom
+      const cols = css.match(/#[0-9a-f]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\)/gi) || [];
+      if (cols.length) g = { type: 'linear', angle: 180, stops: cols.length === 1 ? [[0, cols[0]], [1, cols[0]]] : cols.map((c, i) => [i / (cols.length - 1), c]) };
+    }
+  } catch { g = null; }
+  gcache.set(css, g); return g;
+}
+function cssFill(c, css, W, H) {
+  const g = parseGrad(css);
+  if (!g) { c.fillStyle = /^(#|rgb|hsl|[a-z]+$)/i.test(css) ? css : '#111'; c.fillRect(0, 0, W, H); return; }
+  let gr;
+  if (g.type === 'linear') {
+    const a = g.angle * Math.PI / 180, dx = Math.sin(a), dy = -Math.cos(a), len = Math.abs(W * dx) + Math.abs(H * dy), cx = W / 2, cy = H / 2;
+    gr = c.createLinearGradient(cx - dx * len / 2, cy - dy * len / 2, cx + dx * len / 2, cy + dy * len / 2);
+    g.stops.forEach(([p, col]) => { try { gr.addColorStop(Math.min(1, Math.max(0, p)), col); } catch {} });
+    c.fillStyle = gr; c.fillRect(0, 0, W, H); return;
+  }
+  const px = g.x * W, py = g.y * H, ddx = Math.max(px, W - px), ddy = Math.max(py, H - py);
+  const rx = g.circle ? Math.hypot(ddx, ddy) : ddx * Math.SQRT2, ry = g.circle ? rx : ddy * Math.SQRT2;
+  gr = c.createRadialGradient(0, 0, 0, 0, 0, 1);
+  g.stops.forEach(([p, col]) => { try { gr.addColorStop(Math.min(1, Math.max(0, p)), col); } catch {} });
+  c.save(); c.translate(px, py); c.scale(Math.max(1, rx), Math.max(1, ry)); c.fillStyle = gr; c.fillRect(-W / Math.max(1, rx) - 1, -H / Math.max(1, ry) - 1, 2 * W / Math.max(1, rx) + 2, 2 * H / Math.max(1, ry) + 2); c.restore();
+}
+function lbgDraw(c, W, H, a) {
+  let ok = false;
+  if (lbg.kind === 'color' || lbg.kind === 'grad') { cssFill(c, lbg.css, W, H); ok = true; }
+  else {
+    const v = lbg.vid, im = lbg.img, el = (v && v.readyState >= 2 && v.videoWidth) ? v : (im && im.naturalWidth) ? im : null;
+    if (el) { const iw = el.videoWidth || el.naturalWidth, ih = el.videoHeight || el.naturalHeight, k = Math.max(W / iw, H / ih), dw = iw * k, dh = ih * k; c.drawImage(el, (W - dw) / 2, (H - dh) / 2, dw, dh); ok = true; }
+  }
+  if (ok && lyr.dim > 0) { c.globalAlpha = a * lyr.dim; c.fillStyle = '#000'; c.fillRect(0, 0, W, H); c.globalAlpha = a; }
+}
 const R = (s) => rt[s.ref] || {};
 const logL = [], errL = [], recList = [];
 const note = (t) => { logL.push(new Date().toLocaleTimeString() + '  ' + t); $('msg').textContent = t; clearTimeout(note.t); note.t = setTimeout(() => $('msg').textContent = '', 6000); };
@@ -1026,7 +1100,7 @@ const TYPES = {
   browser:  { name: 'Browser', ic: '🌐' },
   playlist: { name: 'VLC Video Source (playlist)', ic: '▶' },
 };
-const LYR_DEF = { size: 7, tcolor: '#ffffff', font: 'system-ui', bold: true, align: 'center', valign: 'bottom', fit: true, shadow: true, bgop: 0, sample: 'Amazing grace, how sweet the sound\nThat saved a wretch like me' };
+const LYR_DEF = { fullbg: true, size: 7, tcolor: '#ffffff', font: 'system-ui', bold: true, align: 'center', valign: 'bottom', fit: true, shadow: true, bgop: 0, sample: 'Amazing grace, how sweet the sound\nThat saved a wretch like me' };
 const lv = (s, k) => s[k] === undefined ? LYR_DEF[k] : s[k];   // older saved lyrics sources lack the new fields
 const needsRt = (s) => ['display', 'window', 'cam', 'mic', 'audioout', 'image', 'slides', 'media', 'playlist'].includes(s.type);
 const reid = (s) => { s.id = uid++; (s.children || []).forEach(reid); };
@@ -1270,6 +1344,8 @@ function openProps() {
       b.appendChild(pr);
       note2(b, 'You can also drag the gold box on the preview to move it, or its corners to resize it. Click the lyrics (or the dashed "Lyrics" box) to select it again at any time. Alt+click cycles through sources that overlap.');
       if (s.type === 'lyrics') {
+      f.fullbg = chk('Show the PreCenter background (full frame)', 'fullbg');
+      note2(b, 'PreCenter sends its slide background (color, image or looping video) with each slide. It fills the whole picture behind the words. Turn this off to show only the lyrics, as before.');
       f.sample = document.createElement('textarea'); f.sample.value = lv(s, 'sample'); f.sample.rows = 2; f.sample.style.cssText = 'width:100%;resize:vertical'; b.appendChild(f.sample);
       const tr2 = document.createElement('div'); tr2.className = 'btnrow'; const tb = document.createElement('button');
       const tl = () => { tb.textContent = lyrTestOn() ? 'Stop test text' : 'Show test text on screen'; }; tl();
@@ -1320,7 +1396,7 @@ function openProps() {
   }, { width: 470, ok: async () => {
     s.name = nm.v.trim() || s.name;
     if (f.color) s.color = f.color.value; if (f.size) s.size = +f.size.value;
-    if ((s.type === 'lyrics' || s.type === 'bible') && f.fit) Object.assign(s, { fit: f.fit.checked, font: f.font.value, tcolor: f.tcolor.value, bold: f.bold.checked, shadow: f.shadow.checked, align: f.align.value, valign: f.valign.value, bgop: +f.bgop.value, sample: f.sample ? f.sample.value : s.sample });
+    if ((s.type === 'lyrics' || s.type === 'bible') && f.fit) Object.assign(s, { fit: f.fit.checked, font: f.font.value, tcolor: f.tcolor.value, bold: f.bold.checked, shadow: f.shadow.checked, align: f.align.value, valign: f.valign.value, bgop: +f.bgop.value, sample: f.sample ? f.sample.value : s.sample, fullbg: f.fullbg ? f.fullbg.checked : s.fullbg });
     if (f.bt) { s.bible = f.bt.value; s.bref = f.bref.value.trim(); s.btxt = f.btxt.value; (rt[s.ref] || {}).bKey = ''; }
     if (f.url) { Object.assign(s, { url: f.url.value.trim(), bw: Math.max(64, +f.bw.value || 1280), bh: Math.max(64, +f.bh.value || 720), fps: Math.max(1, Math.min(60, +f.fps.value || 30)), css: f.css.value }); if (window.desktop && window.desktop.browserClose) window.desktop.browserClose(+s.ref); r.bOpen = false; }
     if (f.shuffle) { s.shuffle = f.shuffle.checked; }
@@ -1737,6 +1813,7 @@ function layoutLyrics(c, src, text, ref, W, H) {
 function drawLyrics(c, src) {
   const W = c.canvas.width, H = c.canvas.height, r = R(src);
   if (lyr.black) { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); r.tb = null; return; }
+  if (lv(src, 'fullbg') !== false && lbg.kind) { const a0 = c.globalAlpha; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); lbgDraw(c, W, H, a0); c.restore(); }
   const test = !lyr.text && r.test, text = lyr.text || (test ? lv(src, 'sample') : ''); if (!text) { r.tb = null; return; }
   const L = layoutLyrics(c, src, text, test ? '' : lyr.ref, W, H), a = c.globalAlpha; r.tb = L.tb;
   if (lv(src, 'bgop') > 0) { c.globalAlpha = a * lv(src, 'bgop') / 100; c.fillStyle = '#000'; c.fillRect(L.bx, L.by, L.bw, L.bh); c.globalAlpha = a; }
@@ -1855,8 +1932,8 @@ function linkConnect(manual) {
     let m; try { m = JSON.parse(e.data); } catch { return; }
     if (m.t === 'hb') return;
     if (m.t === 'peers') { lPeers = m.n; linkStatus(m.n ? 'linked to PreCenter' : 'linked (waiting for PreCenter)', 'ok'); return; }
-    if (m.t === 'slide') { lyr.text = m.text || ''; lyr.ref = m.ref || ''; lyr.black = false; lyrSources().forEach((s) => { rt[s.ref] && (rt[s.ref].test = false); }); }
-    else if (m.t === 'clear') lyr.text = '';
+    if (m.t === 'slide') { lyr.text = m.text || ''; lyr.ref = m.ref || ''; lyr.black = false; lyr.dim = Math.min(0.9, Math.max(0, +m.dim || 0)); lbgSet(m.bg); lyrSources().forEach((s) => { rt[s.ref] && (rt[s.ref].test = false); }); }
+    else if (m.t === 'clear') { lyr.text = ''; if ('bg' in m) { lyr.dim = Math.min(0.9, Math.max(0, +m.dim || 0)); lbgSet(m.bg); } }
     else if (m.t === 'black') lyr.black = m.on !== false;
   };
   w.onclose = () => { if (w !== lws) return; clearInterval(lHb); window.linkWasDown = true; lTry++; const d = Math.min(8000, 800 * Math.pow(1.6, Math.min(lTry, 8))); linkStatus('connection lost, retrying (' + lTry + ')…'); lTimer = setTimeout(linkConnect, d); };
