@@ -593,11 +593,9 @@ html.light #auth{background:#f5f3ee}html.light #auth .card{background:#fff;borde
     <span id="air">OFF AIR</span><span class="brand">Disciples Stream</span>
   </div>
   <div id="tb">
-    <div class="tg"><button class="tb" id="tbAdd"><i data-i="plus"></i>Source</button><button class="tb" id="tbProps"><i data-i="gear"></i>Properties</button><button class="tb" id="tbFilt"><i data-i="filters"></i>Filters</button><button class="tb" id="tbTrans"><i data-i="transform"></i>Transform</button></div>
-    <div class="tg"><button class="tb" id="tbLive"><i data-i="play"></i>Go Live</button><button class="tb" id="tbRec"><i data-i="record"></i>Record</button></div>
     <div class="tg" id="modeTg"><button class="tb on" id="tbEdit" title="Edit mode: change scenes in Preview"><i data-i="gear"></i>Edit</button><button class="tb" id="tbLiveMode" title="Live mode: click or press 1-9 to send a scene to Live"><i data-i="radio"></i>Live</button></div>
-    <div class="tg"><button class="tb" id="tbLink"><i data-i="link"></i>StreamLink</button><button class="tb" id="tbStudio"><i data-i="studio"></i>Studio</button><button class="tb" id="tbSet"><i data-i="sliders"></i>Settings</button><button class="tb" id="tbFull"><i data-i="expand"></i>Full</button></div>
-    <div class="tg"><button class="tb" id="tbProf" title="Your profile and preferences"><b id="tpA" class="avt">&#9786;</b>Profile</button><button class="tb" id="tbTheme" title="Switch between dark and light theme"><b class="avt">&#9680;</b><span id="tbThT">Dark</span></button></div>
+    <div class="tg"><button class="tb" id="tbLink"><i data-i="link"></i>StreamLink</button></div>
+    <div class="tg"><button class="tb" id="tbProf" title="Your profile and preferences"><b id="tpA" class="avt">&#9786;</b>Profile</button></div>
   </div>
 
   <div id="body">
@@ -611,7 +609,7 @@ html.light #auth{background:#f5f3ee}html.light #auth .card{background:#fff;borde
       <div id="main">
     <div id="right"><div class="dock" id="dkPrev" style="flex:1"><h4>Preview</h4>
       <div id="stage"><div id="wall" style="display:none"><div class="lbl">Scenes: click to send to Live</div><div id="wallGrid"></div></div><div class="pcol" id="pvcol" style="display:none"><div class="lbl">Preview</div><div id="pvwrap"><canvas id="pv" width="1280" height="720"></canvas><div class="sb" id="selbox2"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div><div class="pcol"><div class="lbl" id="pglbl" style="display:none">Program</div><div id="cvwrap"><canvas id="cv" width="1280" height="720"></canvas><div class="sb" id="selbox"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div><div class="pcol" id="pccol" style="display:none"><div class="lbl">PreCenter Live</div><div id="pcwrap"><video id="pcv" muted autoplay playsinline style="object-fit:contain;background:#000"></video></div><div class="btnrow" style="justify-content:center;margin-top:6px"><button id="pcTake">Take Live</button><button id="pcBack">Back</button><button id="pcOff">Disconnect</button></div></div></div>
-      <div id="srcbar"><span class="nm" id="srcName">No source selected</span><button id="bProps" disabled><i data-i="gear" data-s="14"></i>Properties</button><button id="bFilt" disabled><i data-i="filters" data-s="14"></i>Filters</button></div>
+      <div id="srcbar"><span class="nm" id="srcName">No source selected</span></div>
     </div></div>
     </div>
     <div id="mixrow"><div class="dock" id="dkMixer" style="flex:1.5"><h4>Audio Mixer</h4><div class="body" id="mixer"></div><div class="tools"><button id="mAdv" title="Advanced Audio Properties"><i data-i="gear"></i></button><span style="flex:1"></span><button id="mOpt" style="width:auto;padding:0 10px">Options <i data-i="down" data-s="12"></i></button></div></div><div class="dock" id="dkCam"><h4>Cameras</h4><div class="body" id="camBody"></div><div class="tools"><button id="camAdd" title="Add a camera source to this scene"><i data-i="plus"></i></button><span style="flex:1"></span><span class="hint" style="margin:0 8px">Click a camera to select it</span></div></div><div class="dock" id="dkLive"><h4>Live Sources <span class="hint" style="margin-left:8px;font-weight:400" id="liveName"></span></h4><div class="body" id="liveBody"></div><div class="tools"><span class="hint" style="margin:0 8px">Hide or show things in the scene that is on air, instantly</span></div></div></div>
@@ -1521,7 +1519,7 @@ $('scenes').oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); sc
 function renderSources() {
   const box = $('sources'); box.innerHTML = '';
   const list = flat(), sel = list[selSrc] && list[selSrc].s;
-  $('srcName').textContent = sel ? sel.name : 'No source selected'; $('bProps').disabled = !sel; $('bFilt').disabled = !sel;
+  $('srcName').textContent = sel ? sel.name : 'No source selected';
   if (!list.length) box.innerHTML = '<div class="empty">You don\'t have any sources.<br>Click the + button below, or right-click here.</div>';
   list.forEach((it, i) => {
     const s = it.s, d = document.createElement('div'); d.className = 'row' + (i === selSrc ? ' sel' : ''); d.style.paddingLeft = (8 + it.depth * 18) + 'px';
@@ -1941,6 +1939,57 @@ setInterval(meters, 60);
 let lws, lTimer;
 let lTry = 0, lSeen = 0, lPeers = null, lHb = 0;
 function linkStatus(t, cls) { $('dLink').className = 'dot' + (cls ? ' ' + cls : ''); $('linkTxt').textContent = t; }
+function linkApply(m) {
+  if (m.t === 'slide') { lyr.text = m.text || ''; lyr.ref = m.ref || ''; lyr.black = false; lyr.dim = Math.min(0.9, Math.max(0, +m.dim || 0)); lbgSet(m.bg); lyrSources().forEach((s) => { rt[s.ref] && (rt[s.ref].test = false); }); }
+  else if (m.t === 'clear') { lyr.text = ''; if ('bg' in m) { lyr.dim = Math.min(0.9, Math.max(0, +m.dim || 0)); lbgSet(m.bg); } }
+  else if (m.t === 'black') lyr.black = m.on !== false;
+}
+/* ---------- PreCenter cloud link: PreCenter writes stream/state.json into the R2 bucket, Stream reads it from the public link ---------- */
+const cloud = { timer: 0, st: 'off', base: '', team: '', last: '', fails: 0, busy: false, fs: null, fsOk: false };
+function pcBaseFrom(txt) {
+  let t = String(txt || '').trim().replace(/^dscr2:/i, '').trim(); if (!t) return '';
+  t = t.split('#')[0];
+  if (!/^https?:\/\//i.test(t)) t = 'https://' + t;
+  try { const u = new URL(t); return u.origin + u.pathname.replace(/\/+$/, '').replace(/\/stream\/state\.json$/i, ''); } catch { return ''; }
+}
+function cloudStop(keep) { if (cloud.fs) { try { cloud.fs(); } catch {} cloud.fs = null; } cloud.fsOk = false; clearTimeout(cloud.timer); cloud.timer = 0; cloud.st = 'off'; cloud.last = ''; if (!keep) { cfg.pcBase = ''; cfg.pcTeam = ''; store.set('cfg', cfg); } }
+/* text comes from Firestore (presenter/{team}, same as the phone), the pictures and videos from the R2 links inside it; the R2 state file is the fallback */
+async function cloudFs(team) {
+  try {
+    if (!team || !dscAuth || !dscAuth.currentUser) return;
+    if (!firebase.firestore) await loadJs('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js');
+    let last = '';
+    cloud.fs = firebase.firestore().collection('presenter').doc(team).onSnapshot((snap) => {
+      const d = snap.exists ? snap.data() : null; cloud.fsOk = !!(d && d.on !== false); if (!cloud.fsOk) return;
+      cloud.st = 'ok'; cloudApply({ text: d.text, ref: d.type === 'scripture' ? String(d.title || '') : '', black: d.black, clear: d.clear, dim: d.dim, bg: d.bg }, 'fs');
+    }, () => { cloud.fsOk = false; });
+  } catch { cloud.fsOk = false; }
+}
+function cloudApply(d, from) {
+  const bg = d.bg || null, dim = Math.min(0.9, Math.max(0, +d.dim || 0));
+  const key = [d.text, d.ref, d.black ? 1 : 0, d.clear ? 1 : 0, bg ? [bg.k, bg.v, bg.u || '', bg.iu || ''].join('|') : '', dim].join('~');
+  if (key === cloud.last) return; cloud.last = key;
+  if (d.black) linkApply({ t: 'black', on: true });
+  else { lyr.black = false; if (d.clear || !d.text) linkApply({ t: 'clear', bg, dim }); else linkApply({ t: 'slide', text: d.text, ref: d.ref || '', dim, bg }); }
+}
+function cloudConnect(base, team) {
+  cloudStop(true); base = base || cfg.pcBase; if (!base) return; if (team !== undefined) cfg.pcTeam = team; team = cfg.pcTeam || '';
+  cfg.pcBase = cloud.base = base; cloud.team = team; store.set('cfg', cfg); cloudFs(team); cloud.st = 'connecting'; cloud.fails = 0; cloudPoll();
+}
+async function cloudPoll() {
+  clearTimeout(cloud.timer); if (!cloud.base || cloud.busy) return; cloud.busy = true;
+  try {
+    const r = await fetch(cloud.base + '/stream/state.json?t=' + Date.now(), { cache: 'no-store' });
+    if (r.status === 404) { cloud.st = 'nofile'; }
+    else if (!r.ok) throw new Error(r.status);
+    else {
+      const d = await r.json(); cloud.fails = 0; cloud.st = 'ok';
+      if (!cloud.fsOk) cloudApply(d, 'r2');
+    }
+  } catch { cloud.fails++; if (cloud.fails > 2) cloud.st = 'lost'; }
+  cloud.busy = false; cloud.timer = setTimeout(cloudPoll, cloud.st === 'ok' ? 700 : 2500);
+}
+const cloudTxt = () => ({ off: 'Not connected', connecting: 'Connecting…', nofile: 'Link reached, but PreCenter has not sent a slide yet. Check "Also send the live slide to Disciples Stream" in PreCenter.', ok: 'Linked to PreCenter (cloud)', lost: 'Cannot read the link. Check the address and the bucket CORS rule.' }[cloud.st] || '');
 function linkConnect(manual) {
   clearTimeout(lTimer); clearInterval(lHb); if (lws) { lws.onclose = null; lws.onerror = null; try { lws.close(); } catch {} lws = null; }
   if (manual) lTry = 0;
@@ -1953,16 +2002,14 @@ function linkConnect(manual) {
     let m; try { m = JSON.parse(e.data); } catch { return; }
     if (m.t === 'hb') return;
     if (m.t === 'peers') { lPeers = m.n; linkStatus(m.n ? 'linked to PreCenter' : 'linked (waiting for PreCenter)', 'ok'); return; }
-    if (m.t === 'slide') { lyr.text = m.text || ''; lyr.ref = m.ref || ''; lyr.black = false; lyr.dim = Math.min(0.9, Math.max(0, +m.dim || 0)); lbgSet(m.bg); lyrSources().forEach((s) => { rt[s.ref] && (rt[s.ref].test = false); }); }
-    else if (m.t === 'clear') { lyr.text = ''; if ('bg' in m) { lyr.dim = Math.min(0.9, Math.max(0, +m.dim || 0)); lbgSet(m.bg); } }
-    else if (m.t === 'black') lyr.black = m.on !== false;
+    linkApply(m);
   };
   w.onclose = () => { if (w !== lws) return; clearInterval(lHb); window.linkWasDown = true; lTry++; const d = Math.min(8000, 800 * Math.pow(1.6, Math.min(lTry, 8))); linkStatus('connection lost, retrying (' + lTry + ')…'); lTimer = setTimeout(linkConnect, d); };
   w.onerror = () => { try { w.close(); } catch {} };
 }
 addEventListener('online', () => { if (cfg.code) { lTry = 0; linkConnect(); } });
 document.addEventListener('visibilitychange', () => { if (!document.hidden && cfg.code && (!lws || lws.readyState !== 1)) { lTry = 0; linkConnect(); } });
-linkConnect();
+linkConnect(); if (cfg.pcBase) cloudConnect();
 
 /* ---------- streaming + recording ---------- */
 const fmt = (ms) => { const s = Math.floor(ms / 1000); return [s / 3600, s / 60 % 60, s % 60].map((n) => String(Math.floor(n)).padStart(2, '0')).join(':'); };
@@ -2046,7 +2093,7 @@ $('bStream').onclick = toggleStream; $('bRec').onclick = toggleRec; $('bSet').on
 $('sAdd').onclick = () => { scenes.push({ id: uid++, name: 'Scene ' + (scenes.length + 1), sources: [] }); switchScene(scenes.length - 1); };
 $('sDel').onclick = removeScene; $('sUp').onclick = () => moveScene(-1); $('sDn').onclick = () => moveScene(1);
 $('srDel').onclick = removeSource; $('srUp').onclick = () => moveSrc(-1); $('srDn').onclick = () => moveSrc(1);
-$('srProp').onclick = openProps; $('bProps').onclick = openProps; $('bFilt').onclick = openSrcFilters;
+$('srProp').onclick = openProps;
 $('srAdd').onclick = (e) => popupAt(e, addMenuItems(), true);
 document.addEventListener('click', () => { $('addMenu').style.display = 'none'; $('subMenu').style.display = 'none'; document.querySelectorAll('.mi.open').forEach((m) => m.classList.remove('open')); });
 document.addEventListener('contextmenu', (e) => { if (!/INPUT|TEXTAREA/.test(e.target.tagName)) e.preventDefault(); });
@@ -2088,7 +2135,7 @@ document.addEventListener('keydown', (e) => {
 
 /* ---------- OBS-style menus, profiles, collections, extra settings ---------- */
 const VER = '1.2.4';
-const HK = [['stream', 'Start / Stop Streaming', () => toggleStream()], ['rec', 'Start / Stop Recording', () => toggleRec()], ['pause', 'Pause / Resume Recording', () => pauseRec()], ['split', 'Split recording', () => splitRec()], ['rbt', 'Start / Stop Replay Buffer', () => toggleRB()], ['rbs', 'Save Replay', () => saveRB()], ['pclive', 'Take PreCenter live', () => pcLive()], ['studio', 'Studio Mode', () => setStudio(!studio)], ['trans', 'Transition', () => $('bTrans').click()], ['full', 'Fullscreen interface', () => $('tbFull').click()], ['shot', 'Screenshot output', () => shotOutput()]];
+const HK = [['stream', 'Start / Stop Streaming', () => toggleStream()], ['rec', 'Start / Stop Recording', () => toggleRec()], ['pause', 'Pause / Resume Recording', () => pauseRec()], ['split', 'Split recording', () => splitRec()], ['rbt', 'Start / Stop Replay Buffer', () => toggleRB()], ['rbs', 'Save Replay', () => saveRB()], ['pclive', 'Take PreCenter live', () => pcLive()], ['studio', 'Studio Mode', () => setStudio(!studio)], ['trans', 'Transition', () => $('bTrans').click()], ['full', 'Fullscreen interface', () => toggleFull()], ['shot', 'Screenshot output', () => shotOutput()]];
 const ACCENTS = ['#E8B923', '#4f8cff', '#38c98a', '#ef5da8', '#ff7a45', '#9b7bff', '#2fc7d9'];
 function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; }
 function lighten(h, k) { return '#' + hexRgb(h).map((v) => Math.round(v + (255 - v) * k).toString(16).padStart(2, '0')).join(''); }
@@ -2522,17 +2569,17 @@ function renderMenus() {
     { t: 'Start / Stop Streaming', f: toggleStream }, { t: 'Start / Stop Recording', f: toggleRec }, { t: 'Pause / Resume Recording', f: pauseRec }, { t: 'Split recording now', f: splitRec }, { t: 'Start / Stop Replay Buffer', f: () => toggleRB() }, { t: 'Save Replay', f: saveRB }, { t: 'Screenshot output', f: shotOutput }, { sep: 1 }, { t: 'Sign out' + (window.dscUser ? ' (' + window.dscUser + ')' : ''), f: () => authOut() }, { t: 'Exit', f: () => $('bExit').click() }]);
   dyn('mEdit', [{ t: 'Undo (Ctrl+Z)', f: undo, off: !H.u.length }, { t: 'Redo (Ctrl+Y)', f: redo, off: !H.r.length }, { sep: 1 }, { t: 'Copy source', f: copySrc }, { t: 'Paste source', f: pasteSrc }, { sep: 1 }, { t: 'Transform…', f: openTransform }, { t: 'Order: Move up', f: () => moveSrc(-1) }, { t: 'Order: Move down', f: () => moveSrc(1) },
     { t: 'Rename source', f: renameSrc }, { t: 'Filters', f: openSrcFilters }, { t: 'Source properties', f: openProps }, { t: 'Screenshot source', f: () => { const q = curSrc(); q ? shotSource(q) : note('Select a source first'); } }, { t: 'Remove source', f: removeSource }, { sep: 1 }, { t: 'Preferences…', f: () => openSettings('pg') }]);
-  dyn('mView', [{ t: 'Fullscreen interface', chk: !!document.fullscreenElement, f: () => $('tbFull').click() }, { t: 'Studio Mode', chk: studio, f: () => setStudio(!studio) }, { t: 'Edit mode', chk: mode === 'edit', f: () => setMode('edit') }, { t: 'Live mode', chk: mode === 'live', f: () => setMode('live') }, { t: 'Live follows Preview edits (like OBS)', chk: !!cfg.liveFollow, f: () => { cfg.liveFollow = !cfg.liveFollow; store.set('cfg', cfg); if (!cfg.liveFollow && progSc) takeLive(progSc); } }, { sep: 1 },
+  dyn('mView', [{ t: 'Dark theme', chk: !document.documentElement.classList.contains('light'), f: toggleTheme }, { t: 'Fullscreen interface', chk: !!document.fullscreenElement, f: () => toggleFull() }, { t: 'Studio Mode', chk: studio, f: () => setStudio(!studio) }, { t: 'Edit mode', chk: mode === 'edit', f: () => setMode('edit') }, { t: 'Live mode', chk: mode === 'live', f: () => setMode('live') }, { t: 'Live follows Preview edits (like OBS)', chk: !!cfg.liveFollow, f: () => { cfg.liveFollow = !cfg.liveFollow; store.set('cfg', cfg); if (!cfg.liveFollow && progSc) takeLive(progSc); } }, { sep: 1 },
     { t: 'Toolbar', chk: cfg.bars.tb, f: () => { cfg.bars.tb = !cfg.bars.tb; store.set('cfg', cfg); applyPrefs(); } }, { t: 'Status bar', chk: cfg.bars.st, f: () => { cfg.bars.st = !cfg.bars.st; store.set('cfg', cfg); applyPrefs(); } }, { sep: 1 },
     { t: 'PreCenter screen (third screen)', chk: !!window.pcOn, f: () => pc.stream ? setPcOn(!window.pcOn) : pcConnect() }, { t: 'Multiview (window)', f: () => openProjector('multi') }, { t: 'Projector: Program', f: () => openProjector('program') }, { t: 'Projector: Preview', f: () => openProjector('preview'), off: !studio }, ...scenes.map((q, i) => ({ t: 'Projector: Scene ' + q.name, f: () => openProjector('scene', i) })), { t: 'Output window (capture it in Zoom / Meet)', f: () => $('bCam').click() }, { t: 'Stats', f: stats }]);
   dyn('mProf', profItems()); dyn('mColl', collItems());
-  dyn('mTools', [{ t: 'Auto-Configuration Wizard…', f: wizard }, { t: 'Scripts…', f: openScripts }, { t: 'PreCenter StreamLink…', f: streamLink }, { t: 'Take PreCenter live', f: pcLive }, { t: 'Select PreCenter Lyrics', f: selectLyrics }, { t: 'Lyrics: full frame (background + words)', f: () => lyrPreset('full') }, { t: 'Lyrics: background + bottom words', f: () => lyrPreset('over') }, { t: 'Lyrics: lyrics only (lower third)', f: () => lyrPreset('third') }, { t: 'Lyrics: lyrics only (center)', f: () => lyrPreset('center') }, { t: 'Lyrics test text', chk: lyrTestOn(), f: () => lyrTest(!lyrTestOn()) },{ t: 'Output window', f: () => $('bCam').click() }, { t: 'Preview transition', f: previewTransition }, { t: 'Multiview', f: () => openProjector('multi') },
+  dyn('mTools', [{ t: 'Auto-Configuration Wizard…', f: wizard }, { t: 'Scripts…', f: openScripts }, { t: 'Take PreCenter live', f: pcLive }, { t: 'Select PreCenter Lyrics', f: selectLyrics }, { t: 'Lyrics: full frame (background + words)', f: () => lyrPreset('full') }, { t: 'Lyrics: background + bottom words', f: () => lyrPreset('over') }, { t: 'Lyrics: lyrics only (lower third)', f: () => lyrPreset('third') }, { t: 'Lyrics: lyrics only (center)', f: () => lyrPreset('center') }, { t: 'Lyrics test text', chk: lyrTestOn(), f: () => lyrTest(!lyrTestOn()) },{ t: 'Output window', f: () => $('bCam').click() }, { t: 'Preview transition', f: previewTransition }, { t: 'Multiview', f: () => openProjector('multi') },
     { h: 'App' },
     ...(DESK ? [{ t: 'Link PreCenter (address and code)…', f: desk('showCode') }, { t: 'Copy pairing code', f: desk('copyCode') }]
              : [{ t: 'Link PreCenter (address and code)…', f: () => streamLink() }, { t: 'Copy pairing code', f: () => { try { navigator.clipboard.writeText(cfg.code || ''); note('Pairing code copied'); } catch { note('Could not copy'); } } }]),
     { t: 'Quit', f: desk('quit', () => $('bExit').click()), menu: 'Tools' },
     { h: 'View' },
-    { t: 'Reload', f: desk('reload', () => location.reload()) }, { t: 'Toggle full screen', f: () => $('tbFull').click() },
+    { t: 'Reload', f: desk('reload', () => location.reload()) }, { t: 'Toggle full screen', f: () => toggleFull() },
     ...(DESK ? [{ t: 'Zoom in', f: desk('zoomIn') }, { t: 'Zoom out', f: desk('zoomOut') }, { t: 'Reset zoom', f: desk('zoomReset') }, { t: 'Developer tools', f: desk('devtools') }] : [])]);
   dyn('mHelp', [{ t: 'Keyboard shortcuts', f: () => info('Keyboard shortcuts', HK.map(([k, l]) => l.padEnd(26) + (cfg.keys[k] || '(not set)')).concat(['', 'Delete  remove source', 'Ctrl+C / Ctrl+V  copy / paste source', 'Ctrl+Z / Ctrl+Y  undo / redo', 'Ctrl+K  search functions', 'Arrows  nudge source (Shift = 10 px)']), 460) },
     { t: 'What works in a browser', f: () => info('OBS features and this app', ['WORKS: scenes, sources, groups, filters, transitions, Studio Mode, audio mixer and filters, 6 audio tracks,', 'recording, replay buffer, streaming through the Stream server, Multiview, projectors, hotkeys, Undo / Redo, scripts.', '', 'NOT POSSIBLE in a web page (needs a native app): Browser source (CEF), Game Capture, Application Audio Capture,', 'VLC playlist source, Syphon / NDI, a real virtual-camera device, Render Delay filter, and more than one audio track', 'inside a single recording file. Use Display / Window capture, Media source, and the Output window instead.', '', 'Streaming and MP4 remux need the Stream server (desktop app or npm start) because browsers cannot send RTMP.'], 560) },
@@ -2622,7 +2669,11 @@ function streamLink() {
   let t, mode = store.get('slMode', 'local');
   const copy = (txt) => { try { navigator.clipboard.writeText(txt).then(() => note('Copied')); } catch { note('Could not copy'); } };
   modal('PreCenter StreamLink', (b) => {
-    b.innerHTML = '<div class="sl-top"><span class="pill" id="slSt"></span><span class="hint" id="slLast"></span></div>'
+    b.innerHTML = '<div class="card"><div class="ct">Cloud link (same as the phone remote)</div>'
+      +   '<p class="hint">In PreCenter choose Screens → Copy Stream access link, then paste it here. The link holds your R2 bucket address (pictures and videos) and your team (text), so it works over the internet with no server address or code.</p>'
+      +   '<div class="copyfld"><input id="clIn" placeholder="Paste the access link" spellcheck="false" autocomplete="off"><button type="button" id="clGo">Connect</button><button type="button" id="clOff">Disconnect</button></div>'
+      +   '<div class="hint" id="clSt"></div></div>'
+      + '<div class="sl-top"><span class="pill" id="slSt"></span><span class="hint" id="slLast"></span></div>'
       + '<div class="seg" role="tablist"><button type="button" id="slL"></button><button type="button" id="slN"></button></div>'
       + '<p class="hint sl-help" id="slHelp"></p>'
       + '<div class="card">'
@@ -2648,8 +2699,12 @@ function streamLink() {
     $('slCa').onclick = () => copy($('slAd').value); $('slCc').onclick = () => copy($('slCo').value); $('slBoth').onclick = () => copy('Address: ' + $('slAd').value + '\nCode: ' + $('slCo').value);
     $('slCo').onchange = () => { cfg.code = $('slCo').value.trim(); store.set('cfg', cfg); linkConnect(); note('Pairing code saved'); };
     $('slConn').onclick = () => pc.stream ? pcDisconnect() : pcConnect(); $('slTake').onclick = pcLive; $('slBack').onclick = pcBack;
+    $('clIn').value = cfg.pcBase ? 'dscr2:' + cfg.pcBase + (cfg.pcTeam ? '#' + cfg.pcTeam : '') : '';
+    $('clGo').onclick = () => { const tm = pcBaseFrom($('clIn').value), tt = ($('clIn').value.split('#')[1] || '').trim(); if (!tm) { $('clSt').textContent = 'That is not a PreCenter access link.'; return; } cloudConnect(tm, tt); note('Cloud link saved'); };
+    $('clOff').onclick = () => { cloudStop(); $('clIn').value = ''; note('Cloud link disconnected'); };
+    $('clIn').onpaste = () => setTimeout(() => $('clGo').click(), 0);
     fill(); slPair().then(() => { if ($('slAd')) fill(); });
-    const up = () => { if (!$('slSt')) return; const lk = $('linkTxt').textContent; $('slSt').className = 'pill ' + (lk === 'linked' ? 'ok' : 'warn'); $('slSt').textContent = lk === 'linked' ? 'Linked to PreCenter' : lk.charAt(0).toUpperCase() + lk.slice(1); $('slConn').textContent = pc.stream ? 'Disconnect presentation' : 'Connect presentation'; $('slLast').textContent = lyr.text ? 'Now showing: ' + lyr.text.slice(0, 70).replace(/\s+/g, ' ') + (lyr.black ? '  (black)' : '') : 'No slide received yet.'; };
+    const up = () => { if (!$('slSt')) return; if ($('clSt')) $('clSt').textContent = cloudTxt(); const lk = $('linkTxt').textContent; $('slSt').className = 'pill ' + (lk === 'linked' ? 'ok' : 'warn'); $('slSt').textContent = lk === 'linked' ? 'Linked to PreCenter' : lk.charAt(0).toUpperCase() + lk.slice(1); $('slConn').textContent = pc.stream ? 'Disconnect presentation' : 'Connect presentation'; $('slLast').textContent = lyr.text ? 'Now showing: ' + lyr.text.slice(0, 70).replace(/\s+/g, ' ') + (lyr.black ? '  (black)' : '') : 'No slide received yet.'; };
     up(); t = setInterval(up, 700);
   }, { width: 460, after: () => clearInterval(t) });
 }
@@ -2659,7 +2714,7 @@ const DSC_SITE = 'https://worship-chords-rho.vercel.app'; let dscAuth = null;
 const loadJs = (src) => new Promise((res, rej) => { const t = document.createElement('script'); t.src = src; t.onload = res; t.onerror = () => rej(new Error('Could not load the sign-in tools. Check your internet connection.')); document.head.appendChild(t); });
 const auErr = (e) => ({ 'auth/invalid-credential': 'Wrong email or password.', 'auth/wrong-password': 'Wrong email or password.', 'auth/user-not-found': 'Wrong email or password.', 'auth/invalid-email': 'Enter a valid email.', 'auth/too-many-requests': 'Too many tries. Wait a moment and try again.', 'auth/network-request-failed': 'No connection. Check your internet.' }[e && e.code] || (e && e.message) || 'Could not sign in.');
 function authShow(sub, form) { $('auth').style.display = 'flex'; $('auSub').textContent = sub; ['auEm', 'auPw', 'auGo'].forEach((i) => $(i).style.display = form ? '' : 'none'); $('auEm').parentNode.style.display = $('auPw').parentNode.style.display = form ? '' : 'none'; if (form) $('auEm').focus(); }
-function authOk(u) { window.dscUser = u.email || ''; $('auth').style.display = 'none'; $('auPw').value = ''; renderMenus(); fit(); }
+function authOk(u) { window.dscUser = u.email || ''; if (cfg.pcBase && cfg.pcTeam && !cloud.fs) cloudFs(cfg.pcTeam); $('auth').style.display = 'none'; $('auPw').value = ''; renderMenus(); fit(); }
 async function authGo() {
   const em = $('auEm').value.trim(), pw = $('auPw').value; if (!em || !pw) { $('auEr').textContent = 'Enter your email and password.'; return; }
   $('auGo').disabled = true; $('auEr').textContent = '';
@@ -2710,21 +2765,15 @@ $('cmdIn').onkeydown = (e) => {
   else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { cmdSel = (cmdSel + (e.key === 'ArrowDown' ? 1 : -1) + cmdRows.length) % Math.max(1, cmdRows.length); cmdRender(); e.preventDefault(); }
 };
 document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'k' && $('auth').style.display === 'none') { e.preventDefault(); $('cmdk').style.display === 'flex' ? cmdClose() : cmdOpen(); } });
-$('tbStudio').onclick = () => setStudio(!studio);
 
 function syncAir() {
-  $('tbStudio').classList.toggle('on', !!studio);
   const on = !!live, rc = !!rcn; $('air').textContent = rc ? 'RECONNECTING' : on ? 'ON AIR' : 'OFF AIR'; $('air').classList.toggle('on', on || rc);
-  $('tbLive').classList.toggle('live', on || rc); $('tbLive').innerHTML = on || rc ? '<i>' + svg('stop') + '</i>Stop' : '<i>' + svg('play') + '</i>Go Live';
-  $('tbRec').classList.toggle('live', !!recd); $('tbRec').innerHTML = recd ? '<i>' + svg('stop') + '</i>Stop' : '<i>' + svg('record') + '</i>Record';
 }
 setInterval(syncAir, 400);
-function selUI() { ['tbProps', 'tbFilt', 'tbTrans'].forEach((id) => $(id).disabled = !curSrc()); }
+function selUI() {}
 setInterval(selUI, 300);
-$('tbAdd').onclick = (e) => popupAt(e, addMenuItems());
-$('tbProps').onclick = openProps; $('tbFilt').onclick = openSrcFilters; $('tbTrans').onclick = (e) => popupAt(e, transformItems(curSrc()));
-$('tbLive').onclick = toggleStream; $('tbRec').onclick = toggleRec; $('tbLink').onclick = () => streamLink(); $('tbSet').onclick = () => openSettings();
-$('tbFull').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); };
+$('tbLink').onclick = () => streamLink();
+function toggleFull() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
 
 $('bStudio').onclick = () => setStudio(!studio);
 $('bExit').onclick = () => { if (cfg.confirmExit !== false && !confirm('Exit Disciples: Stream? Streaming and recording will stop.')) return; cancelReconnect(); stopStream(); stopRec(); if (window.desktop) return window.desktop.act('quit'); window.close(); setTimeout(() => note('You can close this tab now'), 400); };
@@ -2745,10 +2794,10 @@ $('bCam').onclick = () => modal('Virtual Camera', (b) => {
 let theme = cfg.theme || 'dark';
 function applyTheme() {
   const t = cfg.theme || 'dark', light = t === 'light' || (t === 'auto' && matchMedia('(prefers-color-scheme: light)').matches);
-  document.documentElement.classList.toggle('light', light); $('tbThT').textContent = light ? 'Light' : 'Dark';
+  document.documentElement.classList.toggle('light', light);
 }
 matchMedia('(prefers-color-scheme: light)').addEventListener && matchMedia('(prefers-color-scheme: light)').addEventListener('change', applyTheme);
-$('tbTheme').onclick = () => { cfg.theme = document.documentElement.classList.contains('light') ? 'dark' : 'light'; store.set('cfg', cfg); applyTheme(); };
+function toggleTheme() { cfg.theme = document.documentElement.classList.contains('light') ? 'dark' : 'light'; store.set('cfg', cfg); applyTheme(); renderMenus(); }
 const pfEsc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pfIni = (u) => String((u && (u.displayName || u.email)) || window.dscUser || '?').trim().charAt(0).toUpperCase();
 function setAvatar() { const b = $('tpA'); if (!b) return; const u = dscAuth && dscAuth.currentUser; b.innerHTML = (u || window.dscUser) ? pfEsc(pfIni(u)) : '&#9786;'; }
