@@ -1101,6 +1101,18 @@ const TYPES = {
   playlist: { name: 'VLC Video Source (playlist)', ic: '▶' },
 };
 const LYR_DEF = { fullbg: true, size: 7, tcolor: '#ffffff', font: 'system-ui', bold: true, align: 'center', valign: 'bottom', fit: true, shadow: true, bgop: 0, sample: 'Amazing grace, how sweet the sound\nThat saved a wretch like me' };
+const LYR_PRESETS = {
+  full:   { t: 'Full frame: PreCenter background + words', fullbg: true,  rect: { x: 0, y: 0, w: 1, h: 1 },                 valign: 'middle', bgop: 0 },
+  over:   { t: 'PreCenter background + words at the bottom', fullbg: true,  rect: { x: 0.04, y: 0.62, w: 0.92, h: 0.34 }, valign: 'bottom', bgop: 0 },
+  third:  { t: 'Lyrics only: lower third',                  fullbg: false, rect: { x: 0.04, y: 0.62, w: 0.92, h: 0.34 }, valign: 'bottom' },
+  center: { t: 'Lyrics only: center',                       fullbg: false, rect: { x: 0.1, y: 0.3, w: 0.8, h: 0.4 },     valign: 'middle' },
+};
+function lyrPreset(k, only) {
+  const P = LYR_PRESETS[k], list = only ? [only] : lyrSources(); if (!P) return;
+  if (!list.length) { note('Add a PreCenter Lyrics source first (Sources menu)'); return; }
+  list.forEach((s) => { s.fullbg = P.fullbg; s.rect = { ...P.rect }; s.valign = P.valign; s.align = 'center'; if (P.bgop !== undefined) s.bgop = P.bgop; });
+  note('Lyrics: ' + P.t); try { renderSources(); drawSel(); } catch {}
+}
 const lv = (s, k) => s[k] === undefined ? LYR_DEF[k] : s[k];   // older saved lyrics sources lack the new fields
 const needsRt = (s) => ['display', 'window', 'cam', 'mic', 'audioout', 'image', 'slides', 'media', 'playlist'].includes(s.type);
 const reid = (s) => { s.id = uid++; (s.children || []).forEach(reid); };
@@ -1329,6 +1341,15 @@ function openProps() {
     if (s.type === 'lyrics' || s.type === 'bible') {
       const pick2 = (label, key, opts) => { const e = field(b, label, document.createElement('select')); opts.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; e.appendChild(o); }); e.value = lv(s, key); return e; };
       const chk = (label, key) => { const e = field(b, label, inp('checkbox', '')); e.checked = !!lv(s, key); return e; };
+      if (s.type === 'lyrics') {
+        const qh = document.createElement('div'); qh.className = 'lbl'; qh.textContent = 'Quick setup (one click)'; b.appendChild(qh);
+        const qr = document.createElement('div'); qr.className = 'btnrow';
+        [['full', 'Full frame'], ['over', 'Background + bottom words'], ['third', 'Lyrics only'], ['center', 'Lyrics only: center']].forEach(([k, t]) => {
+          const x = document.createElement('button'); x.textContent = t; x.title = LYR_PRESETS[k].t;
+          x.onclick = () => { const P = LYR_PRESETS[k]; s.rect = { ...P.rect }; f.fullbg.checked = P.fullbg; f.valign.value = P.valign; f.align.value = 'center'; if (P.bgop !== undefined) f.bgop.value = P.bgop; drawSel(); };
+          qr.appendChild(x); });
+        b.appendChild(qr);
+      }
       f.size = field(b, 'Max text size', inp('range', lv(s, 'size'), { min: 3, max: 20, step: 0.1 }));
       f.fit = chk('Shrink text to fit the box', 'fit');
       f.font = pick2('Font', 'font', [['system-ui', 'Default'], ['Arial', 'Arial'], ['Georgia', 'Georgia'], ['Times New Roman', 'Times New Roman'], ['Verdana', 'Verdana'], ['Impact', 'Impact']]);
@@ -2505,7 +2526,7 @@ function renderMenus() {
     { t: 'Toolbar', chk: cfg.bars.tb, f: () => { cfg.bars.tb = !cfg.bars.tb; store.set('cfg', cfg); applyPrefs(); } }, { t: 'Status bar', chk: cfg.bars.st, f: () => { cfg.bars.st = !cfg.bars.st; store.set('cfg', cfg); applyPrefs(); } }, { sep: 1 },
     { t: 'PreCenter screen (third screen)', chk: !!window.pcOn, f: () => pc.stream ? setPcOn(!window.pcOn) : pcConnect() }, { t: 'Multiview (window)', f: () => openProjector('multi') }, { t: 'Projector: Program', f: () => openProjector('program') }, { t: 'Projector: Preview', f: () => openProjector('preview'), off: !studio }, ...scenes.map((q, i) => ({ t: 'Projector: Scene ' + q.name, f: () => openProjector('scene', i) })), { t: 'Output window (capture it in Zoom / Meet)', f: () => $('bCam').click() }, { t: 'Stats', f: stats }]);
   dyn('mProf', profItems()); dyn('mColl', collItems());
-  dyn('mTools', [{ t: 'Auto-Configuration Wizard…', f: wizard }, { t: 'Scripts…', f: openScripts }, { t: 'PreCenter StreamLink…', f: streamLink }, { t: 'Take PreCenter live', f: pcLive }, { t: 'Select PreCenter Lyrics', f: selectLyrics }, { t: 'Lyrics test text', chk: lyrTestOn(), f: () => lyrTest(!lyrTestOn()) },{ t: 'Output window', f: () => $('bCam').click() }, { t: 'Preview transition', f: previewTransition }, { t: 'Multiview', f: () => openProjector('multi') },
+  dyn('mTools', [{ t: 'Auto-Configuration Wizard…', f: wizard }, { t: 'Scripts…', f: openScripts }, { t: 'PreCenter StreamLink…', f: streamLink }, { t: 'Take PreCenter live', f: pcLive }, { t: 'Select PreCenter Lyrics', f: selectLyrics }, { t: 'Lyrics: full frame (background + words)', f: () => lyrPreset('full') }, { t: 'Lyrics: background + bottom words', f: () => lyrPreset('over') }, { t: 'Lyrics: lyrics only (lower third)', f: () => lyrPreset('third') }, { t: 'Lyrics: lyrics only (center)', f: () => lyrPreset('center') }, { t: 'Lyrics test text', chk: lyrTestOn(), f: () => lyrTest(!lyrTestOn()) },{ t: 'Output window', f: () => $('bCam').click() }, { t: 'Preview transition', f: previewTransition }, { t: 'Multiview', f: () => openProjector('multi') },
     { h: 'App' },
     ...(DESK ? [{ t: 'Link PreCenter (address and code)…', f: desk('showCode') }, { t: 'Copy pairing code', f: desk('copyCode') }]
              : [{ t: 'Link PreCenter (address and code)…', f: () => streamLink() }, { t: 'Copy pairing code', f: () => { try { navigator.clipboard.writeText(cfg.code || ''); note('Pairing code copied'); } catch { note('Could not copy'); } } }]),
@@ -2666,7 +2687,7 @@ let cmdSel = 0, cmdRows = [];
 function cmdAll() {
   const extra = [['Toolbar', 'Add source', () => popup(Math.max(8, innerWidth / 2 - 120), 130, addMenuItems())], ['Toolbar', 'Source properties', openProps], ['Toolbar', 'Source filters', openSrcFilters], ['Toolbar', 'Transform source', () => popup(Math.max(8, innerWidth / 2 - 120), 130, transformItems(curSrc()))],
     ['Toolbar', 'Go Live', toggleStream], ['Toolbar', 'Record', toggleRec], ['Toolbar', 'StreamLink', streamLink], ['Toolbar', 'Settings', () => openSettings()], ['Toolbar', 'Studio Mode', () => setStudio(!studio)],
-    ['Sources', 'Add scene', () => $('sAdd').click()], ['Sources', 'Remove scene', removeScene], ['Sources', 'Add PreCenter Lyrics source', () => addSource('lyrics')], ['Sources', 'Add Bible Verse source', () => addSource('bible')], ['Docks', 'Show Bible dock', () => { const e = $('dkBible'); e.style.display = ''; LAY.hid = LAY.hid.filter((q) => q !== 'dkBible'); saveLay(); renderDockMenu(); }], ['Sources', 'Bible: next verse', () => bibleNav(1)], ['Sources', 'Bible: previous verse', () => bibleNav(-1)]].map(([menu, t, f]) => ({ menu, t, f }));
+    ['Sources', 'Add scene', () => $('sAdd').click()], ['Sources', 'Remove scene', removeScene], ['Sources', 'Add PreCenter Lyrics source', () => addSource('lyrics')], ['Sources', 'Add Bible Verse source', () => addSource('bible')], ['Sources', 'Lyrics: full frame (background + words)', () => lyrPreset('full')], ['Sources', 'Lyrics: lyrics only (lower third)', () => lyrPreset('third')], ['Docks', 'Show Bible dock', () => { const e = $('dkBible'); e.style.display = ''; LAY.hid = LAY.hid.filter((q) => q !== 'dkBible'); saveLay(); renderDockMenu(); }], ['Sources', 'Bible: next verse', () => bibleNav(1)], ['Sources', 'Bible: previous verse', () => bibleNav(-1)]].map(([menu, t, f]) => ({ menu, t, f }));
   const seen = new Set(); return Object.values(CMDS).flat().concat(extra).filter((c) => { const k = c.menu + '|' + c.t; if (seen.has(k)) return false; seen.add(k); return true; });
 }
 function cmdRender() {
