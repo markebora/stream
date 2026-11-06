@@ -890,16 +890,16 @@ function popup(x, y, items) {
 function popupAt(e, items, above) { const r = e.currentTarget.getBoundingClientRect(); popup(r.left, above ? r.top - 30 * items.length - 8 : r.bottom, items); e.stopPropagation(); }
 let mOk = null;
 function modal(title, build, o = {}) {
-  $('pTitle').textContent = title; $('pdlg').style.width = (o.width || 420) + 'px';
+  modal.revert = null; $('pTitle').textContent = title; $('pdlg').style.width = (o.width || 420) + 'px';
   const b = $('pbody'); b.innerHTML = ''; build(b);
   $('pOk').style.display = o.ok ? '' : 'none'; $('pCancel').textContent = o.ok ? 'Cancel' : 'Close';
   mOk = o.ok || null; $('pshade').style.display = 'flex';
   modal.after = o.after || null;
 }
-function closeModal() { $('pshade').style.display = 'none'; const a = modal.after; modal.after = null; if (a) a(); }
+function closeModal(ok) { if (ok !== true && modal.revert) { modal.revert(); try { renderSources(); drawSel(); } catch {} } modal.revert = null; $('pshade').style.display = 'none'; const a = modal.after; modal.after = null; if (a) a(); }
 $('pCancel').onclick = closeModal; $('pX').onclick = closeModal;
 document.addEventListener('keydown', (e) => { if (e.key !== 'Escape' || $('cmdk').style.display === 'flex') return; if ($('pshade').style.display === 'flex') { closeModal(); e.preventDefault(); } else if ($('shade').style.display === 'flex') { $('shade').style.display = 'none'; e.preventDefault(); } });
-$('pOk').onclick = () => { if (mOk) mOk(); closeModal(); };
+$('pOk').onclick = () => { if (mOk) mOk(); closeModal(true); };
 const modalOpen = () => $('pshade').style.display === 'flex' || $('shade').style.display === 'flex' || $('cmdk').style.display === 'flex';
 function field(box, label, el) { const l = document.createElement('label'); l.className = 'fl'; const s = document.createElement('span'); s.textContent = label; l.append(s, el); box.appendChild(l); return el; }
 function inp(type, v, extra = {}) { const e = document.createElement('input'); e.type = type; e.value = v; Object.assign(e, extra); return e; }
@@ -1098,17 +1098,19 @@ const TYPES = {
   browser:  { name: 'Browser', ic: '🌐' },
   playlist: { name: 'VLC Video Source (playlist)', ic: '▶' },
 };
-const LYR_DEF = { fullbg: true, size: 7, tcolor: '#ffffff', font: 'system-ui', bold: true, align: 'center', valign: 'bottom', fit: true, shadow: true, bgop: 0, sample: 'Amazing grace, how sweet the sound\nThat saved a wretch like me' };
+const LYR_DEF = { feed: 'text', fullbg: true, size: 7, tcolor: '#ffffff', font: 'system-ui', bold: true, align: 'center', valign: 'bottom', fit: true, shadow: true, bgop: 0, sample: 'Amazing grace, how sweet the sound\nThat saved a wretch like me' };
+const LYR_FEEDS = { text: 'Words drawn here from the text (Firebase)', full: 'Full slide picture (R2)', bg: 'Background only picture (R2)', lyrics: 'Lyrics only, transparent picture (R2)', bottom: 'Background + bottom words picture (R2)' };
+const LYR_FILES = { full: 'stream/full.jpg', bg: 'stream/bg.jpg', lyrics: 'stream/lyrics.png', bottom: 'stream/bottom.jpg' };
 const LYR_PRESETS = {
-  full:   { t: 'Full frame: PreCenter background + words', fullbg: true,  rect: { x: 0, y: 0, w: 1, h: 1 },                 valign: 'middle', bgop: 0 },
-  over:   { t: 'PreCenter background + words at the bottom', fullbg: true,  rect: { x: 0.04, y: 0.62, w: 0.92, h: 0.34 }, valign: 'bottom', bgop: 0 },
-  third:  { t: 'Lyrics only: lower third',                  fullbg: false, rect: { x: 0.04, y: 0.62, w: 0.92, h: 0.34 }, valign: 'bottom' },
-  center: { t: 'Lyrics only: center',                       fullbg: false, rect: { x: 0.1, y: 0.3, w: 0.8, h: 0.4 },     valign: 'middle' },
+  full:   { t: 'Full frame: PreCenter background + words', feed: 'full', fullbg: true,  rect: { x: 0, y: 0, w: 1, h: 1 },                 valign: 'middle', bgop: 0 },
+  over:   { t: 'PreCenter background + words at the bottom', feed: 'bottom', fullbg: true,  rect: { x: 0, y: 0, w: 1, h: 1 }, valign: 'bottom', bgop: 0 },
+  third:  { t: 'Lyrics only (transparent picture, put it over a camera)', feed: 'lyrics', fullbg: false, rect: { x: 0, y: 0, w: 1, h: 1 }, valign: 'bottom' },
+  center: { t: 'Lyrics only: center (words drawn here)',   feed: 'text', fullbg: false, rect: { x: 0.1, y: 0.3, w: 0.8, h: 0.4 },     valign: 'middle' },
 };
 function lyrPreset(k, only) {
   const P = LYR_PRESETS[k], list = only ? [only] : lyrSources(); if (!P) return;
   if (!list.length) { note('Add a PreCenter Lyrics source first (Sources menu)'); return; }
-  list.forEach((s) => { s.fullbg = P.fullbg; s.rect = { ...P.rect }; s.valign = P.valign; s.align = 'center'; if (P.bgop !== undefined) s.bgop = P.bgop; });
+  list.forEach((s) => { s.feed = P.feed || 'text'; s.fullbg = P.fullbg; s.rect = { ...P.rect }; s.valign = P.valign; s.align = 'center'; if (P.bgop !== undefined) s.bgop = P.bgop; });
   note('Lyrics: ' + P.t); try { renderSources(); drawSel(); } catch {}
 }
 const lv = (s, k) => s[k] === undefined ? LYR_DEF[k] : s[k];   // older saved lyrics sources lack the new fields
@@ -1340,11 +1342,18 @@ function openProps() {
       const pick2 = (label, key, opts) => { const e = field(b, label, document.createElement('select')); opts.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; e.appendChild(o); }); e.value = lv(s, key); return e; };
       const chk = (label, key) => { const e = field(b, label, inp('checkbox', '')); e.checked = !!lv(s, key); return e; };
       if (s.type === 'lyrics') {
+        /* every button here changes the source at once, so the picture behind this window follows; Cancel puts it back */
+        const snap = JSON.stringify({ rect: s.rect, feed: s.feed, fullbg: s.fullbg, valign: s.valign, align: s.align, bgop: s.bgop });
+        modal.revert = () => { try { Object.assign(s, JSON.parse(snap)); } catch {} };
+        const fh = document.createElement('div'); fh.className = 'lbl'; fh.textContent = 'What this source shows'; b.appendChild(fh);
+        const fs = document.createElement('select'); Object.entries(LYR_FEEDS).forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; fs.appendChild(o); });
+        fs.value = s.feed || 'text'; fs.onchange = () => { s.feed = fs.value; picsNeed(s.feed); }; b.appendChild(fs); f.feedSel = fs;
+        note2(b, 'Picture choices come from PreCenter through R2 about once a second. If a picture has not arrived yet, the words are drawn here instead.');
         const qh = document.createElement('div'); qh.className = 'lbl'; qh.textContent = 'Quick setup (one click)'; b.appendChild(qh);
         const qr = document.createElement('div'); qr.className = 'btnrow';
         [['full', 'Full frame'], ['over', 'Background + bottom words'], ['third', 'Lyrics only'], ['center', 'Lyrics only: center']].forEach(([k, t]) => {
           const x = document.createElement('button'); x.textContent = t; x.title = LYR_PRESETS[k].t;
-          x.onclick = () => { const P = LYR_PRESETS[k]; s.rect = { ...P.rect }; f.fullbg.checked = P.fullbg; f.valign.value = P.valign; f.align.value = 'center'; if (P.bgop !== undefined) f.bgop.value = P.bgop; drawSel(); };
+          x.onclick = () => { const P = LYR_PRESETS[k]; lyrPreset(k, s); fs.value = s.feed; f.fullbg.checked = !!s.fullbg; f.valign.value = s.valign; f.align.value = 'center'; if (P.bgop !== undefined) f.bgop.value = P.bgop; picsNeed(s.feed); note('Applied: ' + P.t); };
           qr.appendChild(x); });
         b.appendChild(qr);
       }
@@ -1359,7 +1368,7 @@ function openProps() {
       const sh = document.createElement('div'); sh.className = 'lbl'; sh.textContent = 'Place the lyrics box'; b.appendChild(sh);
       const pr = document.createElement('div'); pr.className = 'btnrow';
       [['Full screen', { x: 0, y: 0, w: 1, h: 1 }], ['Lower third', { x: 0.04, y: 0.62, w: 0.92, h: 0.34 }], ['Bottom half', { x: 0.04, y: 0.5, w: 0.92, h: 0.46 }], ['Center', { x: 0.1, y: 0.3, w: 0.8, h: 0.4 }], ['Top', { x: 0.04, y: 0.04, w: 0.92, h: 0.3 }]].forEach(([t, rc]) => {
-        const x = document.createElement('button'); x.textContent = t; x.onclick = () => { s.rect = { ...rc }; drawSel(); }; pr.appendChild(x); });
+        const x = document.createElement('button'); x.textContent = t; x.onclick = () => { s.rect = { ...rc }; try { renderSources(); drawSel(); } catch {} note('Lyrics box: ' + t); }; pr.appendChild(x); });
       b.appendChild(pr);
       note2(b, 'You can also drag the gold box on the preview to move it, or its corners to resize it. Click the lyrics (or the dashed "Lyrics" box) to select it again at any time. Alt+click cycles through sources that overlap.');
       if (s.type === 'lyrics') {
@@ -1415,7 +1424,7 @@ function openProps() {
   }, { width: 470, ok: async () => {
     s.name = nm.v.trim() || s.name;
     if (f.color) s.color = f.color.value; if (f.size) s.size = +f.size.value;
-    if ((s.type === 'lyrics' || s.type === 'bible') && f.fit) Object.assign(s, { fit: f.fit.checked, font: f.font.value, tcolor: f.tcolor.value, bold: f.bold.checked, shadow: f.shadow.checked, align: f.align.value, valign: f.valign.value, bgop: +f.bgop.value, sample: f.sample ? f.sample.value : s.sample, fullbg: f.fullbg ? f.fullbg.checked : s.fullbg });
+    if ((s.type === 'lyrics' || s.type === 'bible') && f.fit) { if (f.feedSel) s.feed = f.feedSel.value; Object.assign(s, { fit: f.fit.checked, font: f.font.value, tcolor: f.tcolor.value, bold: f.bold.checked, shadow: f.shadow.checked, align: f.align.value, valign: f.valign.value, bgop: +f.bgop.value, sample: f.sample ? f.sample.value : s.sample, fullbg: f.fullbg ? f.fullbg.checked : s.fullbg }); }
     if (f.bt) { s.bible = f.bt.value; s.bref = f.bref.value.trim(); s.btxt = f.btxt.value; (rt[s.ref] || {}).bKey = ''; }
     if (f.url) { Object.assign(s, { url: f.url.value.trim(), bw: Math.max(64, +f.bw.value || 1280), bh: Math.max(64, +f.bh.value || 720), fps: Math.max(1, Math.min(60, +f.fps.value || 30)), css: f.css.value }); if (window.desktop && window.desktop.browserClose) window.desktop.browserClose(+s.ref); r.bOpen = false; }
     if (f.shuffle) { s.shuffle = f.shuffle.checked; }
@@ -1829,8 +1838,27 @@ function layoutLyrics(c, src, text, ref, W, H) {
   const tx = al === 'left' ? ax : al === 'right' ? ax - tw : ax - tw / 2;
   return { lines, lh, size, rs, y0, ax, al, total, bx, by, bw, bh, tb: { x: Math.min(bx, tx) / W, y: Math.min(by, y0) / H, w: (Math.max(bx + bw, tx + tw) - Math.min(bx, tx)) / W, h: (Math.max(by + bh, y0 + total) - Math.min(by, y0)) / H, tx: tx / W, ty: y0 / H, tw: tw / W, th: total / H } };
 }
+const pics = {};                                  // R2 pictures from PreCenter: { full:{ver,img}, ... }
+function picsNeed() {}
+function picsApply(d) {
+  const o = d && d.pics; if (!o || !cloud.base) return;
+  Object.keys(LYR_FILES).forEach((k) => {
+    const v = o[k]; if (!v) return; const p = pics[k] || (pics[k] = { ver: '', img: null, want: '' });
+    if (p.ver === v || p.want === v) return; p.want = v;
+    const im = new Image(); im.crossOrigin = 'anonymous';
+    im.onload = () => { p.img = im; p.ver = v; };           // swap only once the new picture is ready, so there is no flicker
+    im.onerror = () => { p.want = ''; };
+    im.src = cloud.base + '/' + LYR_FILES[k] + '?v=' + encodeURIComponent(v);
+  });
+}
 function drawLyrics(c, src) {
   const W = c.canvas.width, H = c.canvas.height, r = R(src);
+  const fd = src.feed || 'text', pic = fd !== 'text' && pics[fd] && pics[fd].img;
+  if (pic) {
+    const rc = src.rect; r.tb = null;
+    if (lyr.black) { if (fd !== 'lyrics') { c.fillStyle = '#000'; c.fillRect(rc.x * W, rc.y * H, rc.w * W, rc.h * H); } return; }
+    c.drawImage(pic, rc.x * W, rc.y * H, rc.w * W, rc.h * H); return;
+  }
   if (lyr.black) { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); r.tb = null; return; }
   if (lv(src, 'fullbg') !== false && lbg.kind) { const a0 = c.globalAlpha; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); lbgDraw(c, W, H, a0); c.restore(); }
   const test = !lyr.text && r.test, text = lyr.text || (test ? lv(src, 'sample') : ''); if (!text) { r.tb = null; return; }
@@ -1984,6 +2012,7 @@ async function cloudPoll() {
     else if (!r.ok) throw new Error(r.status);
     else {
       const d = await r.json(); cloud.fails = 0; cloud.st = 'ok';
+      picsApply(d);
       if (!cloud.fsOk) cloudApply(d, 'r2');
     }
   } catch { cloud.fails++; if (cloud.fails > 2) cloud.st = 'lost'; }
