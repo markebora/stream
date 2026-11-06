@@ -1858,6 +1858,18 @@ function picsApply(d) {
 function drawLyrics(c, src) {
   const W = c.canvas.width, H = c.canvas.height, r = R(src);
   const fd = src.feed || 'full', pic = fd !== 'text' && pics[fd] && pics[fd].img;
+  /* Full slide = moving background (the same short clip the phone plays) + PreCenter's words as a transparent picture on top */
+  const lp = pics.lyrics && pics.lyrics.img;
+  if (fd === 'full' && lp && !lyr.black) {
+    const rc = src.rect, X = rc.x * W, Y = rc.y * H, RW = rc.w * W, RH = rc.h * H, v = lbg.vid;
+    c.save(); c.beginPath(); c.rect(X, Y, RW, RH); c.clip();
+    const cover = (el, iw, ih) => { const k = Math.max(RW / iw, RH / ih), dw = iw * k, dh = ih * k; c.drawImage(el, X + (RW - dw) / 2, Y + (RH - dh) / 2, dw, dh); };
+    if (lbg.kind === 'vid' && v && v.readyState >= 2 && v.videoWidth) { cover(v, v.videoWidth, v.videoHeight); if (lyr.dim > 0) { c.fillStyle = 'rgba(0,0,0,' + lyr.dim + ')'; c.fillRect(X, Y, RW, RH); } }
+    else if (pics.bg && pics.bg.img) c.drawImage(pics.bg.img, X, Y, RW, RH);
+    else { c.fillStyle = '#000'; c.fillRect(X, Y, RW, RH); }
+    c.restore(); r.tb = null;
+    c.drawImage(lp, X, Y, RW, RH); return;
+  }
   if (fd !== 'text' && !pic) {          // picture not here yet: draw it the way the phone does (PreCenter's size and colour, centered, whole word kept)
     const ty = lyr.ty || {}, full = fd !== 'lyrics';
     const o = { ...src, feed: 'text', rect: full ? { x: 0, y: 0, w: 1, h: 1 } : src.rect, fullbg: full, fit: true, bold: true, align: 'center', bgop: 0,
